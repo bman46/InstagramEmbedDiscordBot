@@ -30,7 +30,7 @@ namespace Instagram_Reels_Bot.Modules
             string videourl = graph.Metadata["og:video"].First().Value;
 
             //return result:
-            await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s reel: " + videourl);
+            await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked reel: " + videourl);
         }
         /// <summary>
         /// Parse an instagram post:
@@ -45,12 +45,12 @@ namespace Instagram_Reels_Bot.Modules
             OpenGraph graph = OpenGraph.ParseUrl(url, "");
             if (graph.Metadata["og:video"].Count > 0)
             {
-                await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s post: " + graph.Metadata["og:video"].First().Value);
+                await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked post: " + graph.Metadata["og:video"].First().Value);
             }
             else
             {
                 var embed = new EmbedBuilder();
-                embed.Title = "Content from " + Context.Message.Author.Username + "'s post";
+                embed.Title = "Content from " + Context.Message.Author.Username + "'s linked post";
                 embed.Url = graph.Metadata["og:url"].First().Value;
                 embed.Description = graph.Metadata["og:title"].First().Value;
                 embed.ImageUrl = graph.Metadata["og:image"].First().Value;

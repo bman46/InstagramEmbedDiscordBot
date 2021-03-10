@@ -54,13 +54,19 @@ namespace Instagram_Reels_Bot.Services
             }
 
             // sets the argument position away from the prefix we set
-            var argPos = 0;
+            int argPos = 0;
+            int endUrlLength = 0;
 
             // get prefix from the configuration file
             string prefix = _config["Prefix"];
 
             // determine if the message has a valid prefix, and adjust argPos based on prefix
-            if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) || message.HasStringPrefix(prefix, ref argPos)))
+            if (message.Content.Contains(prefix))
+            {
+                argPos = message.Content.IndexOf(prefix) + prefix.Length;
+                endUrlLength = message.Content.Substring(argPos).IndexOf(" ");
+            }
+            else
             {
                 return;
             }
@@ -68,7 +74,16 @@ namespace Instagram_Reels_Bot.Services
             var context = new SocketCommandContext(_client, message);
 
             //create new string from command
-            string commandText = message.Content.Substring(argPos).Replace("/", " ");
+            string commandText;
+            if (endUrlLength <= 0)
+            {
+                commandText = message.Content.Substring(argPos).Replace("/", " ");
+            }
+            else
+            {
+                commandText = message.Content.Substring(argPos, endUrlLength).Replace("/", " ");
+            }
+
             Console.WriteLine("New command " + commandText);
 
             // execute command if one is found that matches

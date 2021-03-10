@@ -52,6 +52,9 @@ namespace Instagram_Reels_Bot
                 await client.LoginAsync(TokenType.Bot, _config["Token"]);
                 await client.StartAsync();
 
+                //Set status:
+                await client.SetActivityAsync(new Game("for Instagram links", ActivityType.Watching));
+
                 // we get the CommandHandler class here and call the InitializeAsync method to start things up for the CommandHandler service
                 await services.GetRequiredService<CommandHandler>().InitializeAsync();
                

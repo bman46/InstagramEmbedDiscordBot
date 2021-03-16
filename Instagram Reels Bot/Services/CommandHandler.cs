@@ -52,6 +52,14 @@ namespace Instagram_Reels_Bot.Services
             {
                 return;
             }
+            if (message.Channel.GetType() == typeof(SocketDMChannel))
+            {
+                if (message.Content.ToLower().StartsWith("debug"))
+                {
+                    await message.ReplyAsync("Server Count: " + _client.Guilds.Count);
+                }
+                return;
+            }
 
             // sets the argument position away from the prefix we set
             int argPos = 0;
@@ -84,12 +92,12 @@ namespace Instagram_Reels_Bot.Services
                 commandText = message.Content.Substring(argPos, endUrlLength).Replace("/", " ");
             }
 
-            Console.WriteLine("New command " + commandText);
+            //Console.WriteLine("New command " + commandText);
 
             // execute command if one is found that matches
             await _commands.ExecuteAsync(context, commandText, _services);
         }
-
+       
         public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
         {
             // if a command isn't found, log that info to console and exit this method

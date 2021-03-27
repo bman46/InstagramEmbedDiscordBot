@@ -58,5 +58,24 @@ namespace Instagram_Reels_Bot.Modules
                 await ReplyAsync(null, false, embed.Build());
             }
         }
+        /// <summary>
+        /// Parse an instagram TV link:
+        /// https://www.instagram.com/tv/
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Command("tv")]
+        public async Task TVParser([Remainder] string args = null)
+        {
+            //form url:
+            string url = "https://www.instagram.com/tv/" + args.Replace(" ", "/");
+
+            //Parse for Opengraph url:
+            OpenGraph graph = OpenGraph.ParseUrl(url, "");
+            string videourl = graph.Metadata["og:video"].First().Value;
+
+            //return result:
+            await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s IGTV link: " + videourl);
+        }
     }
 }

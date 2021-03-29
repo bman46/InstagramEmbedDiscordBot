@@ -6,6 +6,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
+using OpenGraphNet;
 
 namespace Instagram_Reels_Bot.Services
 {
@@ -57,6 +58,20 @@ namespace Instagram_Reels_Bot.Services
                 if (message.Content.ToLower().StartsWith("debug"))
                 {
                     await message.ReplyAsync("Server Count: " + _client.Guilds.Count);
+
+                    //IP Check:
+                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    {
+                        try
+                        {
+                            OpenGraph graph = OpenGraph.ParseUrl("https://api.ipify.org/", "");
+                            await message.ReplyAsync("IP: " + graph.OriginalHtml);
+                        }
+                        catch (Exception e)
+                        {
+                            await message.ReplyAsync("Proxy may have failed. Error: "+e);
+                        }
+                    }
                 }
                 return;
             }

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Instagram_Reels_Bot.Services;
+using System.Net;
 
 namespace Instagram_Reels_Bot
 {
@@ -31,6 +32,13 @@ namespace Instagram_Reels_Bot
 
             // build the configuration and assign to _config          
             _config = _builder.Build();
+
+            //proxy config:
+            if (!string.IsNullOrEmpty(_config["ProxyURL"]))
+            {
+                var proxyObject = new WebProxy(_config["ProxyURL"]);
+                WebRequest.DefaultWebProxy = proxyObject;
+            }
         }
 
         public async Task MainAsync()

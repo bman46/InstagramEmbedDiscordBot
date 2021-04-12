@@ -73,6 +73,19 @@ namespace Instagram_Reels_Bot.Services
                         }
                     }
                 }
+                else if (message.Content.ToLower().StartsWith("guilds"))
+                {
+                    //Guild list
+                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    {
+                        string serverList = "";
+                        foreach(SocketGuild guild in _client.Guilds)
+                        {
+                            serverList += "\n" + guild.Name;
+                        }
+                        await message.ReplyAsync("Servers:" + serverList);
+                    }
+                }
                 return;
             }
 

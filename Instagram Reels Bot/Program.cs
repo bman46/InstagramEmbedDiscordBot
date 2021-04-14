@@ -16,7 +16,7 @@ namespace Instagram_Reels_Bot
     {
         // setup our fields we assign later
         private readonly IConfiguration _config;
-        private DiscordSocketClient _client;
+        private DiscordShardedClient _client;
 
         static void Main(string[] args)
         {
@@ -48,12 +48,12 @@ namespace Instagram_Reels_Bot
             {
                 // get the client and assign to client 
                 // you get the services via GetRequiredService<T>
-                var client = services.GetRequiredService<DiscordSocketClient>();
+                var client = services.GetRequiredService<DiscordShardedClient>();
                 _client = client;
 
                 // setup logging and the ready event
                 client.Log += LogAsync;
-                client.Ready += ReadyAsync;
+                client.ShardReady += ReadyAsync;
                 services.GetRequiredService<CommandService>().Log += LogAsync;
 
                 // this is where we get the Token value from the configuration file, and start the bot
@@ -76,9 +76,9 @@ namespace Instagram_Reels_Bot
             return Task.CompletedTask;
         }
 
-        private Task ReadyAsync()
+        private Task ReadyAsync(DiscordSocketClient shard)
         {
-            Console.WriteLine($"Connected as -> [] :)");
+            Console.WriteLine(shard.ShardId+" Shard Ready");
             return Task.CompletedTask;
         }
 
@@ -91,7 +91,7 @@ namespace Instagram_Reels_Bot
             // the config we build is also added, which comes in handy for setting the command prefix!
             return new ServiceCollection()
                 .AddSingleton(_config)
-                .AddSingleton<DiscordSocketClient>()
+                .AddSingleton<DiscordShardedClient>()
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
                 .BuildServiceProvider();

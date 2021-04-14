@@ -15,7 +15,7 @@ namespace Instagram_Reels_Bot.Services
         // setup fields to be set later in the constructor
         private readonly IConfiguration _config;
         private readonly CommandService _commands;
-        private readonly DiscordSocketClient _client;
+        private readonly DiscordShardedClient _client;
         private readonly IServiceProvider _services;
 
         public CommandHandler(IServiceProvider services)
@@ -24,7 +24,7 @@ namespace Instagram_Reels_Bot.Services
             // since we passed the services in, we can use GetRequiredService to pass them into the fields set earlier
             _config = services.GetRequiredService<IConfiguration>();
             _commands = services.GetRequiredService<CommandService>();
-            _client = services.GetRequiredService<DiscordSocketClient>();
+            _client = services.GetRequiredService<DiscordShardedClient>();
             _services = services;
 
             // take action when we execute a command
@@ -107,7 +107,7 @@ namespace Instagram_Reels_Bot.Services
                 return;
             }
             
-            var context = new SocketCommandContext(_client, message);
+            var context = new ShardedCommandContext(_client, message);
 
             //create new string from command
             string commandText;

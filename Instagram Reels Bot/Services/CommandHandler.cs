@@ -7,6 +7,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using OpenGraphNet;
+using System.Linq;
 
 namespace Instagram_Reels_Bot.Services
 {
@@ -53,6 +54,7 @@ namespace Instagram_Reels_Bot.Services
             {
                 return;
             }
+            //DMs:
             if (message.Channel.GetType() == typeof(SocketDMChannel))
             {
                 if (message.Content.ToLower().StartsWith("debug"))
@@ -92,17 +94,21 @@ namespace Instagram_Reels_Bot.Services
             // sets the argument position away from the prefix we set
             int argPos = 0;
             int endUrlLength = 0;
+            bool foundPrefix = false;
 
-            // get prefix from the configuration file
-            string prefix = _config["Prefix"];
-
-            // determine if the message has a valid prefix, and adjust argPos based on prefix
-            if (message.Content.Contains(prefix))
+            // get each prefix from the configuration file
+            foreach (string prefix in _config.GetSection("Prefix").GetChildren().ToArray().Select(c => c.Value).ToArray())
             {
-                argPos = message.Content.IndexOf(prefix) + prefix.Length;
-                endUrlLength = message.Content.Substring(argPos).IndexOf(" ");
+                //check for valid prefix:
+                if (message.Content.Contains(prefix))
+                {
+                    argPos = message.Content.IndexOf(prefix) + prefix.Length;
+                    endUrlLength = message.Content.Substring(argPos).IndexOf(" ");
+                    foundPrefix = true;
+                    break;
+                }
             }
-            else
+            if (!foundPrefix)
             {
                 return;
             }

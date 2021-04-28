@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using OpenGraphNet;
+using System.IO;
 
 namespace Instagram_Reels_Bot.Modules
 {
@@ -29,8 +30,35 @@ namespace Instagram_Reels_Bot.Modules
             OpenGraph graph = OpenGraph.ParseUrl(url, "");
             string videourl = graph.Metadata["og:video"].First().Value;
 
-            //return result:
-            await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked reel: " + videourl);
+            try
+            {
+                //Send uploaded response:
+                using (var client = new System.Net.Http.HttpClient())
+                {
+
+                    var response = await client.GetByteArrayAsync(videourl);
+                    using (var stream = new MemoryStream(response))
+                    {
+                        //upload if less than 8MB
+                        if (stream.Length < 8283750)
+                        {
+                            //await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked IGTV Video: ");
+                            await Context.Channel.SendFileAsync(stream, "reel.mp4", "Video from " + Context.Message.Author.Mention + "'s linked reel:");
+                        }
+                        else
+                        {
+                            stream.Dispose();
+                            await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked Reel: " + videourl);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                //failback to link to video (video possibly larger than discord allows)
+                Console.WriteLine(e);
+                await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked IGTV Video: " + videourl);
+            }
         }
         /// <summary>
         /// Parse an instagram post:
@@ -74,8 +102,35 @@ namespace Instagram_Reels_Bot.Modules
             OpenGraph graph = OpenGraph.ParseUrl(url, "");
             string videourl = graph.Metadata["og:video"].First().Value;
 
-            //return result:
-            await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s IGTV link: " + videourl);
+            try
+            {
+                //Send uploaded response:
+                using (var client = new System.Net.Http.HttpClient())
+                {
+                  
+                    var response = await client.GetByteArrayAsync(videourl);
+                    using (var stream = new MemoryStream(response))
+                    {
+                        //upload if less than 8MB
+                        if (stream.Length < 8283750)
+                        {
+                            //await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked IGTV Video: ");
+                            await Context.Channel.SendFileAsync(stream, "IGTV.mp4", "Video from " + Context.Message.Author.Mention + "'s linked IGTV Video:");
+                        }
+                        else
+                        {
+                            stream.Dispose();
+                            await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked IGTV Video: " + videourl);
+                        }
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                //failback to link to video (video possibly larger than discord allows)
+                Console.WriteLine(e);
+                await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked IGTV Video: " + videourl);
+            }
         }
     }
 }

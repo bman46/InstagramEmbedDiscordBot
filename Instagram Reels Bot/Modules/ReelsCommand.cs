@@ -32,32 +32,34 @@ namespace Instagram_Reels_Bot.Modules
 
             try
             {
-                //Send uploaded response:
-                using (var client = new System.Net.Http.HttpClient())
+                using (System.Net.WebClient wc = new System.Net.WebClient())
                 {
-
-                    var response = await client.GetByteArrayAsync(videourl);
-                    using (var stream = new MemoryStream(response))
+                    wc.OpenRead(videourl);
+                    if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < 8283750)
                     {
-                        //upload if less than 8MB
-                        if (stream.Length < 8283750)
+                        using (var stream = new MemoryStream(wc.DownloadData(videourl)))
                         {
-                            //await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked IGTV Video: ");
-                            await Context.Channel.SendFileAsync(stream, "reel.mp4", "Video from " + Context.Message.Author.Mention + "'s linked reel:");
+                            if (stream.Length < 8283750)
+                            {
+                                await Context.Channel.SendFileAsync(stream, "reel.mp4", "Video from " + Context.Message.Author.Mention + "'s linked reel:");
+                            }
+                            else
+                            {
+                                await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked reel: " + videourl);
+                            }
                         }
-                        else
-                        {
-                            stream.Dispose();
-                            await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked Reel: " + videourl);
-                        }
+                    }
+                    else
+                    {
+                        await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked reel: " + videourl);
                     }
                 }
             }
             catch (Exception e)
             {
-                //failback to link to video (video possibly larger than discord allows)
+                //failback to link to video:
                 Console.WriteLine(e);
-                await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked IGTV Video: " + videourl);
+                await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked reel: " + videourl);
             }
         }
         /// <summary>
@@ -104,30 +106,32 @@ namespace Instagram_Reels_Bot.Modules
 
             try
             {
-                //Send uploaded response:
-                using (var client = new System.Net.Http.HttpClient())
+                using (System.Net.WebClient wc = new System.Net.WebClient())
                 {
-                  
-                    var response = await client.GetByteArrayAsync(videourl);
-                    using (var stream = new MemoryStream(response))
+                    wc.OpenRead(videourl);
+                    if(Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < 8283750)
                     {
-                        //upload if less than 8MB
-                        if (stream.Length < 8283750)
+                        using (var stream = new MemoryStream(wc.DownloadData(videourl)))
                         {
-                            //await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked IGTV Video: ");
-                            await Context.Channel.SendFileAsync(stream, "IGTV.mp4", "Video from " + Context.Message.Author.Mention + "'s linked IGTV Video:");
+                            if (stream.Length < 8283750)
+                            {
+                                await Context.Channel.SendFileAsync(stream, "IGTV.mp4", "Video from " + Context.Message.Author.Mention + "'s linked IGTV Video:");
+                            }
+                            else
+                            {
+                                await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked IGTV Video: " + videourl);
+                            }
                         }
-                        else
-                        {
-                            stream.Dispose();
-                            await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked IGTV Video: " + videourl);
-                        }
+                    }
+                    else
+                    {
+                        await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked IGTV Video: " + videourl);
                     }
                 }
             }
             catch(Exception e)
             {
-                //failback to link to video (video possibly larger than discord allows)
+                //failback to link to video:
                 Console.WriteLine(e);
                 await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked IGTV Video: " + videourl);
             }

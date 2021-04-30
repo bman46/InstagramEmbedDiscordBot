@@ -75,7 +75,38 @@ namespace Instagram_Reels_Bot.Modules
             OpenGraph graph = OpenGraph.ParseUrl(url, "");
             if (graph.Metadata["og:video"].Count > 0)
             {
-                await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked post: " + graph.Metadata["og:video"].First().Value);
+                string videourl = graph.Metadata["og:video"].First().Value;
+                try
+                {
+                    using (System.Net.WebClient wc = new System.Net.WebClient())
+                    {
+                        wc.OpenRead(videourl);
+                        if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < 8283750)
+                        {
+                            using (var stream = new MemoryStream(wc.DownloadData(videourl)))
+                            {
+                                if (stream.Length < 8283750)
+                                {
+                                    await Context.Channel.SendFileAsync(stream, "IGPost.mp4", "Video from " + Context.Message.Author.Mention + "'s linked Post:");
+                                }
+                                else
+                                {
+                                    await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked post: " + videourl);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked post: " + videourl);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    //failback to link to video:
+                    Console.WriteLine(e);
+                    await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked post: " + videourl);
+                }
             }
             else
             {

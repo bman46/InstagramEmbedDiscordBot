@@ -10,6 +10,7 @@
     <PackageReference Include="Discord.Net.Commands" Version="2.3.0" />
     <PackageReference Include="Discord.Net.Core" Version="2.3.0" />
     <PackageReference Include="Discord.Net.WebSocket" Version="2.3.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.33" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />

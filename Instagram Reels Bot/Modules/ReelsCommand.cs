@@ -10,6 +10,9 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using OpenGraphNet;
 using System.IO;
+using HtmlAgilityPack;
+using Newtonsoft.Json.Linq;
+using System.Web;
 
 namespace Instagram_Reels_Bot.Modules
 {
@@ -28,7 +31,41 @@ namespace Instagram_Reels_Bot.Modules
 
             //Parse for Opengraph url:
             OpenGraph graph = OpenGraph.ParseUrl(url, "");
-            string videourl = graph.Metadata["og:video"].First().Value;
+            string videourl = "";
+            if (graph.Metadata["og:video"].Count != 0)
+            {
+                videourl = graph.Metadata["og:video"].First().Value;
+            }
+            else
+            {
+                Console.WriteLine("Failover to json search.");
+
+                //failover option when og: tag is missing.
+                if (graph.OriginalHtml.Contains("video_url"))
+                {
+                    var doc = new HtmlDocument();
+                    doc.LoadHtml(graph.OriginalHtml);
+                    var scripts = doc.DocumentNode
+                        .SelectNodes("//body/script");
+
+                    foreach(var script in scripts)
+                    {
+                        if (script.InnerText.Contains("video_url"))
+                        {
+                            //remove semicolon and variable names.
+                            JObject jObject = JObject.Parse(script.InnerText.Remove(0, "window._sharedData = ".Length).Replace(";",""));
+                            videourl = (string)jObject.SelectToken("entry_data.PostPage[0].graphql.shortcode_media.video_url");
+
+                            videourl = HttpUtility.UrlDecode(videourl);
+                        }
+                    }
+                }
+            }
+
+            if(videourl == "")
+            {
+                throw new Exception("Couldnt find a video file file.");
+            }
 
             try
             {

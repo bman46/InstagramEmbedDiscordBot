@@ -96,7 +96,7 @@ namespace Instagram_Reels_Bot.Modules
             var media = await Program.instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value);
 
             //inject image from carousel:
-            if(media.Value.Carousel.Count > 0)
+            if(media.Value.Carousel!=null && media.Value.Carousel.Count > 0)
             {
                 if (media.Value.Carousel[0].Videos.Count > 0)
                 {

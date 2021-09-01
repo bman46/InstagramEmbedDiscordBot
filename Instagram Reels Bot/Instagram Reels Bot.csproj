@@ -15,8 +15,12 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="OpenGraph-Net" Version="3.2.6" />
+    <PackageReference Include="InstagramApiSharp" Version="1.6.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="InstagramApiSharp" />
+  </ItemGroup>
   <ItemGroup>
     <None Update="config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

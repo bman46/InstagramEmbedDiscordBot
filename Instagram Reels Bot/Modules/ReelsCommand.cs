@@ -13,6 +13,7 @@ using System.IO;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
 using System.Web;
+using InstagramApiSharp.API.Builder;
 
 namespace Instagram_Reels_Bot.Modules
 {
@@ -29,38 +30,15 @@ namespace Instagram_Reels_Bot.Modules
             //form url:
             string url = "https://www.instagram.com/reel/" + args.Replace(" ", "/");
 
-            //Parse for Opengraph url:
-            OpenGraph graph = OpenGraph.ParseUrl(url, "");
-            string videourl = "";
-            if (graph.Metadata["og:video"].Count != 0)
-            {
-                videourl = graph.Metadata["og:video"].First().Value;
-            }
-            else
-            {
-                Console.WriteLine("Failover to json search.");
+            //ensure login:
+            Program.InstagramLogin();
+            //parse URL:
+            var mediaId = await Program.instaApi.MediaProcessor.GetMediaIdFromUrlAsync(new Uri(url));
 
-                //failover option when og: tag is missing.
-                if (graph.OriginalHtml.Contains("video_url"))
-                {
-                    var doc = new HtmlDocument();
-                    doc.LoadHtml(graph.OriginalHtml);
-                    var scripts = doc.DocumentNode
-                        .SelectNodes("//body/script");
 
-                    foreach(var script in scripts)
-                    {
-                        if (script.InnerText.Contains("video_url"))
-                        {
-                            //remove semicolon and variable names.
-                            JObject jObject = JObject.Parse(script.InnerText.Remove(0, "window._sharedData = ".Length).Replace(";",""));
-                            videourl = (string)jObject.SelectToken("entry_data.PostPage[0].graphql.shortcode_media.video_url");
-
-                            videourl = HttpUtility.UrlDecode(videourl);
-                        }
-                    }
-                }
-            }
+            //Parse for url:
+            var media = await Program.instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value);
+            string videourl = media.Value.Videos[0].Uri;
 
             if(videourl == "")
             {
@@ -108,11 +86,33 @@ namespace Instagram_Reels_Bot.Modules
         public async Task PostParser([Remainder] string args = null)
         {
             string url = "https://www.instagram.com/p/" + args.Replace(" ", "/");
-            //Parse for Opengraph Video url:
-            OpenGraph graph = OpenGraph.ParseUrl(url, "");
-            if (graph.Metadata["og:video"].Count > 0)
+
+            //ensure login:
+            Program.InstagramLogin();
+            //parse URL:
+            var mediaId = await Program.instaApi.MediaProcessor.GetMediaIdFromUrlAsync(new Uri(url));
+
+            //Parse for url:
+            var media = await Program.instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value);
+
+            //inject image from carousel:
+            if(media.Value.Carousel.Count > 0)
             {
-                string videourl = graph.Metadata["og:video"].First().Value;
+                if (media.Value.Carousel[0].Videos.Count > 0)
+                {
+                    var video = media.Value.Carousel[0].Videos[0];
+                    media.Value.Videos.Add(video);
+                }
+                else
+                {
+                    var image = media.Value.Carousel[0].Images[0];
+                    media.Value.Images.Add(image);
+                }
+            }
+            //check video:
+            if (media.Value.Videos.Count > 0)
+            {
+                string videourl = media.Value.Videos[0].Uri;
                 try
                 {
                     using (System.Net.WebClient wc = new System.Net.WebClient())
@@ -149,9 +149,9 @@ namespace Instagram_Reels_Bot.Modules
             {
                 var embed = new EmbedBuilder();
                 embed.Title = "Content from " + Context.Message.Author.Username + "'s linked post";
-                embed.Url = graph.Metadata["og:url"].First().Value;
-                embed.Description = graph.Metadata["og:title"].First().Value;
-                embed.ImageUrl = graph.Metadata["og:image"].First().Value;
+                embed.Url = url;
+                embed.Description = media.Value.Caption.Text;
+                embed.ImageUrl = media.Value.Images[0].Uri;
                 embed.WithColor(new Color(131, 58, 180));
                 await ReplyAsync(null, false, embed.Build());
             }
@@ -168,9 +168,15 @@ namespace Instagram_Reels_Bot.Modules
             //form url:
             string url = "https://www.instagram.com/tv/" + args.Replace(" ", "/");
 
-            //Parse for Opengraph url:
-            OpenGraph graph = OpenGraph.ParseUrl(url, "");
-            string videourl = graph.Metadata["og:video"].First().Value;
+            //ensure login:
+            Program.InstagramLogin();
+            //parse URL:
+            var mediaId = await Program.instaApi.MediaProcessor.GetMediaIdFromUrlAsync(new Uri(url));
+
+
+            //Parse for url:
+            var media = await Program.instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value);
+            string videourl = media.Value.Videos[0].Uri;
 
             try
             {

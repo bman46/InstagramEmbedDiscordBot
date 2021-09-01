@@ -9,6 +9,10 @@ using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Instagram_Reels_Bot.Services;
 using System.Net;
+using InstagramApiSharp.API.Builder;
+using InstagramApiSharp.Classes;
+using InstagramApiSharp.Logger;
+using System.IO;
 
 namespace Instagram_Reels_Bot
 {
@@ -17,6 +21,7 @@ namespace Instagram_Reels_Bot
         // setup our fields we assign later
         private readonly IConfiguration _config;
         private DiscordShardedClient _client;
+        public static InstagramApiSharp.API.IInstaApi instaApi;
 
         static void Main(string[] args)
         {
@@ -39,6 +44,18 @@ namespace Instagram_Reels_Bot
                 var proxyObject = new WebProxy(_config["ProxyURL"]);
                 WebRequest.DefaultWebProxy = proxyObject;
             }
+            //Insta Initialize:
+            var userSession = new UserSessionData
+            {
+                UserName = _config["IGUserName"],
+                Password = _config["IGPassword"]
+            };
+
+            instaApi = InstaApiBuilder.CreateBuilder()
+                .SetUser(userSession)
+                .UseLogger(new DebugLogger(LogLevel.Exceptions))
+                .Build();
+            InstagramLogin();
         }
 
         public async Task MainAsync()
@@ -95,6 +112,58 @@ namespace Instagram_Reels_Bot
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
                 .BuildServiceProvider();
+        }
+        /// <summary>
+        /// Login to instagram if unauthenticated:
+        /// </summary>
+        public static void InstagramLogin()
+        {
+            // create the configuration
+            var _builder = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile(path: "config.json");
+
+            // build the configuration and assign to _config          
+            var config = _builder.Build();
+            //set user session
+            var userSession = new UserSessionData
+            {
+                UserName = config["IGUserName"],
+                Password = config["IGPassword"]
+            };
+            const string stateFile = "state.bin";
+            try
+            {
+                // load session file if exists
+                if (File.Exists(stateFile))
+                {
+                    Console.WriteLine("Loading state from file");
+                    using (var fs = File.OpenRead(stateFile))
+                    {
+                        instaApi.LoadStateDataFromStream(fs);
+                        // in .net core or uwp apps don't use LoadStateDataFromStream
+                        // use this one:
+                        // _instaApi.LoadStateDataFromString(new StreamReader(fs).ReadToEnd());
+                        // you should pass json string as parameter to this function.
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            if (!instaApi.IsUserAuthenticated)
+            {
+                // login
+                Console.WriteLine($"Logging in as {userSession.UserName}");
+                var logInResult = instaApi.LoginAsync().GetAwaiter().GetResult();
+                if (!logInResult.Succeeded)
+                {
+                    Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
+                    return;
+                }
+            }
         }
     }
 }

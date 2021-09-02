@@ -150,7 +150,7 @@ namespace Instagram_Reels_Bot.Modules
                 var embed = new EmbedBuilder();
                 embed.Title = "Content from " + Context.Message.Author.Username + "'s linked post";
                 embed.Url = url;
-                embed.Description = media.Value.Caption.Text;
+                embed.Description = (media.Value.Caption!=null)?(media.Value.Caption.Text):("");
                 embed.ImageUrl = media.Value.Images[0].Uri;
                 embed.WithColor(new Color(131, 58, 180));
                 await ReplyAsync(null, false, embed.Build());

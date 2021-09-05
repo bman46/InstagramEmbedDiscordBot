@@ -38,6 +38,22 @@ namespace Instagram_Reels_Bot.Modules
 
             //Parse for url:
             var media = await Program.instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value);
+
+            //check for private account:
+            if (media.Value == null)
+            {
+                //Add reactions to spell private:
+                List<Task> taskList = new List<Task>();
+                await Context.Message.AddReactionAsync(new Emoji("🇵"));
+                await Context.Message.AddReactionAsync(new Emoji("🇷"));
+                await Context.Message.AddReactionAsync(new Emoji("🇮"));
+                await Context.Message.AddReactionAsync(new Emoji("🇻"));
+                await Context.Message.AddReactionAsync(new Emoji("🇦"));
+                await Context.Message.AddReactionAsync(new Emoji("🇹"));
+                await Context.Message.AddReactionAsync(new Emoji("🇪"));
+                return;
+            }
+
             string videourl = media.Value.Videos[0].Uri;
 
             if(videourl == "")
@@ -94,6 +110,21 @@ namespace Instagram_Reels_Bot.Modules
 
             //Parse for url:
             var media = await Program.instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value);
+
+            //check for private account:
+            if (media.Value == null)
+            {
+                //Add reactions to spell private:
+                List<Task> taskList = new List<Task>();
+                await Context.Message.AddReactionAsync(new Emoji("🇵"));
+                await Context.Message.AddReactionAsync(new Emoji("🇷"));
+                await Context.Message.AddReactionAsync(new Emoji("🇮"));
+                await Context.Message.AddReactionAsync(new Emoji("🇻"));
+                await Context.Message.AddReactionAsync(new Emoji("🇦"));
+                await Context.Message.AddReactionAsync(new Emoji("🇹"));
+                await Context.Message.AddReactionAsync(new Emoji("🇪"));
+                return;
+            }
 
             //inject image from carousel:
             if(media.Value.Carousel!=null && media.Value.Carousel.Count > 0)
@@ -176,6 +207,22 @@ namespace Instagram_Reels_Bot.Modules
 
             //Parse for url:
             var media = await Program.instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value);
+
+            //check for private account:
+            if (media.Value == null)
+            {
+                //Add reactions to spell private:
+                List<Task> taskList = new List<Task>();
+                await Context.Message.AddReactionAsync(new Emoji("🇵"));
+                await Context.Message.AddReactionAsync(new Emoji("🇷"));
+                await Context.Message.AddReactionAsync(new Emoji("🇮"));
+                await Context.Message.AddReactionAsync(new Emoji("🇻"));
+                await Context.Message.AddReactionAsync(new Emoji("🇦"));
+                await Context.Message.AddReactionAsync(new Emoji("🇹"));
+                await Context.Message.AddReactionAsync(new Emoji("🇪"));
+                return;
+            }
+
             string videourl = media.Value.Videos[0].Uri;
 
             try

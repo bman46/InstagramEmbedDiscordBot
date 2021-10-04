@@ -186,6 +186,8 @@ namespace Instagram_Reels_Bot.Modules
                 embed.WithColor(new Color(131, 58, 180));
                 await ReplyAsync(null, false, embed.Build());
             }
+            //Remove discords automatic embed (If one exists)
+            await Context.Message.ModifySuppressionAsync(true);
         }
         /// <summary>
         /// Parse an instagram TV link:

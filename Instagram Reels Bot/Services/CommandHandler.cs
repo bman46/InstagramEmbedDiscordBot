@@ -83,7 +83,7 @@ namespace Instagram_Reels_Bot.Services
                         string serverList = "";
                         foreach(SocketGuild guild in _client.Guilds)
                         {
-                            serverList += "\n" + guild.Name + " \tBoost: " + guild.PremiumTier + " \tUsers: " + guild.MemberCount;
+                            serverList += "\n" + guild.Name + " \tBoost: " + guild.PremiumTier + " \tUsers: " + guild.MemberCount+" \tLocale: "+guild.PreferredLocale;
                         }
                         await message.ReplyAsync(Format.Bold("Servers:") + serverList);
                     }

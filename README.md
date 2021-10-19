@@ -1,5 +1,5 @@
 # Instagram Embed Discord Bot
-Embeds videos and images from a users linked Instagram posts, videos, and reels into a discord chat.
+Embeds videos and images from users linked Instagram posts, videos, and reels into a Discord chat.
 
 [Invite To Discord Server](https://link.mcshane.systems/reelsbotinvite)
 

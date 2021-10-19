@@ -23,7 +23,7 @@ namespace Instagram_Reels_Bot.Modules
         /// Discord max upload size of 8MB
         /// TODO: Upgrade limit for nitro boosted discord servers.
         /// </summary>
-        public static readonly int DiscordMaxUploadSize = 8000000;
+        private static readonly int DiscordMaxUploadSize = 8000000;
 
         /// <summary>
         /// Parse reel URL:

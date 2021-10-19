@@ -1,19 +1,9 @@
 ﻿using Discord;
-using Discord.Net;
-using Discord.WebSocket;
 using Discord.Commands;
 using System;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
-using OpenGraphNet;
 using System.IO;
-using HtmlAgilityPack;
-using Newtonsoft.Json.Linq;
-using System.Web;
-using InstagramApiSharp.API.Builder;
 
 namespace Instagram_Reels_Bot.Modules
 {

@@ -10,12 +10,6 @@ namespace Instagram_Reels_Bot.Modules
     public class ReelsCommand : ModuleBase
     {
         /// <summary>
-        /// Discord max upload size of 8MB
-        /// TODO: Upgrade limit for nitro boosted discord servers.
-        /// </summary>
-        private static readonly int DiscordMaxUploadSize = 8000000;
-
-        /// <summary>
         /// Parse reel URL:
         /// </summary>
         /// <param name="args"></param>
@@ -62,11 +56,11 @@ namespace Instagram_Reels_Bot.Modules
                 using (System.Net.WebClient wc = new System.Net.WebClient())
                 {
                     wc.OpenRead(videourl);
-                    if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < DiscordMaxUploadSize)
+                    if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < MaxUploadSize(Context))
                     {
                         using (var stream = new MemoryStream(wc.DownloadData(videourl)))
                         {
-                            if (stream.Length < DiscordMaxUploadSize)
+                            if (stream.Length < MaxUploadSize(Context))
                             {
                                 await Context.Channel.SendFileAsync(stream, "reel.mp4", "Video from " + Context.Message.Author.Mention + "'s linked reel:");
                             }
@@ -145,11 +139,11 @@ namespace Instagram_Reels_Bot.Modules
                     using (System.Net.WebClient wc = new System.Net.WebClient())
                     {
                         wc.OpenRead(videourl);
-                        if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < DiscordMaxUploadSize)
+                        if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < MaxUploadSize(Context))
                         {
                             using (var stream = new MemoryStream(wc.DownloadData(videourl)))
                             {
-                                if (stream.Length < DiscordMaxUploadSize)
+                                if (stream.Length < MaxUploadSize(Context))
                                 {
                                     await Context.Channel.SendFileAsync(stream, "IGPost.mp4", "Video from " + Context.Message.Author.Mention + "'s linked Post:");
                                 }
@@ -228,11 +222,11 @@ namespace Instagram_Reels_Bot.Modules
                 using (System.Net.WebClient wc = new System.Net.WebClient())
                 {
                     wc.OpenRead(videourl);
-                    if(Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < DiscordMaxUploadSize)
+                    if(Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < MaxUploadSize(Context))
                     {
                         using (var stream = new MemoryStream(wc.DownloadData(videourl)))
                         {
-                            if (stream.Length < DiscordMaxUploadSize)
+                            if (stream.Length < MaxUploadSize(Context))
                             {
                                 await Context.Channel.SendFileAsync(stream, "IGTV.mp4", "Video from " + Context.Message.Author.Mention + "'s linked IGTV Video:");
                             }
@@ -253,6 +247,26 @@ namespace Instagram_Reels_Bot.Modules
                 //failback to link to video:
                 Console.WriteLine(e);
                 await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked IGTV Video: " + videourl);
+            }
+        }
+        /// <summary>
+        /// Calculates the max upload size of a given server.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns>Upload size in bytes</returns>
+        private static int MaxUploadSize(ICommandContext context)
+        {
+            switch (context.Guild.PremiumTier)
+            {
+                case PremiumTier.Tier2:
+                    //Tier 2 50MB Upload Limit
+                    return 50000000;
+                case PremiumTier.Tier3:
+                    //Tier 3 100MB Upload Limit
+                    return 100000000;
+                default:
+                    //Default 8MB Upload Limit
+                    return 8000000;
             }
         }
     }

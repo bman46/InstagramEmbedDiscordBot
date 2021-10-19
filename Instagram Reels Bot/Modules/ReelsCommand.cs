@@ -20,6 +20,12 @@ namespace Instagram_Reels_Bot.Modules
     public class ReelsCommand : ModuleBase
     {
         /// <summary>
+        /// Discord max upload size of 8MB
+        /// TODO: Upgrade limit for nitro boosted discord servers.
+        /// </summary>
+        public static readonly int DiscordMaxUploadSize = 8000000;
+
+        /// <summary>
         /// Parse reel URL:
         /// </summary>
         /// <param name="args"></param>
@@ -66,11 +72,11 @@ namespace Instagram_Reels_Bot.Modules
                 using (System.Net.WebClient wc = new System.Net.WebClient())
                 {
                     wc.OpenRead(videourl);
-                    if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < 8283750)
+                    if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < DiscordMaxUploadSize)
                     {
                         using (var stream = new MemoryStream(wc.DownloadData(videourl)))
                         {
-                            if (stream.Length < 8283750)
+                            if (stream.Length < DiscordMaxUploadSize)
                             {
                                 await Context.Channel.SendFileAsync(stream, "reel.mp4", "Video from " + Context.Message.Author.Mention + "'s linked reel:");
                             }
@@ -149,11 +155,11 @@ namespace Instagram_Reels_Bot.Modules
                     using (System.Net.WebClient wc = new System.Net.WebClient())
                     {
                         wc.OpenRead(videourl);
-                        if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < 8283750)
+                        if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < DiscordMaxUploadSize)
                         {
                             using (var stream = new MemoryStream(wc.DownloadData(videourl)))
                             {
-                                if (stream.Length < 8283750)
+                                if (stream.Length < DiscordMaxUploadSize)
                                 {
                                     await Context.Channel.SendFileAsync(stream, "IGPost.mp4", "Video from " + Context.Message.Author.Mention + "'s linked Post:");
                                 }
@@ -232,11 +238,11 @@ namespace Instagram_Reels_Bot.Modules
                 using (System.Net.WebClient wc = new System.Net.WebClient())
                 {
                     wc.OpenRead(videourl);
-                    if(Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < 8283750)
+                    if(Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < DiscordMaxUploadSize)
                     {
                         using (var stream = new MemoryStream(wc.DownloadData(videourl)))
                         {
-                            if (stream.Length < 8283750)
+                            if (stream.Length < DiscordMaxUploadSize)
                             {
                                 await Context.Channel.SendFileAsync(stream, "IGTV.mp4", "Video from " + Context.Message.Author.Mention + "'s linked IGTV Video:");
                             }

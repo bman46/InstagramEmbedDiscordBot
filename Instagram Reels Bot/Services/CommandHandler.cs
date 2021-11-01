@@ -80,12 +80,19 @@ namespace Instagram_Reels_Bot.Services
                     //Guild list
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
-                        string serverList = "";
+                        string serverList = Format.Bold("Servers:");
                         foreach(SocketGuild guild in _client.Guilds)
                         {
-                            serverList += "\n" + guild.Name + " \tBoost: " + guild.PremiumTier + " \tUsers: " + guild.MemberCount+" \tLocale: "+guild.PreferredLocale;
+                            String serverLine = "\n" + guild.Name + " \tBoost: " + guild.PremiumTier + " \tUsers: " + guild.MemberCount + " \tLocale: " + guild.PreferredLocale;
+                            //Discord max message length:
+                            if (serverList.Length + serverLine.Length > 2000)
+                            {
+                                await message.ReplyAsync(serverList);
+                                serverList = "";
+                            }
+                            serverList += serverLine;
                         }
-                        await message.ReplyAsync(Format.Bold("Servers:") + serverList);
+                        await message.ReplyAsync(serverList);
                     }
                 }
                 return;

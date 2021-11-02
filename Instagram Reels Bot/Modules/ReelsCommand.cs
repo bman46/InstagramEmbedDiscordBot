@@ -33,7 +33,7 @@ namespace Instagram_Reels_Bot.Modules
             if (media.Value == null)
             {
                 //Add reactions to spell private:
-                List<Task> taskList = new List<Task>();
+                
                 await Context.Message.AddReactionAsync(new Emoji("🇵"));
                 await Context.Message.AddReactionAsync(new Emoji("🇷"));
                 await Context.Message.AddReactionAsync(new Emoji("🇮"));
@@ -105,7 +105,7 @@ namespace Instagram_Reels_Bot.Modules
             if (media.Value == null)
             {
                 //Add reactions to spell private:
-                List<Task> taskList = new List<Task>();
+                
                 await Context.Message.AddReactionAsync(new Emoji("🇵"));
                 await Context.Message.AddReactionAsync(new Emoji("🇷"));
                 await Context.Message.AddReactionAsync(new Emoji("🇮"));
@@ -204,7 +204,7 @@ namespace Instagram_Reels_Bot.Modules
             if (media.Value == null)
             {
                 //Add reactions to spell private:
-                List<Task> taskList = new List<Task>();
+                
                 await Context.Message.AddReactionAsync(new Emoji("🇵"));
                 await Context.Message.AddReactionAsync(new Emoji("🇷"));
                 await Context.Message.AddReactionAsync(new Emoji("🇮"));

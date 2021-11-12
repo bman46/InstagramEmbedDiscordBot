@@ -20,10 +20,10 @@ namespace Instagram_Reels_Bot.Services
         private readonly IServiceProvider _services;
         /// <summary>
         /// Notifies the owner of an error
-        /// true by default. Disabled by user DM command.
-        /// Resets on reload.
+        /// false by default. Toggled by user DM command.
+        /// Reverts to false when bot is restarted.
         /// </summary>
-        public static bool notifyOwnerOnError = true;
+        public static bool notifyOwnerOnError = false;
 
         public CommandHandler(IServiceProvider services)
         {

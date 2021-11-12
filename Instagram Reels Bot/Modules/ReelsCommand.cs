@@ -181,7 +181,14 @@ namespace Instagram_Reels_Bot.Modules
                 await ReplyAsync(null, false, embed.Build());
             }
             //Remove discords automatic embed (If one exists)
-            await Context.Message.ModifySuppressionAsync(true);
+            try
+            {
+                await Context.Message.ModifySuppressionAsync(true);
+            }
+            catch
+            {
+                //no permission to do this.
+            }
         }
         /// <summary>
         /// Parse an instagram TV link:

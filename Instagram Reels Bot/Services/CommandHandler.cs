@@ -18,6 +18,12 @@ namespace Instagram_Reels_Bot.Services
         private readonly CommandService _commands;
         private readonly DiscordShardedClient _client;
         private readonly IServiceProvider _services;
+        /// <summary>
+        /// Notifies the owner of an error
+        /// true by default. Disabled by user DM command.
+        /// Resets on reload.
+        /// </summary>
+        public static bool notifyOwnerOnError = true;
 
         public CommandHandler(IServiceProvider services)
         {
@@ -95,6 +101,22 @@ namespace Instagram_Reels_Bot.Services
                         await message.ReplyAsync(serverList);
                     }
                 }
+                else if (message.Content.ToLower().StartsWith("toggle error"))
+                {
+                    //toggle error DMs
+                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    {
+                        notifyOwnerOnError = !notifyOwnerOnError;
+                        if (notifyOwnerOnError)
+                        {
+                            await message.ReplyAsync("Error notifications enabled.");
+                        }
+                        else
+                        {
+                            await message.ReplyAsync("Error notifications disabled.");
+                        }
+                    }
+                }
                 return;
             }
 
@@ -159,6 +181,18 @@ namespace Instagram_Reels_Bot.Services
 
             // failure scenario, let's let the user know
             await context.Channel.SendMessageAsync($"Sorry, Something went wrong...");
+
+            //notify owner if desired:
+            if (notifyOwnerOnError&&!string.IsNullOrEmpty(_config["OwnerID"]))
+            {
+                string error = Format.Bold("Error:") + "\n" + result.Error + "\n" + Format.Code(result.ErrorReason)+"\n\n"+ Format.Bold("Command:") + "\n" + Format.BlockQuote(context.Message.Content);
+                if (error.Length > 2000)
+                {
+                    error = error.Substring(0, 2000);
+                }
+                await Discord.UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
+            }
+
         }
     }
 }

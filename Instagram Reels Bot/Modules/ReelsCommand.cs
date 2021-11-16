@@ -291,9 +291,20 @@ namespace Instagram_Reels_Bot.Modules
         private static string Truncate(string s, int length, bool atWord = true, bool addEllipsis = true)
         {
             // Return if the string is less than or equal to the truncation length
-            if (s == null || s.Length <= length)
+            if (s == null || s.Length <= length) {
                 return s;
-
+            }
+            //cut description at new line
+            else if (s.Contains("\n"))
+            {
+                //cut string at newline:
+                s = s.Substring(0, s.IndexOf("\n"))+"...";
+                //recheck size after cut:
+                if (s == null || s.Length <= length)
+                {
+                    return s;
+                }
+            }
             // Do a simple tuncation at the desired length
             string s2 = s.Substring(0, length);
 
@@ -301,7 +312,7 @@ namespace Instagram_Reels_Bot.Modules
             if (atWord)
             {
                 // List of characters that denote the start or a new word (add to or remove more as necessary)
-                List<char> alternativeCutOffs = new List<char>() { ' ', ',', '.', '?', '/', ':', ';', '\'', '\"', '\'', '-' };
+                List<char> alternativeCutOffs = new List<char>() { ' ', ',', '.', '?', '/', ':', ';', '\'', '\"', '\'', '-', '\n' };
 
                 // Get the index of the last space in the truncated string
                 int lastSpace = s2.LastIndexOf(' ');

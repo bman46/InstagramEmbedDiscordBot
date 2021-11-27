@@ -116,6 +116,17 @@ namespace Instagram_Reels_Bot.Services
                             await message.ReplyAsync("Error notifications disabled.");
                         }
                     }
+                }else if (message.Content.ToLower().StartsWith("users"))
+                {
+                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    {
+                        int users = 0;
+                        foreach(SocketGuild guild in _client.Guilds)
+                        {
+                            users += guild.MemberCount;
+                        }
+                        await message.ReplyAsync("Users: "+users);
+                    }
                 }
                 return;
             }
@@ -175,6 +186,11 @@ namespace Instagram_Reels_Bot.Services
             if (result.IsSuccess)
             {
                 System.Console.WriteLine($"Command Executed.");
+                return;
+            }
+            if(result.ErrorReason.Contains("Missing Permissions"))
+            {
+                await context.Channel.SendMessageAsync($"I do not have permission to carry out this action. I need permission to Send Messages, Embed Links, Attach Files, Add Reactions, and Manage Messages in this channel.");
                 return;
             }
 

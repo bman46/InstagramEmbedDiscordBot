@@ -261,6 +261,116 @@ namespace Instagram_Reels_Bot.Modules
             }
         }
         /// <summary>
+        /// Parse Story Link
+        /// Ex: https://instagram.com/stories/wevolverapp/2718330735469161935?utm_source=ig_story_item_share&utm_medium=copy_link
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Command("stories")]
+        public async Task StoryParser([Remainder] string args = null)
+        {
+            string userName;
+            string storyID;
+            try
+            {
+                userName = args.Split(' ')[0];
+                storyID = args.Split(' ')[1].Substring(0, args.Split(' ')[1].IndexOf("?"));
+            }
+            catch(Exception e)
+            {
+                await ReplyAsync("Invalid story link.");
+                Console.WriteLine("Error Parsing: " + e);
+                return;
+            }
+            var user = await Program.instaApi.UserProcessor.GetUserAsync(userName);
+            long userId = user.Value.Pk;
+            var stories = await Program.instaApi.StoryProcessor.GetUserStoryAsync(userId);
+            if (stories.Value.Items.Count == 0)
+            {
+                await ReplyAsync("No stories exist. (Is the account private?)");
+                Console.WriteLine("No stories.");
+                return;
+            }
+            foreach(var story in stories.Value.Items)
+            {
+                //find story:
+                if (story.Id.Contains(storyID))
+                {
+                   
+                    if (story.VideoList.Count > 0)
+                    {
+                        //process video:
+                        string videourl = story.VideoList[0].Uri;
+                        try
+                        {
+                            using (System.Net.WebClient wc = new System.Net.WebClient())
+                            {
+                                wc.OpenRead(videourl);
+                                if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < MaxUploadSize(Context))
+                                {
+                                    using (var stream = new MemoryStream(wc.DownloadData(videourl)))
+                                    {
+                                        if (stream.Length < MaxUploadSize(Context))
+                                        {
+                                            await Context.Channel.SendFileAsync(stream, "Story.mp4", "Video from " + Context.Message.Author.Mention + "'s linked story:");
+                                        }
+                                        else
+                                        {
+                                            await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked story: " + videourl);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked story: " + videourl);
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            //failback to link to video:
+                            Console.WriteLine(e);
+                            await ReplyAsync("Video from " + Context.Message.Author.Mention + "'s linked story: " + videourl);
+                        }
+
+                        //Remove discords automatic embed (If one exists)
+                        try
+                        {
+                            await Context.Message.ModifySuppressionAsync(true);
+                        }
+                        catch
+                        {
+                            //no permission to do this.
+                        }
+
+                        return;
+                    }
+                    else if (story.ImageList.Count > 0)
+                    {
+                        var embed = new EmbedBuilder();
+                        embed.Title = "Content from " + Context.Message.Author.Username + "'s linked story";
+                        embed.ImageUrl = story.ImageList[0].Uri;
+                        embed.WithColor(new Color(131, 58, 180));
+                        await ReplyAsync(null, false, embed.Build());
+
+                        //Remove discords automatic embed (If one exists)
+                        try
+                        {
+                            await Context.Message.ModifySuppressionAsync(true);
+                        }
+                        catch
+                        {
+                            //no permission to do this.
+                        }
+                        
+                        return;
+                    }
+                    
+                }
+            }
+            await ReplyAsync("Could not find the story.");
+        }
+        /// <summary>
         /// Calculates the max upload size of a given server.
         /// </summary>
         /// <param name="context"></param>

@@ -168,8 +168,22 @@ namespace Instagram_Reels_Bot.Services
 
             //Console.WriteLine("New command " + commandText);
 
-            // execute command if one is found that matches
-            await _commands.ExecuteAsync(context, commandText, _services);
+            //Split url down to params:
+            String[] userInput = commandText.Split(" ");
+
+            foreach(CommandInfo command in _commands.Commands)
+            {
+                if (command.Name.Equals(userInput[0]))
+                {
+                    await _commands.ExecuteAsync(context, commandText, _services);
+                }
+                else if (command.Name.Equals(userInput[1]))
+                {
+                    commandText=commandText.Replace(userInput[0]+" ", "");
+                    Console.WriteLine(commandText);
+                    await _commands.ExecuteAsync(context, commandText, _services);
+                }
+            }
         }
        
         public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)

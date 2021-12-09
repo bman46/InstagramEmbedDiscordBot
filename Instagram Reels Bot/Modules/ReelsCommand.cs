@@ -274,7 +274,7 @@ namespace Instagram_Reels_Bot.Modules
             try
             {
                 userName = args.Split(' ')[0];
-                storyID = args.Split(' ')[1].Substring(0, args.Split(' ')[1].IndexOf("?"));
+                storyID = args.Split(' ')[1].Substring(0, (args.Split(' ')[1].IndexOf("?")>0)?(args.Split(' ')[1].IndexOf("?")) :(args.Split(' ')[1].Length));
             }
             catch(Exception e)
             {

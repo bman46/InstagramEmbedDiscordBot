@@ -143,7 +143,7 @@ namespace Instagram_Reels_Bot.Services
                 if (message.Content.Contains(prefix))
                 {
                     argPos = message.Content.IndexOf(prefix) + prefix.Length;
-                    endUrlLength = message.Content.Substring(argPos).IndexOf(" ");
+                    endUrlLength = message.Content.Substring(argPos).Replace("\n"," ").IndexOf(" ");
                     foundPrefix = true;
                     break;
                 }
@@ -166,7 +166,7 @@ namespace Instagram_Reels_Bot.Services
                 commandText = message.Content.Substring(argPos, endUrlLength).Replace("/", " ");
             }
 
-            //Console.WriteLine("New command " + commandText);
+            
 
             //Split url down to params:
             String[] userInput = commandText.Split(" ");

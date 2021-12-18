@@ -3,6 +3,8 @@ Embeds videos and images from users linked Instagram posts, videos, and reels in
 
 [Invite To Discord Server](https://link.mcshane.systems/reelsbotinvite)
 
+[Support Discord Server](https://discord.gg/6K3tdsYd6J)
+
 ## Features:
 - No prefixes needed
 - Videos are downloadable

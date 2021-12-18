@@ -210,7 +210,7 @@ namespace Instagram_Reels_Bot.Services
 
 
             // failure scenario, let's let the user know
-            await context.Channel.SendMessageAsync($"Sorry, Something went wrong...");
+            await context.Channel.SendMessageAsync($"Sorry, Something went wrong... Discord support server: https://top.gg/servers/921830686439124993");
 
             //notify owner if desired:
             if (notifyOwnerOnError&&!string.IsNullOrEmpty(_config["OwnerID"]))

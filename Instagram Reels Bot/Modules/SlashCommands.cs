@@ -6,6 +6,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using System.Linq;
 using System.Collections.Generic;
+using Instagram_Reels_Bot.Helpers;
 
 namespace Instagram_Reels_Bot.Modules
 {
@@ -29,110 +30,47 @@ namespace Instagram_Reels_Bot.Modules
 			//Buy more time to process posts:
 			await DeferAsync(false);
 
-			//ensure login:
-			Program.InstagramLogin();
+			//Process Post:
+			InstagramProcessorResponse response = await InstagramProcessor.PostRouter(url, Context.Guild, index);
 
-			//Arrays start a zero:
-			index--;
-
-			//parse url:
-			InstagramApiSharp.Classes.IResult<string> mediaId;
-			InstagramApiSharp.Classes.IResult<InstagramApiSharp.Classes.Models.InstaMedia> media;
-			try
-			{
-				//parse URL:
-				mediaId = await Program.instaApi.MediaProcessor.GetMediaIdFromUrlAsync(new Uri(url));
-
-				//Parse for url:
-				media = await Program.instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value);
-			}
-			catch (Exception e)
-			{
-				//private post:
-				await FollowupAsync("Invalid URL.");
-				
+            if (!response.success)
+            {
+				await FollowupAsync(response.error);
 				return;
-			}
-
-			//check for private account:
-			if (media.Value == null)
+            }
+			if (response.isVideo)
 			{
-				await FollowupAsync("Private account.");
-				return;
-			}
-
-			//inject image from carousel:
-			if (media.Value.Carousel != null && media.Value.Carousel.Count > 0)
-			{
-                if (media.Value.Carousel.Count <= index)
+				if (response.stream != null)
                 {
-					await FollowupAsync("Index out of bounds. There is only "+ media.Value.Carousel.Count +" Posts.");
+					//Response with stream:
+					await Context.Interaction.FollowupWithFileAsync(new MemoryStream(response.stream),"IGVid.mp4", "Video from " + Context.User.Mention + "'s linked reel: ");
                 }
-				if (media.Value.Carousel[index].Videos.Count > 0)
-				{
-					var video = media.Value.Carousel[index].Videos[0];
-					media.Value.Videos.Add(video);
-				}
-				else
-				{
-					var image = media.Value.Carousel[index].Images[0];
-					media.Value.Images.Add(image);
-				}
+                else
+                {
+					//Response without stream:
+					await FollowupAsync("Video from " + Context.User.Mention + "'s linked reel: " + response.contentURL);
+                }
+
 			}
-			//check video:
-			if (media.Value.Videos.Count > 0)
-			{
-				string videourl = media.Value.Videos[0].Uri;
-				try
-				{
-					using (System.Net.WebClient wc = new System.Net.WebClient())
-					{
-						wc.OpenRead(videourl);
-						//TODO: support nitro uploads:
-						if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < 8000000)
-						{
-							using (var stream = new MemoryStream(wc.DownloadData(videourl)))
-							{
-								if (stream.Length < 8000000)
-								{
-									//upload video:
-									//List <FileAttachment> attachments= new List<FileAttachment>();
-									//attachments.Add(new FileAttachment(stream, "IGPost.mp4", "An Instagram post."));
-									await Context.Interaction.FollowupWithFileAsync(stream, "IGPost.mp4", "Video from " + Context.User.Mention + "'s linked Post:", null, false, false, null, null, null, null);
-									//await command.ModifyOriginalResponseAsync(x => { x.Content = "Video from " + command.User.Mention + "'s linked Post:"; x.Attachments = attachments; });
-								}
-								else
-								{
-									//Fallback to url:
-									await FollowupAsync("Video from " + Context.User.Mention + "'s linked post: " + videourl);
-								}
-							}
-						}
-						else
-						{
-							//Fallback to url:
-							await FollowupAsync("Video from " + Context.User.Mention + "'s linked post: " + videourl);
-						}
-					}
-				}
-				catch (Exception e)
-				{
-					//failback to link to video:
-					Console.WriteLine(e);
-					//Fallback to url:
-					await FollowupAsync("Video from " + Context.User.Mention + "'s linked post: " + videourl);
-				}
-			}
-			else
-			{
+            else
+            {
 				var embed = new EmbedBuilder();
 				embed.Title = "Content from " + Context.User.Username + "'s linked post";
 				embed.Url = url;
-				embed.Description = (media.Value.Caption != null) ? (ReelsCommand.Truncate(media.Value.Caption.Text, 40)) : ("");
-				embed.ImageUrl = media.Value.Images[0].Uri;
+				embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption, 40)) : ("");
+				embed.ImageUrl = "attachment://IGImage.jpg";
 				embed.WithColor(new Color(131, 58, 180));
-				await FollowupAsync(null,null,false,false,null,null,null,embed.Build());
+				if (response.stream != null)
+				{
+					await Context.Interaction.FollowupWithFileAsync(new MemoryStream(response.stream), "IGImage.jpg", null, null, false, false, null, null, embed.Build());
+                }
+                else
+                {
+					embed.ImageUrl = response.contentURL.ToString();
+					await FollowupAsync(null, null, false, false, null, null, null, embed.Build());
+                }
 			}
+			
 		}
 		[SlashCommand("help", "For help with the bot.")]
 		public async Task Help()

@@ -65,11 +65,12 @@ namespace Instagram_Reels_Bot.Services
             {
                 if (message.Content.ToLower().StartsWith("debug"))
                 {
-                    await message.ReplyAsync("Server Count: " + _client.Guilds.Count);
-
-                    //IP Check:
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
+                        //Server count:
+                        await message.ReplyAsync("Server Count: " + _client.Guilds.Count);
+
+                        //IP check:
                         try
                         {
                             OpenGraph graph = OpenGraph.ParseUrl("https://api.ipify.org/", "");
@@ -77,7 +78,7 @@ namespace Instagram_Reels_Bot.Services
                         }
                         catch (Exception e)
                         {
-                            await message.ReplyAsync("Proxy may have failed. Error: "+e);
+                            await message.ReplyAsync("Could not connect to server. Error: "+e);
                         }
                     }
                 }

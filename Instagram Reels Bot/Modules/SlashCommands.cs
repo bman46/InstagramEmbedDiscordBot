@@ -112,14 +112,14 @@ namespace Instagram_Reels_Bot.Modules
 								else
 								{
 									//Fallback to url:
-									await command.ModifyOriginalResponseAsync(x => { x.Content = "Video from " + command.User.Mention + "'s linked post: " + videourl; });
+									await command.FollowupAsync("Video from " + command.User.Mention + "'s linked post: " + videourl);
 								}
 							}
 						}
 						else
 						{
 							//Fallback to url:
-							await command.ModifyOriginalResponseAsync(x => { x.Content = "Video from " + command.User.Mention + "'s linked post: " + videourl; });
+							await command.FollowupAsync("Video from " + command.User.Mention + "'s linked post: " + videourl);
 						}
 					}
 				}
@@ -128,7 +128,7 @@ namespace Instagram_Reels_Bot.Modules
 					//failback to link to video:
 					Console.WriteLine(e);
 					//Fallback to url:
-					await command.ModifyOriginalResponseAsync(x => { x.Content = "Video from " + command.User.Mention + "'s linked post: " + videourl; });
+					await command.FollowupAsync("Video from " + command.User.Mention + "'s linked post: " + videourl);
 				}
 			}
 			else

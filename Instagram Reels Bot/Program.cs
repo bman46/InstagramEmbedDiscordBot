@@ -11,6 +11,7 @@ using InstagramApiSharp.API.Builder;
 using InstagramApiSharp.Classes;
 using InstagramApiSharp.Logger;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Instagram_Reels_Bot
 {
@@ -99,30 +100,74 @@ namespace Instagram_Reels_Bot
         }
         private async Task CreateSlashCommands(DiscordSocketClient shard)
         {
-            // Create a slash command builder
-            var Command = new SlashCommandBuilder();
+            //List of commands to register:
+            List<SlashCommandProperties> slashCommands = new List<SlashCommandProperties>();
 
-            // Create carousel command:
-            Command.WithName("carousel");
-            Command.WithDescription("Select a specific image/video in a multi-content Instagram post.");
-            //Add URL option:
-            Command.AddOption("url", ApplicationCommandOptionType.String, "The URL of the post.", true);
-            //Add media number:
-            Command.AddOption("postnumber", ApplicationCommandOptionType.Integer, "The post number for the desired post in the carousel", true, false, false, 1);
-
-#if DEBUG
-            //guild slash command for debug
-            foreach(SocketGuild guild in _client.Guilds)
+            //carousel command:
             {
-                var command = Command.Build();
-                Console.WriteLine("Creating command for guild " + guild.Name);
-                await guild.CreateApplicationCommandAsync(command);
+                SlashCommandBuilder Command = new SlashCommandBuilder();
+                // Create carousel command:
+                Command.WithName("carousel");
+                Command.WithDescription("Select a specific image/video in a multi-content Instagram post.");
+                //Add URL option:
+                Command.AddOption("url", ApplicationCommandOptionType.String, "The URL of the post.", true);
+                //Add media number:
+                Command.AddOption("postnumber", ApplicationCommandOptionType.Integer, "The post number for the desired post in the carousel", true, false, false, 1);
+
+                slashCommands.Add(Command.Build());
             }
+            //help command:
+            {
+                SlashCommandBuilder Command = new SlashCommandBuilder();
+                // Create carousel command:
+                Command.WithName("help");
+                Command.WithDescription("For help using the bot");
+
+                slashCommands.Add(Command.Build());
+            }
+            //invite command:
+            {
+                SlashCommandBuilder Command = new SlashCommandBuilder();
+                // Create carousel command:
+                Command.WithName("invite");
+                Command.WithDescription("Invite the bot to your server!");
+
+                slashCommands.Add(Command.Build());
+            }         
+            //top.gg command:
+            {
+                SlashCommandBuilder Command = new SlashCommandBuilder();
+                // Create carousel command:
+                Command.WithName("topgg");
+                Command.WithDescription("Vote and rate the bot on top.gg");
+
+                slashCommands.Add(Command.Build());
+            }
+            //github command:
+            {
+                SlashCommandBuilder Command = new SlashCommandBuilder();
+                // Create carousel command:
+                Command.WithName("github");
+                Command.WithDescription("View the bots source code and report issues.");
+
+                slashCommands.Add(Command.Build());
+            }
+
+            foreach (SlashCommandProperties command in slashCommands)
+            {
+#if DEBUG
+                //guild slash command for debug
+                foreach(SocketGuild guild in _client.Guilds)
+                {
+                    Console.WriteLine("Creating command for guild " + guild.Name);
+                    await guild.CreateApplicationCommandAsync(command);
+                }
 #else
-            //guild slash command for d
-            Console.WriteLine("Creating Slash Commands for shard " + shard.ShardId);
-            await shard.CreateGlobalApplicationCommandAsync(Command.Build());
+                //guild slash command for d
+                Console.WriteLine("Creating Slash Commands for shard " + shard.ShardId);
+                await shard.CreateGlobalApplicationCommandAsync(command);
 #endif
+            }
 
         }
 

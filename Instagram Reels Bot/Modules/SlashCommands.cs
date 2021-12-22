@@ -23,7 +23,7 @@ namespace Instagram_Reels_Bot.Modules
 		}
 
 		[SlashCommand("link","Processes an Instagram link.")]
-		public async Task Link(string url)
+		public async Task Link(string url, [Summary(description: "The post number for the desired post in a carousel.")][MinValue(1)] int index = 1)
         {
 			Console.WriteLine(url);
 			//Buy more time to process posts:
@@ -31,6 +31,9 @@ namespace Instagram_Reels_Bot.Modules
 
 			//ensure login:
 			Program.InstagramLogin();
+
+			//Arrays start a zero:
+			index--;
 
 			//parse url:
 			InstagramApiSharp.Classes.IResult<string> mediaId;
@@ -61,14 +64,18 @@ namespace Instagram_Reels_Bot.Modules
 			//inject image from carousel:
 			if (media.Value.Carousel != null && media.Value.Carousel.Count > 0)
 			{
-				if (media.Value.Carousel[0].Videos.Count > 0)
+                if (media.Value.Carousel.Count <= index)
+                {
+					await FollowupAsync("Index out of bounds. There is only "+ media.Value.Carousel.Count +" Posts.");
+                }
+				if (media.Value.Carousel[index].Videos.Count > 0)
 				{
-					var video = media.Value.Carousel[0].Videos[0];
+					var video = media.Value.Carousel[index].Videos[0];
 					media.Value.Videos.Add(video);
 				}
 				else
 				{
-					var image = media.Value.Carousel[0].Images[0];
+					var image = media.Value.Carousel[index].Images[0];
 					media.Value.Images.Add(image);
 				}
 			}
@@ -170,115 +177,6 @@ namespace Instagram_Reels_Bot.Modules
 			embed.Description = "View the source code and file issues for improvements or bugs. https://github.com/bman46/InstagramEmbedDiscordBot";
 			embed.WithColor(new Color(131, 58, 180));
 			await RespondAsync(null, null, false, true, null, null,null, embed.Build());
-		}
-		[SlashCommand("carousel", "Select a specific image/video in a multi content post.")]
-		public async Task Carousel([Summary(description: "URL of the desired post")] string url, [Summary(description: "The post number for the desired post in the carousel.")] int index)
-		{
-			//buy time to process:
-			await DeferAsync(false);
-
-			//Parse ig post:
-			//ensure login:
-            Program.InstagramLogin();
-			InstagramApiSharp.Classes.IResult<string> mediaId;
-			InstagramApiSharp.Classes.IResult<InstagramApiSharp.Classes.Models.InstaMedia> media;
-			try
-			{
-				//parse URL:
-				mediaId = await Program.instaApi.MediaProcessor.GetMediaIdFromUrlAsync(new Uri(url));
-
-				//Parse for url:
-				media = await Program.instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value);
-            }
-            catch (Exception e)
-            {
-				//private post:
-				await FollowupAsync("Invalid URL.", null, false, true);
-				return;
-			}
-            //check for private account:
-            if (media.Value == null)
-            {
-				//private post:
-				await FollowupAsync("The post is private.", null, false, true);
-                return;
-            }
-
-			if (media.Value.Carousel != null && media.Value.Carousel.Count > 0)
-			{
-                if (index > media.Value.Carousel.Count-1)
-                {
-					//catch not carousel.
-					await FollowupAsync("Post number doesnt exist.", null, false, true);
-					return;
-				}
-				//Video
-				else if (media.Value.Carousel[index].Videos.Count > 0)
-				{
-					//get desired video:
-					var video = media.Value.Carousel[index].Videos[0];
-					//get url:
-					string videourl = video.Uri;
-					//Upload video:
-					try
-					{
-						using (System.Net.WebClient wc = new System.Net.WebClient())
-						{
-							wc.OpenRead(videourl);
-							//TODO: Support nitro upload sizes:
-							if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < 8000000)
-							{
-								using (var stream = new MemoryStream(wc.DownloadData(videourl)))
-								{
-									if (stream.Length < 8000000)
-									{
-										//Upload video:
-										await Context.Interaction.FollowupWithFileAsync(stream, "IGPost.mp4", "Video from " + Context.User.Mention + "'s linked Post:", null, false,false,null,null,null,null);
-									}
-									else
-									{
-										//Fallback to url:
-										await FollowupAsync("Video from " + Context.User.Mention + "'s linked post: " + videourl);
-									}
-								}
-							}
-							else
-							{
-								//Fallback to url:
-								await FollowupAsync("Video from " + Context.User.Mention + "'s linked post: " + videourl);
-							}
-						}
-					}
-					catch (Exception e)
-					{
-						//failback to link to video:
-						Console.WriteLine(e);
-						//Fallback to url:
-						await FollowupAsync("Video from " + Context.User.Mention + "'s linked post: " + videourl);
-					}
-				}
-				//Image:
-				else
-				{
-					//get desired image:
-					var image = media.Value.Carousel[index].Images[0];
-					media.Value.Images.Add(image);
-					//build image embed:
-					var embed = new Discord.EmbedBuilder();
-					embed.Title = "Content from " + Context.User.Username + "'s linked post";
-					embed.Url = url;
-					embed.Description = (media.Value.Caption != null) ? (ReelsCommand.Truncate(media.Value.Caption.Text, 40)) : ("");
-					embed.ImageUrl = media.Value.Images[0].Uri;
-					embed.WithColor(new Color(131, 58, 180));
-					await FollowupAsync(null,null,false,false,null,null,null,embed.Build());
-				}
-            }
-            else
-            {
-				//catch not carousel.
-				await FollowupAsync("Not a carousel post.",null,false,true);
-				return;
-			}
 		}
 	}
 }

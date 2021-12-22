@@ -163,7 +163,7 @@ namespace Instagram_Reels_Bot
 
                 slashCommands.Add(Command.Build());
             }
-            //Publish commands globally:
+            //Announce commands globally:
             Console.WriteLine("Announcing slash commands:");
             await shard.BulkOverwriteGlobalApplicationCommandsAsync(slashCommands.ToArray());
         }

@@ -183,7 +183,7 @@ namespace Instagram_Reels_Bot.Modules
             //Remove discords automatic embed (If one exists)
             try
             {
-                await Context.Message.ModifySuppressionAsync(true);
+                await Context.Message.ModifyAsync((MessageProperties obj) => { obj.Embed = null; });
             }
             catch
             {
@@ -336,7 +336,7 @@ namespace Instagram_Reels_Bot.Modules
                         //Remove discords automatic embed (If one exists)
                         try
                         {
-                            await Context.Message.ModifySuppressionAsync(true);
+                            await Context.Message.ModifyAsync((MessageProperties obj) => { obj.Embed = null; });
                         }
                         catch
                         {
@@ -356,7 +356,7 @@ namespace Instagram_Reels_Bot.Modules
                         //Remove discords automatic embed (If one exists)
                         try
                         {
-                            await Context.Message.ModifySuppressionAsync(true);
+                            await Context.Message.ModifyAsync((MessageProperties obj) => { obj.Embed = null; });
                         }
                         catch
                         {

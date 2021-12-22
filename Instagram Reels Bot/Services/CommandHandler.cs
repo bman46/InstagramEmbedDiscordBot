@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using OpenGraphNet;
 using System.Linq;
 using Instagram_Reels_Bot.Modules;
+using Discord.Interactions;
 
 namespace Instagram_Reels_Bot.Services
 {
@@ -17,6 +18,7 @@ namespace Instagram_Reels_Bot.Services
         // setup fields to be set later in the constructor
         private readonly IConfiguration _config;
         private readonly CommandService _commands;
+        private readonly InteractionService _interact;
         private readonly DiscordShardedClient _client;
         private readonly IServiceProvider _services;
         /// <summary>
@@ -32,6 +34,7 @@ namespace Instagram_Reels_Bot.Services
             // since we passed the services in, we can use GetRequiredService to pass them into the fields set earlier
             _config = services.GetRequiredService<IConfiguration>();
             _commands = services.GetRequiredService<CommandService>();
+            _interact = services.GetRequiredService<InteractionService>();
             _client = services.GetRequiredService<DiscordShardedClient>();
             _services = services;
 
@@ -41,15 +44,21 @@ namespace Instagram_Reels_Bot.Services
             // take action when we receive a message (so we can process it, and see if it is a valid command)
             _client.MessageReceived += MessageReceivedAsync;
 
+            // Process the InteractionCreated payloads to execute Interactions commands
+            _client.InteractionCreated += HandleInteraction;
+
             //Slash Commands:
-            SlashCommands slashCommands = new SlashCommands();
-            _client.SlashCommandExecuted += slashCommands.SlashCommandHandler;
+            _interact.SlashCommandExecuted += SlashCommandExecuted;
+            _interact.ContextCommandExecuted += ContextCommandExecuted;
+            _interact.ComponentCommandExecuted += ComponentCommandExecuted;
+
         }
 
         public async Task InitializeAsync()
         {
             // register modules that are public and inherit ModuleBase<T>.
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+            await _interact.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
         }
 
         // this class is where the magic starts, and takes actions upon receiving messages
@@ -192,7 +201,7 @@ namespace Instagram_Reels_Bot.Services
             }
         }
        
-        public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
+        public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, Discord.Commands.IResult result)
         {
             // if a command isn't found, log that info to console and exit this method
             if (!command.IsSpecified)
@@ -229,6 +238,111 @@ namespace Instagram_Reels_Bot.Services
                 await Discord.UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
             }
 
+        }
+        private Task SlashCommandExecuted(SlashCommandInfo arg1, Discord.IInteractionContext arg2, Discord.Interactions.IResult arg3)
+        {
+            if (!arg3.IsSuccess)
+            {
+                Console.WriteLine("Error: " + arg3.Error);
+                switch (arg3.Error)
+                {
+                    case InteractionCommandError.UnmetPrecondition:
+                        // implement
+                        break;
+                    case InteractionCommandError.UnknownCommand:
+                        // implement
+                        break;
+                    case InteractionCommandError.BadArgs:
+                        // implement
+                        break;
+                    case InteractionCommandError.Exception:
+                        // implement
+                        break;
+                    case InteractionCommandError.Unsuccessful:
+                        // implement
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+        private Task ComponentCommandExecuted(ComponentCommandInfo arg1, Discord.IInteractionContext arg2, Discord.Interactions.IResult arg3)
+        {
+            if (!arg3.IsSuccess)
+            {
+                switch (arg3.Error)
+                {
+                    case InteractionCommandError.UnmetPrecondition:
+                        // implement
+                        break;
+                    case InteractionCommandError.UnknownCommand:
+                        // implement
+                        break;
+                    case InteractionCommandError.BadArgs:
+                        // implement
+                        break;
+                    case InteractionCommandError.Exception:
+                        // implement
+                        break;
+                    case InteractionCommandError.Unsuccessful:
+                        // implement
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private Task ContextCommandExecuted(ContextCommandInfo arg1, Discord.IInteractionContext arg2, Discord.Interactions.IResult arg3)
+        {
+            if (!arg3.IsSuccess)
+            {
+                switch (arg3.Error)
+                {
+                    case InteractionCommandError.UnmetPrecondition:
+                        // implement
+                        break;
+                    case InteractionCommandError.UnknownCommand:
+                        // implement
+                        break;
+                    case InteractionCommandError.BadArgs:
+                        // implement
+                        break;
+                    case InteractionCommandError.Exception:
+                        // implement
+                        break;
+                    case InteractionCommandError.Unsuccessful:
+                        // implement
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+        private async Task HandleInteraction(SocketInteraction arg)
+        {
+            Console.WriteLine("Slash Command Executed");
+            try
+            {
+                // Create an execution context that matches the generic type parameter of your InteractionModuleBase<T> modules
+                var ctx = new ShardedInteractionContext(_client, arg);
+                await _interact.ExecuteCommandAsync(ctx, _services);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+
+                // If a Slash Command execution fails it is most likely that the original interaction acknowledgement will persist. It is a good idea to delete the original
+                // response, or at least let the user know that something went wrong during the command execution.
+                if (arg.Type == InteractionType.ApplicationCommand)
+                    await arg.GetOriginalResponseAsync().ContinueWith(async (msg) => await msg.Result.DeleteAsync());
+            }
         }
     }
 }

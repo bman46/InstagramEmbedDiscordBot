@@ -12,6 +12,7 @@ using InstagramApiSharp.Classes;
 using InstagramApiSharp.Logger;
 using System.IO;
 using System.Collections.Generic;
+using Discord.Interactions;
 
 namespace Instagram_Reels_Bot
 {
@@ -20,6 +21,7 @@ namespace Instagram_Reels_Bot
         // setup our fields we assign later
         private readonly IConfiguration _config;
         private DiscordShardedClient _client;
+        private InteractionService _interact;
         public static InstagramApiSharp.API.IInstaApi instaApi;
 
         static void Main(string[] args)
@@ -43,18 +45,12 @@ namespace Instagram_Reels_Bot
                 var proxyObject = new WebProxy(_config["ProxyURL"]);
                 WebRequest.DefaultWebProxy = proxyObject;
             }
-            //Insta Initialize:
-            var userSession = new UserSessionData
-            {
-                UserName = _config["IGUserName"],
-                Password = _config["IGPassword"]
-            };
 
             instaApi = InstaApiBuilder.CreateBuilder()
-                .SetUser(userSession)
                 .UseLogger(new DebugLogger(LogLevel.Exceptions))
                 .Build();
             InstagramLogin();
+
         }
 
         public async Task MainAsync()
@@ -65,10 +61,13 @@ namespace Instagram_Reels_Bot
                 // get the client and assign to client 
                 // you get the services via GetRequiredService<T>
                 var client = services.GetRequiredService<DiscordShardedClient>();
+                var interact = services.GetRequiredService<InteractionService>();
                 _client = client;
+                _interact = interact;
 
                 // setup logging and the ready event
                 client.Log += LogAsync;
+                interact.Log += LogAsync;
                 client.ShardReady += ReadyAsync;
                 services.GetRequiredService<CommandService>().Log += LogAsync;
 
@@ -95,77 +94,24 @@ namespace Instagram_Reels_Bot
         private async Task<Task> ReadyAsync(DiscordSocketClient shard)
         {
             Console.WriteLine(shard.ShardId+" Shard Ready");
-            await CreateSlashCommands(shard);
+
+            //Register Slash Commands:
+            Console.WriteLine("Register Commands...");
+            if (IsDebug())
+            {
+                Console.WriteLine("Per guild.");
+                foreach (SocketGuild guild in _client.Guilds)
+                {
+                    await _interact.RegisterCommandsToGuildAsync(guild.Id);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Global");
+                await _interact.RegisterCommandsGloballyAsync(true);
+            }
+
             return Task.CompletedTask;
-        }
-        private async Task CreateSlashCommands(DiscordSocketClient shard)
-        {
-            //List of commands to register:
-            List<SlashCommandProperties> slashCommands = new List<SlashCommandProperties>();
-
-            //carousel command:
-            {
-                SlashCommandBuilder Command = new SlashCommandBuilder();
-                // Create carousel command:
-                Command.WithName("carousel");
-                Command.WithDescription("Select a specific image/video in a multi-content Instagram post. Post number starts at 1.");
-                //Add URL option:
-                Command.AddOption("link", ApplicationCommandOptionType.String, "The URL of the post.", true);
-                //Add media number:
-                Command.AddOption("postnumber", ApplicationCommandOptionType.Integer, "The post number for the desired post in the carousel", true, false, false, 1);
-
-                slashCommands.Add(Command.Build());
-            }
-            //url command:
-            {
-                SlashCommandBuilder Command = new SlashCommandBuilder();
-                // Create carousel command:
-                Command.WithName("url");
-                Command.WithDescription("Process and Instagram link for it's content. Does not support stories.");
-                //Add URL option:
-                Command.AddOption("link", ApplicationCommandOptionType.String, "The URL of the post.", true);
-
-                slashCommands.Add(Command.Build());
-            }
-            //help command:
-            {
-                SlashCommandBuilder Command = new SlashCommandBuilder();
-                // Create carousel command:
-                Command.WithName("help");
-                Command.WithDescription("For help using the bot");
-
-                slashCommands.Add(Command.Build());
-            }
-            //invite command:
-            {
-                SlashCommandBuilder Command = new SlashCommandBuilder();
-                // Create carousel command:
-                Command.WithName("invite");
-                Command.WithDescription("Invite the bot to your server!");
-
-                slashCommands.Add(Command.Build());
-            }         
-            //top.gg command:
-            {
-                SlashCommandBuilder Command = new SlashCommandBuilder();
-                // Create carousel command:
-                Command.WithName("topgg");
-                Command.WithDescription("Vote and rate the bot on top.gg");
-
-                slashCommands.Add(Command.Build());
-            }
-            //github command:
-            {
-                SlashCommandBuilder Command = new SlashCommandBuilder();
-                // Create carousel command:
-                Command.WithName("github");
-                Command.WithDescription("View the bots source code and report issues.");
-
-                slashCommands.Add(Command.Build());
-            }
-            //Announce commands globally:
-            Console.WriteLine("Announcing slash commands:");
-            await shard.BulkOverwriteGlobalApplicationCommandsAsync(slashCommands.ToArray());
         }
 
         // this method handles the ServiceCollection creation/configuration, and builds out the service provider we can call on later
@@ -180,6 +126,7 @@ namespace Instagram_Reels_Bot
                 .AddSingleton<DiscordShardedClient>()
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
+                .AddSingleton<InteractionService>()
                 .BuildServiceProvider();
         }
         /// <summary>
@@ -200,6 +147,7 @@ namespace Instagram_Reels_Bot
                 UserName = config["IGUserName"],
                 Password = config["IGPassword"]
             };
+            instaApi.SetUser(userSession);
             const string stateFile = "state.bin";
             try
             {
@@ -232,7 +180,25 @@ namespace Instagram_Reels_Bot
                     Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
                     return;
                 }
+                var state = instaApi.GetStateDataAsStream();
+                // in .net core or uwp apps don't use GetStateDataAsStream.
+                // use this one:
+                // var state = _instaApi.GetStateDataAsString ();
+                // this returns you session as json string.
+                using (var fileStream = File.Create(stateFile))
+                {
+                    state.Seek(0, SeekOrigin.Begin);
+                    state.CopyTo(fileStream);
+                }
             }
+        }
+        static bool IsDebug()
+        {
+#if DEBUG
+            return true;
+#else
+            return false;
+#endif
         }
     }
 }

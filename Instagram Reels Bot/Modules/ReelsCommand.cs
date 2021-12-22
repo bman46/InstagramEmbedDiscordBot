@@ -269,6 +269,9 @@ namespace Instagram_Reels_Bot.Modules
         [Command("stories")]
         public async Task StoryParser([Remainder] string args = null)
         {
+            //ensure login:
+            Program.InstagramLogin();
+
             string userName;
             string storyID;
             try

@@ -2,47 +2,32 @@
 using System.IO;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 using System.Linq;
 using System.Collections.Generic;
 
 namespace Instagram_Reels_Bot.Modules
 {
-	public class SlashCommands
+	public class SlashCommands : InteractionModuleBase<ShardedInteractionContext>
 	{
-		public async Task SlashCommandHandler(SocketSlashCommand command)
-		{
-            switch (command.Data.Name)
-            {
-				case "carousel":
-					await CarouselPostParser(command);
-					break;
-				case "help":
-					await help(command);
-					break;
-				case "invite":
-					await invite(command);
-					break;
-				case "topgg":
-					await topgg(command);
-					break;
-				case "github":
-					await github(command);
-					break;
-				case "url":
-					await url(command);
-					break;
-				default:
-					break;
-			}
-		}
-		public async Task url(SocketSlashCommand command)
-        {
-			string url = command.Data.Options.First().Value.ToString();
+		// Dependencies can be accessed through Property injection, public properties with public setters will be set by the service provider
+		public InteractionService Commands { get; set; }
 
+		private Services.CommandHandler _handler;
+
+		// Constructor injection is also a valid way to access the dependecies
+		public SlashCommands(Services.CommandHandler handler)
+		{
+			_handler = handler;
+		}
+
+		[SlashCommand("link","Processes an Instagram link.")]
+		public async Task Link(string url)
+        {
+			Console.WriteLine(url);
 			//Buy more time to process posts:
-			await command.DeferAsync(false);
+			await DeferAsync(false);
 
 			//ensure login:
 			Program.InstagramLogin();
@@ -61,7 +46,7 @@ namespace Instagram_Reels_Bot.Modules
 			catch (Exception e)
 			{
 				//private post:
-				await command.ModifyOriginalResponseAsync(x => { x.Content = "Invalid URL."; });
+				await FollowupAsync("Invalid URL.");
 				
 				return;
 			}
@@ -69,7 +54,7 @@ namespace Instagram_Reels_Bot.Modules
 			//check for private account:
 			if (media.Value == null)
 			{
-				await command.ModifyOriginalResponseAsync(x => { x.Content = "Private account."; });
+				await FollowupAsync("Private account.");
 				return;
 			}
 
@@ -106,20 +91,20 @@ namespace Instagram_Reels_Bot.Modules
 									//upload video:
 									//List <FileAttachment> attachments= new List<FileAttachment>();
 									//attachments.Add(new FileAttachment(stream, "IGPost.mp4", "An Instagram post."));
-									await command.FollowupWithFileAsync(stream, "IGPost.mp4", "Video from " + command.User.Mention + "'s linked Post:", null, false, false, null, null, null, null);
+									await Context.Interaction.FollowupWithFileAsync(stream, "IGPost.mp4", "Video from " + Context.User.Mention + "'s linked Post:", null, false, false, null, null, null, null);
 									//await command.ModifyOriginalResponseAsync(x => { x.Content = "Video from " + command.User.Mention + "'s linked Post:"; x.Attachments = attachments; });
 								}
 								else
 								{
 									//Fallback to url:
-									await command.FollowupAsync("Video from " + command.User.Mention + "'s linked post: " + videourl);
+									await FollowupAsync("Video from " + Context.User.Mention + "'s linked post: " + videourl);
 								}
 							}
 						}
 						else
 						{
 							//Fallback to url:
-							await command.FollowupAsync("Video from " + command.User.Mention + "'s linked post: " + videourl);
+							await FollowupAsync("Video from " + Context.User.Mention + "'s linked post: " + videourl);
 						}
 					}
 				}
@@ -128,26 +113,22 @@ namespace Instagram_Reels_Bot.Modules
 					//failback to link to video:
 					Console.WriteLine(e);
 					//Fallback to url:
-					await command.FollowupAsync("Video from " + command.User.Mention + "'s linked post: " + videourl);
+					await FollowupAsync("Video from " + Context.User.Mention + "'s linked post: " + videourl);
 				}
 			}
 			else
 			{
 				var embed = new EmbedBuilder();
-				embed.Title = "Content from " + command.User.Username + "'s linked post";
+				embed.Title = "Content from " + Context.User.Username + "'s linked post";
 				embed.Url = url;
 				embed.Description = (media.Value.Caption != null) ? (ReelsCommand.Truncate(media.Value.Caption.Text, 40)) : ("");
 				embed.ImageUrl = media.Value.Images[0].Uri;
 				embed.WithColor(new Color(131, 58, 180));
-				await command.ModifyOriginalResponseAsync(x => { x.Embed = embed.Build(); });
+				await FollowupAsync(null,null,false,false,null,null,null,embed.Build());
 			}
 		}
-		/// <summary>
-        /// Help command
-        /// </summary>
-        /// <param name="command"></param>
-        /// <returns></returns>
-		public async Task help(SocketSlashCommand command)
+		[SlashCommand("help", "For help with the bot.")]
+		public async Task Help()
 		{
 			//response embed:
 			var embed = new Discord.EmbedBuilder();
@@ -155,14 +136,10 @@ namespace Instagram_Reels_Bot.Modules
 			embed.Url = "https://discord.gg/6K3tdsYd6J";
 			embed.Description = "This bot links content from an Instagram post put in the chat from an Instagram URL. No setup is needed. For more help and to view the status of the bot, please join our support server: https://discord.gg/6K3tdsYd6J";
 			embed.WithColor(new Color(131, 58, 180));
-			await command.RespondAsync(null, null, false,true, null, null, embed.Build());
+			await RespondAsync(null, null, false,true, null, null, null, embed.Build());
 		}
-		/// <summary>
-        /// invite command
-        /// </summary>
-        /// <param name="command"></param>
-        /// <returns></returns>
-		public async Task invite(SocketSlashCommand command)
+		[SlashCommand("invite", "Invite the bot to your server!")]
+		public async Task Invite()
 		{
 			//response embed:
 			var embed = new Discord.EmbedBuilder();
@@ -170,14 +147,10 @@ namespace Instagram_Reels_Bot.Modules
 			embed.Url = "https://top.gg/bot/815695225678463017";
 			embed.Description = "Please visit our top.gg page to invite the bot to your server. https://top.gg/bot/815695225678463017";
 			embed.WithColor(new Color(131, 58, 180));
-			await command.RespondAsync(null, null, false, true, null, null, embed.Build());
+			await RespondAsync(null, null, false, true, null, null, null, embed.Build());
 		}
-		/// <summary>
-        /// Top.gg
-        /// </summary>
-        /// <param name="command"></param>
-        /// <returns></returns>
-		public async Task topgg(SocketSlashCommand command)
+		[SlashCommand("topgg", "Visit our top.gg page.")]
+		public async Task Topgg()
 		{
 			//response embed:
 			var embed = new Discord.EmbedBuilder();
@@ -185,14 +158,10 @@ namespace Instagram_Reels_Bot.Modules
 			embed.Url = "https://top.gg/bot/815695225678463017";
 			embed.Description = "Please vote for us and leave a rating on Top.gg. https://top.gg/bot/815695225678463017";
 			embed.WithColor(new Color(131, 58, 180));
-			await command.RespondAsync(null, null, false, true, null, null, embed.Build());
+			await RespondAsync(null, null, false, true, null, null, null, embed.Build());
 		}
-		/// <summary>
-        /// github
-        /// </summary>
-        /// <param name="command"></param>
-        /// <returns></returns>
-		public async Task github(SocketSlashCommand command)
+		[SlashCommand("github", "Visit our github page")]
+		public async Task Github()
 		{
 			//response embed:
 			var embed = new Discord.EmbedBuilder();
@@ -200,20 +169,13 @@ namespace Instagram_Reels_Bot.Modules
 			embed.Url = "https://github.com/bman46/InstagramEmbedDiscordBot";
 			embed.Description = "View the source code and file issues for improvements or bugs. https://github.com/bman46/InstagramEmbedDiscordBot";
 			embed.WithColor(new Color(131, 58, 180));
-			await command.RespondAsync(null, null, false, true, null, null, embed.Build());
+			await RespondAsync(null, null, false, true, null, null,null, embed.Build());
 		}
-		/// <summary>
-		/// /Carousel command
-		/// </summary>
-		public async Task CarouselPostParser(SocketSlashCommand command)
+		[SlashCommand("carousel", "Select a specific image/video in a multi content post.")]
+		public async Task Carousel([Summary(description: "URL of the desired post")] string url, [Summary(description: "The post number for the desired post in the carousel.")] int index)
 		{
 			//buy time to process:
-			await command.DeferAsync(false);
-
-			//URL of the post:
-			string url = command.Data.Options.First().Value.ToString();
-			// index of the post:
-			int index = int.Parse(command.Data.Options.ElementAt(1).Value.ToString())-1;
+			await DeferAsync(false);
 
 			//Parse ig post:
 			//ensure login:
@@ -231,14 +193,14 @@ namespace Instagram_Reels_Bot.Modules
             catch (Exception e)
             {
 				//private post:
-				await command.FollowupAsync("Invalid URL.", null, false, true);
+				await FollowupAsync("Invalid URL.", null, false, true);
 				return;
 			}
             //check for private account:
             if (media.Value == null)
             {
 				//private post:
-				await command.FollowupAsync("The post is private.", null, false, true);
+				await FollowupAsync("The post is private.", null, false, true);
                 return;
             }
 
@@ -247,7 +209,7 @@ namespace Instagram_Reels_Bot.Modules
                 if (index > media.Value.Carousel.Count-1)
                 {
 					//catch not carousel.
-					await command.FollowupAsync("Post number doesnt exist.", null, false, true);
+					await FollowupAsync("Post number doesnt exist.", null, false, true);
 					return;
 				}
 				//Video
@@ -271,19 +233,19 @@ namespace Instagram_Reels_Bot.Modules
 									if (stream.Length < 8000000)
 									{
 										//Upload video:
-										await command.FollowupWithFileAsync(stream, "IGPost.mp4", "Video from " + command.User.Mention + "'s linked Post:", null, false,false,null,null,null,null);
+										await Context.Interaction.FollowupWithFileAsync(stream, "IGPost.mp4", "Video from " + Context.User.Mention + "'s linked Post:", null, false,false,null,null,null,null);
 									}
 									else
 									{
 										//Fallback to url:
-										await command.FollowupAsync("Video from " + command.User.Mention + "'s linked post: " + videourl);
+										await FollowupAsync("Video from " + Context.User.Mention + "'s linked post: " + videourl);
 									}
 								}
 							}
 							else
 							{
 								//Fallback to url:
-								await command.FollowupAsync("Video from " + command.User.Mention + "'s linked post: " + videourl);
+								await FollowupAsync("Video from " + Context.User.Mention + "'s linked post: " + videourl);
 							}
 						}
 					}
@@ -292,7 +254,7 @@ namespace Instagram_Reels_Bot.Modules
 						//failback to link to video:
 						Console.WriteLine(e);
 						//Fallback to url:
-						await command.FollowupAsync("Video from " + command.User.Mention + "'s linked post: " + videourl);
+						await FollowupAsync("Video from " + Context.User.Mention + "'s linked post: " + videourl);
 					}
 				}
 				//Image:
@@ -303,18 +265,18 @@ namespace Instagram_Reels_Bot.Modules
 					media.Value.Images.Add(image);
 					//build image embed:
 					var embed = new Discord.EmbedBuilder();
-					embed.Title = "Content from " + command.User.Username + "'s linked post";
+					embed.Title = "Content from " + Context.User.Username + "'s linked post";
 					embed.Url = url;
 					embed.Description = (media.Value.Caption != null) ? (ReelsCommand.Truncate(media.Value.Caption.Text, 40)) : ("");
 					embed.ImageUrl = media.Value.Images[0].Uri;
 					embed.WithColor(new Color(131, 58, 180));
-					await command.FollowupAsync(null,null,false,false,null,null,embed.Build());
+					await FollowupAsync(null,null,false,false,null,null,null,embed.Build());
 				}
             }
             else
             {
 				//catch not carousel.
-				await command.FollowupAsync("Not a carousel post.",null,false,true);
+				await FollowupAsync("Not a carousel post.",null,false,true);
 				return;
 			}
 		}

@@ -16,10 +16,12 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="OpenGraph-Net" Version="3.2.8" />
     <PackageReference Include="InstagramApiSharp" Version="1.7.1" />
+    <PackageReference Include="Discord.Net.Interactions" Version="3.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="InstagramApiSharp" />
+    <None Remove="Discord.Net.Interactions" />
   </ItemGroup>
   <ItemGroup>
     <None Update="config.json">

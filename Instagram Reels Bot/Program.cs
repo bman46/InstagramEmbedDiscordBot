@@ -163,23 +163,9 @@ namespace Instagram_Reels_Bot
 
                 slashCommands.Add(Command.Build());
             }
-
-            foreach (SlashCommandProperties command in slashCommands)
-            {
-#if DEBUG
-                //guild slash command for debug
-                foreach(SocketGuild guild in _client.Guilds)
-                {
-                    Console.WriteLine("Creating command for guild " + guild.Name);
-                    await guild.CreateApplicationCommandAsync(command);
-                }
-#else
-                //guild slash command for d
-                Console.WriteLine("Creating Slash Commands for shard " + shard.ShardId);
-                await shard.CreateGlobalApplicationCommandAsync(command);
-#endif
-            }
-
+            //Publish commands globally:
+            Console.WriteLine("Announcing slash commands:");
+            await shard.BulkOverwriteGlobalApplicationCommandsAsync(slashCommands.ToArray());
         }
 
         // this method handles the ServiceCollection creation/configuration, and builds out the service provider we can call on later

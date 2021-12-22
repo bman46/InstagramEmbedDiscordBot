@@ -5,6 +5,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Instagram_Reels_Bot.Modules
 {
@@ -29,8 +30,116 @@ namespace Instagram_Reels_Bot.Modules
 				case "github":
 					await github(command);
 					break;
+				case "url":
+					await url(command);
+					break;
 				default:
 					break;
+			}
+		}
+		public async Task url(SocketSlashCommand command)
+        {
+			string url = command.Data.Options.First().Value.ToString();
+
+			//Buy more time to process posts:
+			await command.DeferAsync(false);
+
+			//ensure login:
+			Program.InstagramLogin();
+
+			//parse url:
+			InstagramApiSharp.Classes.IResult<string> mediaId;
+			InstagramApiSharp.Classes.IResult<InstagramApiSharp.Classes.Models.InstaMedia> media;
+			try
+			{
+				//parse URL:
+				mediaId = await Program.instaApi.MediaProcessor.GetMediaIdFromUrlAsync(new Uri(url));
+
+				//Parse for url:
+				media = await Program.instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value);
+			}
+			catch (Exception e)
+			{
+				//private post:
+				await command.ModifyOriginalResponseAsync(x => { x.Content = "Invalid URL."; });
+				
+				return;
+			}
+
+			//check for private account:
+			if (media.Value == null)
+			{
+				await command.ModifyOriginalResponseAsync(x => { x.Content = "Private account."; });
+				return;
+			}
+
+			//inject image from carousel:
+			if (media.Value.Carousel != null && media.Value.Carousel.Count > 0)
+			{
+				if (media.Value.Carousel[0].Videos.Count > 0)
+				{
+					var video = media.Value.Carousel[0].Videos[0];
+					media.Value.Videos.Add(video);
+				}
+				else
+				{
+					var image = media.Value.Carousel[0].Images[0];
+					media.Value.Images.Add(image);
+				}
+			}
+			//check video:
+			if (media.Value.Videos.Count > 0)
+			{
+				string videourl = media.Value.Videos[0].Uri;
+				try
+				{
+					using (System.Net.WebClient wc = new System.Net.WebClient())
+					{
+						wc.OpenRead(videourl);
+						//TODO: support nitro uploads:
+						if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < 8000000)
+						{
+							using (var stream = new MemoryStream(wc.DownloadData(videourl)))
+							{
+								if (stream.Length < 8000000)
+								{
+									//upload video:
+									//List <FileAttachment> attachments= new List<FileAttachment>();
+									//attachments.Add(new FileAttachment(stream, "IGPost.mp4", "An Instagram post."));
+									await command.FollowupWithFileAsync(stream, "IGPost.mp4", "Video from " + command.User.Mention + "'s linked Post:", null, false, false, null, null, null, null);
+									//await command.ModifyOriginalResponseAsync(x => { x.Content = "Video from " + command.User.Mention + "'s linked Post:"; x.Attachments = attachments; });
+								}
+								else
+								{
+									//Fallback to url:
+									await command.ModifyOriginalResponseAsync(x => { x.Content = "Video from " + command.User.Mention + "'s linked post: " + videourl; });
+								}
+							}
+						}
+						else
+						{
+							//Fallback to url:
+							await command.ModifyOriginalResponseAsync(x => { x.Content = "Video from " + command.User.Mention + "'s linked post: " + videourl; });
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					//failback to link to video:
+					Console.WriteLine(e);
+					//Fallback to url:
+					await command.ModifyOriginalResponseAsync(x => { x.Content = "Video from " + command.User.Mention + "'s linked post: " + videourl; });
+				}
+			}
+			else
+			{
+				var embed = new EmbedBuilder();
+				embed.Title = "Content from " + command.User.Username + "'s linked post";
+				embed.Url = url;
+				embed.Description = (media.Value.Caption != null) ? (ReelsCommand.Truncate(media.Value.Caption.Text, 40)) : ("");
+				embed.ImageUrl = media.Value.Images[0].Uri;
+				embed.WithColor(new Color(131, 58, 180));
+				await command.ModifyOriginalResponseAsync(x => { x.Embed = embed.Build(); });
 			}
 		}
 		/// <summary>
@@ -98,6 +207,9 @@ namespace Instagram_Reels_Bot.Modules
 		/// </summary>
 		public async Task CarouselPostParser(SocketSlashCommand command)
 		{
+			//buy time to process:
+			await command.DeferAsync(false);
+
 			//URL of the post:
 			string url = command.Data.Options.First().Value.ToString();
 			// index of the post:
@@ -119,14 +231,14 @@ namespace Instagram_Reels_Bot.Modules
             catch (Exception e)
             {
 				//private post:
-				await command.RespondAsync("Invalid URL.", null, false, true);
+				await command.FollowupAsync("Invalid URL.", null, false, true);
 				return;
 			}
             //check for private account:
             if (media.Value == null)
             {
 				//private post:
-				await command.RespondAsync("The post is private.", null, false, true);
+				await command.FollowupAsync("The post is private.", null, false, true);
                 return;
             }
 
@@ -135,7 +247,7 @@ namespace Instagram_Reels_Bot.Modules
                 if (index > media.Value.Carousel.Count-1)
                 {
 					//catch not carousel.
-					await command.RespondAsync("Post number doesnt exist.", null, false, true);
+					await command.FollowupAsync("Post number doesnt exist.", null, false, true);
 					return;
 				}
 				//Video
@@ -159,19 +271,19 @@ namespace Instagram_Reels_Bot.Modules
 									if (stream.Length < 8000000)
 									{
 										//Upload video:
-										await command.RespondWithFileAsync(stream, "IGPost.mp4", "Video from " + command.User.Mention + "'s linked Post:", null, false,false,null,null,null,null);
+										await command.FollowupWithFileAsync(stream, "IGPost.mp4", "Video from " + command.User.Mention + "'s linked Post:", null, false,false,null,null,null,null);
 									}
 									else
 									{
 										//Fallback to url:
-										await command.RespondAsync("Video from " + command.User.Mention + "'s linked post: " + videourl);
+										await command.FollowupAsync("Video from " + command.User.Mention + "'s linked post: " + videourl);
 									}
 								}
 							}
 							else
 							{
 								//Fallback to url:
-								await command.RespondAsync("Video from " + command.User.Mention + "'s linked post: " + videourl);
+								await command.FollowupAsync("Video from " + command.User.Mention + "'s linked post: " + videourl);
 							}
 						}
 					}
@@ -180,7 +292,7 @@ namespace Instagram_Reels_Bot.Modules
 						//failback to link to video:
 						Console.WriteLine(e);
 						//Fallback to url:
-						await command.RespondAsync("Video from " + command.User.Mention + "'s linked post: " + videourl);
+						await command.FollowupAsync("Video from " + command.User.Mention + "'s linked post: " + videourl);
 					}
 				}
 				//Image:
@@ -196,13 +308,13 @@ namespace Instagram_Reels_Bot.Modules
 					embed.Description = (media.Value.Caption != null) ? (ReelsCommand.Truncate(media.Value.Caption.Text, 40)) : ("");
 					embed.ImageUrl = media.Value.Images[0].Uri;
 					embed.WithColor(new Color(131, 58, 180));
-					await command.RespondAsync(null,null,false,false,null,null,embed.Build());
+					await command.FollowupAsync(null,null,false,false,null,null,embed.Build());
 				}
             }
             else
             {
 				//catch not carousel.
-				await command.RespondAsync("Not a carousel post.",null,false,true);
+				await command.FollowupAsync("Not a carousel post.",null,false,true);
 				return;
 			}
 		}

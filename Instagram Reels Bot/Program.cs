@@ -108,11 +108,22 @@ namespace Instagram_Reels_Bot
                 SlashCommandBuilder Command = new SlashCommandBuilder();
                 // Create carousel command:
                 Command.WithName("carousel");
-                Command.WithDescription("Select a specific image/video in a multi-content Instagram post.");
+                Command.WithDescription("Select a specific image/video in a multi-content Instagram post. Post number starts at 1.");
                 //Add URL option:
-                Command.AddOption("url", ApplicationCommandOptionType.String, "The URL of the post.", true);
+                Command.AddOption("link", ApplicationCommandOptionType.String, "The URL of the post.", true);
                 //Add media number:
                 Command.AddOption("postnumber", ApplicationCommandOptionType.Integer, "The post number for the desired post in the carousel", true, false, false, 1);
+
+                slashCommands.Add(Command.Build());
+            }
+            //url command:
+            {
+                SlashCommandBuilder Command = new SlashCommandBuilder();
+                // Create carousel command:
+                Command.WithName("url");
+                Command.WithDescription("Process and Instagram link for it's content. Does not support stories.");
+                //Add URL option:
+                Command.AddOption("link", ApplicationCommandOptionType.String, "The URL of the post.", true);
 
                 slashCommands.Add(Command.Build());
             }

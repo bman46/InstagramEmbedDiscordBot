@@ -398,7 +398,7 @@ namespace Instagram_Reels_Bot.Modules
         /// <param name="atWord"></param>
         /// <param name="addEllipsis"></param>
         /// <returns></returns>
-        private static string Truncate(string s, int length, bool atWord = true, bool addEllipsis = true)
+        public static string Truncate(string s, int length, bool atWord = true, bool addEllipsis = true)
         {
             // Return if the string is less than or equal to the truncation length
             if (s == null || s.Length <= length) {

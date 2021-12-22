@@ -8,6 +8,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using OpenGraphNet;
 using System.Linq;
+using Instagram_Reels_Bot.Modules;
 
 namespace Instagram_Reels_Bot.Services
 {
@@ -39,6 +40,10 @@ namespace Instagram_Reels_Bot.Services
 
             // take action when we receive a message (so we can process it, and see if it is a valid command)
             _client.MessageReceived += MessageReceivedAsync;
+
+            //Slash Commands:
+            SlashCommands slashCommands = new SlashCommands();
+            _client.SlashCommandExecuted += slashCommands.SlashCommandHandler;
         }
 
         public async Task InitializeAsync()

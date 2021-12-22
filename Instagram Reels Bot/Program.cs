@@ -91,10 +91,39 @@ namespace Instagram_Reels_Bot
             return Task.CompletedTask;
         }
 
-        private Task ReadyAsync(DiscordSocketClient shard)
+        private async Task<Task> ReadyAsync(DiscordSocketClient shard)
         {
             Console.WriteLine(shard.ShardId+" Shard Ready");
+            await CreateSlashCommands(shard);
             return Task.CompletedTask;
+        }
+        private async Task CreateSlashCommands(DiscordSocketClient shard)
+        {
+            // Create a slash command builder
+            var Command = new SlashCommandBuilder();
+
+            // Create carousel command:
+            Command.WithName("carousel");
+            Command.WithDescription("Select a specific image/video in a multi-content Instagram post.");
+            //Add URL option:
+            Command.AddOption("url", ApplicationCommandOptionType.String, "The URL of the post.", true);
+            //Add media number:
+            Command.AddOption("postnumber", ApplicationCommandOptionType.Integer, "The post number for the desired post in the carousel", true, false, false, 1);
+
+#if DEBUG
+            //guild slash command for debug
+            foreach(SocketGuild guild in _client.Guilds)
+            {
+                var command = Command.Build();
+                Console.WriteLine("Creating command for guild " + guild.Name);
+                await guild.CreateApplicationCommandAsync(command);
+            }
+#else
+            //guild slash command for d
+            Console.WriteLine("Creating Slash Commands for shard " + shard.ShardId);
+            await shard.CreateGlobalApplicationCommandAsync(Command.Build());
+#endif
+
         }
 
         // this method handles the ServiceCollection creation/configuration, and builds out the service provider we can call on later

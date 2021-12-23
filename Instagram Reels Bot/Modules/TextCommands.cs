@@ -76,7 +76,10 @@ namespace Instagram_Reels_Bot.Modules
                 if (response.stream != null)
                 {
                     //Response with stream:
-                    await Context.Channel.SendFileAsync(new MemoryStream(response.stream), "IGMedia.mp4", "Video from " + Context.Message.Author.Mention + "'s Instagram link:");
+                    using (MemoryStream stream = new MemoryStream(response.stream))
+                    {
+                        await Context.Channel.SendFileAsync(stream, "IGMedia.mp4", "Video from " + Context.Message.Author.Mention + "'s Instagram link:");
+                    }
                     return;
                 }
                 else
@@ -97,7 +100,10 @@ namespace Instagram_Reels_Bot.Modules
                 embed.WithColor(new Color(131, 58, 180));
                 if (response.stream != null)
                 {
-                    await Context.Channel.SendFileAsync(new MemoryStream(response.stream), "IGMedia.jpg", "", false, embed.Build());
+                    using (MemoryStream stream = new MemoryStream(response.stream))
+                    {
+                        await Context.Channel.SendFileAsync(stream, "IGMedia.jpg", "", false, embed.Build());
+                    }
                 }
                 else
                 {

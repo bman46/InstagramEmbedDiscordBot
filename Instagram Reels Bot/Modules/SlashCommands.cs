@@ -43,8 +43,11 @@ namespace Instagram_Reels_Bot.Modules
 				if (response.stream != null)
                 {
 					//Response with stream:
-					await Context.Interaction.FollowupWithFileAsync(new MemoryStream(response.stream),"IGVid.mp4", "Video from " + Context.User.Mention + "'s linked reel: ");
-                }
+					using (MemoryStream stream = new MemoryStream(response.stream))
+					{
+						await Context.Interaction.FollowupWithFileAsync(stream, "IGVid.mp4", "Video from " + Context.User.Mention + "'s linked reel: ");
+					}
+				}
                 else
                 {
 					//Response without stream:
@@ -62,13 +65,16 @@ namespace Instagram_Reels_Bot.Modules
 				embed.WithColor(new Color(131, 58, 180));
 				if (response.stream != null)
 				{
-					await Context.Interaction.FollowupWithFileAsync(new MemoryStream(response.stream), "IGImage.jpg", null, null, false, false, null, null, embed.Build());
-                }
-                else
-                {
+					using (MemoryStream stream = new MemoryStream(response.stream))
+					{
+						await Context.Interaction.FollowupWithFileAsync(stream, "IGImage.jpg", null, null, false, false, null, null, embed.Build());
+					}
+				}
+				else
+				{
 					embed.ImageUrl = response.contentURL.ToString();
 					await FollowupAsync(null, null, false, false, null, null, null, embed.Build());
-                }
+				}
 			}
 			
 		}

@@ -87,7 +87,7 @@ namespace Instagram_Reels_Bot.Helpers
 									{
 										if (stream.Length < maxUploadSize)
 										{
-											return new InstagramProcessorResponse(true, "", videourl, url, stream);
+											return new InstagramProcessorResponse(true, "", videourl, url, stream.ToArray());
 										}
 									}
 								}
@@ -116,7 +116,7 @@ namespace Instagram_Reels_Bot.Helpers
 									if (stream.Length < maxUploadSize)
 									{
 										//upload video:
-										return new InstagramProcessorResponse(false, "", imageUrl.ToString(), url, stream);
+										return new InstagramProcessorResponse(false, "", imageUrl.ToString(), url, stream.ToArray());
 									}
 								}
 							}
@@ -196,7 +196,7 @@ namespace Instagram_Reels_Bot.Helpers
 								if (stream.Length < maxUploadSize)
 								{
 									//upload video:
-									return new InstagramProcessorResponse(true, media.Value.Caption.Text, videourl, url, stream);
+									return new InstagramProcessorResponse(true, media.Value.Caption.Text, videourl, url, stream.ToArray());
 								}
 							}
 						}
@@ -224,7 +224,7 @@ namespace Instagram_Reels_Bot.Helpers
 							if (stream.Length < maxUploadSize)
 							{
 								//upload video:
-								return new InstagramProcessorResponse(false, media.Value.Caption.Text, imageUrl.ToString(), url, stream);
+								return new InstagramProcessorResponse(false, media.Value.Caption.Text, imageUrl.ToString(), url, stream.ToArray());
 							}
 						}
 					}

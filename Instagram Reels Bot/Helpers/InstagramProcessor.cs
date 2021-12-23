@@ -147,7 +147,7 @@ namespace Instagram_Reels_Bot.Helpers
 				//Parse for url:
 				media = await Program.instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value);
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 				//Error loading
 				return new InstagramProcessorResponse("Error Loading Post.");

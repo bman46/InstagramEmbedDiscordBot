@@ -148,7 +148,15 @@ namespace Instagram_Reels_Bot
                 Password = config["IGPassword"]
             };
             instaApi.SetUser(userSession);
-            const string stateFile = "state.bin";
+            string stateFile;
+            if (config["StateFile"]!=null && config["StateFile"] != "")
+            {
+                stateFile = config["StateFile"];
+            }
+            else
+            {
+                stateFile = "state.bin";
+            }
             try
             {
                 // load session file if exists
@@ -185,10 +193,16 @@ namespace Instagram_Reels_Bot
                 // use this one:
                 // var state = _instaApi.GetStateDataAsString ();
                 // this returns you session as json string.
-                using (var fileStream = File.Create(stateFile))
+                try
                 {
-                    state.Seek(0, SeekOrigin.Begin);
-                    state.CopyTo(fileStream);
+                    using (var fileStream = File.Create(stateFile))
+                    {
+                        state.Seek(0, SeekOrigin.Begin);
+                        state.CopyTo(fileStream);
+                    }
+                }catch(Exception e)
+                {
+                    Console.WriteLine("Error writing state file. Error: " + e);
                 }
             }
         }

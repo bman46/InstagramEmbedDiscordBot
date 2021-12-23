@@ -15,31 +15,35 @@ namespace Instagram_Reels_Bot.Helpers
         /// </returns>
 		public static async Task<InstagramProcessorResponse> PostRouter(string url, SocketGuild guild, int postIndex = 1)
         {
+			return await PostRouter(url, ((int)guild.PremiumTier), postIndex);
+        }
+		public static async Task<InstagramProcessorResponse> PostRouter(string url, int tier, int postIndex = 1)
+		{
 			Uri link;
-            try
-            {
+			try
+			{
 				link = new Uri(url);
-            }
-			catch(System.UriFormatException)
-            {
+			}
+			catch (System.UriFormatException)
+			{
 				return new InstagramProcessorResponse("Malformed URL.");
-            }
+			}
 			//Process story
-            if (isStory(link))
-            {
-				return await StoryProcessor(url, ((int)guild.PremiumTier));
-            }
+			if (isStory(link))
+			{
+				return await StoryProcessor(url, tier);
+			}
 			//TODO Highlights:
 			else if (false)
-            {
+			{
 				return new InstagramProcessorResponse("Highlights not implemented.");
-            }
+			}
 			//all others:
-            else
-            {
-				return await PostProcessorAsync(url, postIndex, ((int)guild.PremiumTier));
-            }
-        }
+			else
+			{
+				return await PostProcessorAsync(url, postIndex, tier);
+			}
+		}
 		private static bool isStory(Uri url)
         {
 			//URL Starts with stories

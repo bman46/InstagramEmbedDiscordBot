@@ -256,12 +256,40 @@ namespace Instagram_Reels_Bot.Services
                         // implement
                         break;
                     case InteractionCommandError.Exception:
-                        // implement
+                        //notify owner if desired:
+                        if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
+                        {
+                            string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + arg1.Parameters);
+                            if (error.Length > 2000)
+                            {
+                                error = error.Substring(0, 2000);
+                            }
+                            Discord.UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
+                        }
                         break;
                     case InteractionCommandError.Unsuccessful:
-                        // implement
+                        //notify owner if desired:
+                        if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
+                        {
+                            string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + arg1.Parameters);
+                            if (error.Length > 2000)
+                            {
+                                error = error.Substring(0, 2000);
+                            }
+                            Discord.UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
+                        }
                         break;
                     default:
+                        //notify owner if desired:
+                        if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
+                        {
+                            string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + arg1.Parameters);
+                            if (error.Length > 2000)
+                            {
+                                error = error.Substring(0, 2000);
+                            }
+                            Discord.UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
+                        }
                         break;
                 }
             }

@@ -8,7 +8,7 @@ using Instagram_Reels_Bot.Helpers;
 
 namespace Instagram_Reels_Bot.Modules
 {
-    public class ReelsCommand : ModuleBase
+    public class TextCommands : ModuleBase
     {
         /// <summary>
         /// Parse reel URL:

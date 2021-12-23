@@ -9,6 +9,7 @@ Embeds videos and images from users linked Instagram posts, videos, and reels in
 - No prefixes needed
 - Videos are downloadable
 - Adjusted upload sizes for Nitro Boosted servers
+- Supports Discord slash commands
 
 ## Example: 
 ![Example of reels bot on discord](https://github.com/bman46/Instagram-Reels-Bot/raw/master/Example.png)

@@ -24,11 +24,17 @@ namespace Instagram_Reels_Bot.Helpers
             {
 				return new InstagramProcessorResponse("Malformed URL.");
             }
+			//Process story
             if (isStory(link))
             {
-				//TODO: Story processor:
-				return new InstagramProcessorResponse("Stories not implemented yet. Check back later.");
+				return await StoryProcessor(url, ((int)guild.PremiumTier));
             }
+			//TODO Highlights:
+			else if (false)
+            {
+				return new InstagramProcessorResponse("Highlights not implemented.");
+            }
+			//all others:
             else
             {
 				return await PostProcessorAsync(url, postIndex, ((int)guild.PremiumTier));
@@ -36,11 +42,89 @@ namespace Instagram_Reels_Bot.Helpers
         }
 		private static bool isStory(Uri url)
         {
-            //URL Starts with stories
-            //https://instagram.com/stories/google/2733780123514124411?utm_source=ig_story_item_share&utm_medium=copy_link
-            return url.Segments[1].StartsWith("stories");
+			//URL Starts with stories
+			//https://instagram.com/stories/google/2733780123514124411?utm_source=ig_story_item_share&utm_medium=copy_link
+			return url.Segments[1].StartsWith("stories");
         }
-		public static async Task<InstagramProcessorResponse> PostProcessorAsync(string url, int index, int premiumTier)
+		public static async Task<InstagramProcessorResponse> StoryProcessor(string url, int premiumTier)
+		{
+			//ensure login:
+			Program.InstagramLogin();
+			Uri link = new Uri(url);
+			string userName = link.Segments[2].Replace("/", "");
+			string storyID = link.Segments[3].Replace("/", "");
+
+			//get user:
+			var user = await Program.instaApi.UserProcessor.GetUserAsync(userName);
+			long userId = user.Value.Pk;
+			var stories = await Program.instaApi.StoryProcessor.GetUserStoryAsync(userId);
+			if (stories.Value.Items.Count == 0)
+			{
+				return new InstagramProcessorResponse("No stories exist for that user. (Is the account private?)");
+			}
+			foreach (var story in stories.Value.Items)
+			{
+				//find story:
+				if (story.Id.Contains(storyID))
+				{
+					long maxUploadSize = DiscordTools.MaxUploadSize(premiumTier);
+					if (story.VideoList.Count > 0)
+					{
+						//process video:
+						string videourl = story.VideoList[0].Uri;
+						try
+						{
+							using (System.Net.WebClient wc = new System.Net.WebClient())
+							{
+								wc.OpenRead(videourl);
+								if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < maxUploadSize)
+								{
+									using (var stream = new MemoryStream(wc.DownloadData(videourl)))
+									{
+										if (stream.Length < maxUploadSize)
+										{
+											return new InstagramProcessorResponse(true, "", videourl, url, stream);
+										}
+									}
+								}
+							}
+						}
+						catch (Exception e)
+						{
+							//failback to link to video:
+							Console.WriteLine(e);
+						}
+						return new InstagramProcessorResponse(true, "", videourl, url, null);
+
+					}
+					else if (story.ImageList.Count > 0)
+					{
+						//Image:
+						Uri imageUrl = new Uri(story.ImageList[0].Uri);
+						using (System.Net.WebClient wc = new System.Net.WebClient())
+						{
+							wc.OpenRead(imageUrl);
+							//TODO: support nitro uploads:
+							if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < maxUploadSize)
+							{
+								using (var stream = new MemoryStream(wc.DownloadData(imageUrl)))
+								{
+									if (stream.Length < maxUploadSize)
+									{
+										//upload video:
+										return new InstagramProcessorResponse(false, "", imageUrl.ToString(), url, stream);
+									}
+								}
+							}
+							return new InstagramProcessorResponse(false, "", imageUrl.ToString(), url, null);
+						}
+					}
+
+				}
+			}
+			return new InstagramProcessorResponse("Could not find story.");
+		}
+			public static async Task<InstagramProcessorResponse> PostProcessorAsync(string url, int index, int premiumTier)
         {
 			//ensure login:
 			Program.InstagramLogin();

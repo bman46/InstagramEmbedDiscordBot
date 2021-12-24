@@ -15,24 +15,24 @@ namespace Instagram_Reels_Bot.Modules
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Command("reel")]
+        [Command("reel", RunMode = RunMode.Async)]
         public async Task ReelParser([Remainder] string args = null)
         {
             //form url:
             string url = "https://www.instagram.com/reel/" + args.Replace(" ", "/");
-            await Responder(url);
+            await Responder(url, Context);
         }
         /// <summary>
         /// Parse an instagram post:
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Command("p")]
+        [Command("p", RunMode = RunMode.Async)]
         public async Task PostParser([Remainder] string args = null)
         {
             //form url:
             string url = "https://www.instagram.com/p/" + args.Replace(" ", "/");
-            await Responder(url);
+            await Responder(url, Context);
         }
         /// <summary>
         /// Parse an instagram TV link:
@@ -40,12 +40,12 @@ namespace Instagram_Reels_Bot.Modules
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Command("tv")]
+        [Command("tv", RunMode = RunMode.Async)]
         public async Task TVParser([Remainder] string args = null)
         {
             //form url:
             string url = "https://www.instagram.com/tv/" + args.Replace(" ", "/");
-            await Responder(url);
+            await Responder(url, Context);
         }
         /// <summary>
         /// Parse Story Link
@@ -53,22 +53,22 @@ namespace Instagram_Reels_Bot.Modules
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Command("stories")]
+        [Command("stories", RunMode = RunMode.Async)]
         public async Task StoryParser([Remainder] string args = null)
         {
             //form url:
             string url = "https://www.instagram.com/stories/" + args.Replace(" ", "/");
-            await Responder(url);
+            await Responder(url, Context);
         }
 
-        private async Task Responder(string url)
+        private static async Task Responder(string url, ICommandContext context)
         {
             //Process Post:
-            InstagramProcessorResponse response = await InstagramProcessor.PostRouter(url, (int)Context.Guild.PremiumTier, 1);
+            InstagramProcessorResponse response = await InstagramProcessor.PostRouter(url, (int)context.Guild.PremiumTier, 1);
 
             if (!response.success)
             {
-                await ReplyAsync(response.error);
+                await context.Message.ReplyAsync(response.error);
                 return;
             }
             if (response.isVideo)
@@ -76,16 +76,17 @@ namespace Instagram_Reels_Bot.Modules
                 if (response.stream != null)
                 {
                     //Response with stream:
-                    using (MemoryStream stream = new MemoryStream(response.stream))
+                    using (Stream stream = new MemoryStream(response.stream))
                     {
-                        await Context.Channel.SendFileAsync(stream, "IGMedia.mp4", "Video from " + Context.Message.Author.Mention + "'s Instagram link:");
+                        FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.");
+                        await context.Message.Channel.SendFileAsync(attachment, "Video from " + context.Message.Author.Mention + "'s Instagram link:");
                     }
                     return;
                 }
                 else
                 {
                     //Response without stream:
-                    await ReplyAsync("Video from " + Context.User.Mention + "'s linked reel: " + response.contentURL);
+                    await context.Message.ReplyAsync("Video from " + context.User.Mention + "'s linked reel: " + response.contentURL);
                     return;
                 }
 
@@ -93,22 +94,23 @@ namespace Instagram_Reels_Bot.Modules
             else
             {
                 var embed = new EmbedBuilder();
-                embed.Title = "Content from " + Context.User.Username + "'s linked post";
+                embed.Title = "Content from " + context.User.Username + "'s linked post";
                 embed.Url = url;
                 embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption, 40)) : ("");
                 embed.ImageUrl = "attachment://IGMedia.jpg";
                 embed.WithColor(new Color(131, 58, 180));
                 if (response.stream != null)
                 {
-                    using (MemoryStream stream = new MemoryStream(response.stream))
+                    using (Stream stream = new MemoryStream(response.stream))
                     {
-                        await Context.Channel.SendFileAsync(stream, "IGMedia.jpg", "", false, embed.Build());
+                        FileAttachment attachment = new FileAttachment(stream, "IGMedia.jpg", "An Instagram Image.");
+                        await context.Channel.SendFileAsync(attachment, "", false, embed.Build());
                     }
                 }
                 else
                 {
                     embed.ImageUrl = response.contentURL.ToString();
-                    await ReplyAsync(null, false, embed.Build());
+                    await context.Message.ReplyAsync(null, false, embed.Build());
                 }
             }
         }

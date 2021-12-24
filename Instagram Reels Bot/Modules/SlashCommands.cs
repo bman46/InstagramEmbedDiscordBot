@@ -23,7 +23,7 @@ namespace Instagram_Reels_Bot.Modules
 			_handler = handler;
 		}
 
-		[SlashCommand("link","Processes an Instagram link.")]
+		[SlashCommand("link","Processes an Instagram link.", runMode: RunMode.Async)]
 		public async Task Link(string url, [Summary(description: "The post number for the desired post in a carousel.")][MinValue(1)] int index = 1)
         {
 			Console.WriteLine(url);
@@ -43,9 +43,10 @@ namespace Instagram_Reels_Bot.Modules
 				if (response.stream != null)
                 {
 					//Response with stream:
-					using (MemoryStream stream = new MemoryStream(response.stream))
+					using (Stream stream = new MemoryStream(response.stream))
 					{
-						await Context.Interaction.FollowupWithFileAsync(stream, "IGVid.mp4", "Video from " + Context.User.Mention + "'s linked reel: ");
+						FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.");
+						await Context.Interaction.FollowupWithFileAsync(attachment, "Video from " + Context.User.Mention + "'s linked reel: ");
 					}
 				}
                 else
@@ -65,9 +66,10 @@ namespace Instagram_Reels_Bot.Modules
 				embed.WithColor(new Color(131, 58, 180));
 				if (response.stream != null)
 				{
-					using (MemoryStream stream = new MemoryStream(response.stream))
+					using (Stream stream = new MemoryStream(response.stream))
 					{
-						await Context.Interaction.FollowupWithFileAsync(stream, "IGImage.jpg", null, null, false, false, null, null, embed.Build());
+						FileAttachment attachment = new FileAttachment(stream, "IGMedia.jpg", "An Instagram Image.");
+						await Context.Interaction.FollowupWithFileAsync(attachment, null, null, false, false, null, null, embed.Build());
 					}
 				}
 				else
@@ -78,7 +80,7 @@ namespace Instagram_Reels_Bot.Modules
 			}
 			
 		}
-		[SlashCommand("help", "For help with the bot.")]
+		[SlashCommand("help", "For help with the bot.", runMode: RunMode.Async)]
 		public async Task Help()
 		{
 			//response embed:
@@ -89,7 +91,7 @@ namespace Instagram_Reels_Bot.Modules
 			embed.WithColor(new Color(131, 58, 180));
 			await RespondAsync(null, null, false,true, null, null, null, embed.Build());
 		}
-		[SlashCommand("invite", "Invite the bot to your server!")]
+		[SlashCommand("invite", "Invite the bot to your server!", runMode: RunMode.Async)]
 		public async Task Invite()
 		{
 			//response embed:
@@ -100,7 +102,7 @@ namespace Instagram_Reels_Bot.Modules
 			embed.WithColor(new Color(131, 58, 180));
 			await RespondAsync(null, null, false, true, null, null, null, embed.Build());
 		}
-		[SlashCommand("topgg", "Visit our top.gg page.")]
+		[SlashCommand("topgg", "Visit our top.gg page.", runMode: RunMode.Async)]
 		public async Task Topgg()
 		{
 			//response embed:
@@ -111,7 +113,7 @@ namespace Instagram_Reels_Bot.Modules
 			embed.WithColor(new Color(131, 58, 180));
 			await RespondAsync(null, null, false, true, null, null, null, embed.Build());
 		}
-		[SlashCommand("github", "Visit our github page")]
+		[SlashCommand("github", "Visit our github page", runMode: RunMode.Async)]
 		public async Task Github()
 		{
 			//response embed:

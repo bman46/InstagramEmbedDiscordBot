@@ -83,12 +83,10 @@ namespace Instagram_Reels_Bot.Helpers
 								wc.OpenRead(videourl);
 								if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < maxUploadSize)
 								{
-									using (var stream = new MemoryStream(wc.DownloadData(videourl)))
+									byte[] data = wc.DownloadData(videourl);
+									if (data.Length < maxUploadSize)
 									{
-										if (stream.Length < maxUploadSize)
-										{
-											return new InstagramProcessorResponse(true, "", videourl, url, stream.ToArray());
-										}
+										return new InstagramProcessorResponse(true, "", videourl, url, data);
 									}
 								}
 							}
@@ -111,14 +109,13 @@ namespace Instagram_Reels_Bot.Helpers
 							//TODO: support nitro uploads:
 							if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < maxUploadSize)
 							{
-								using (var stream = new MemoryStream(wc.DownloadData(imageUrl)))
+								byte[] data = wc.DownloadData(imageUrl);
+								if (data.Length < maxUploadSize)
 								{
-									if (stream.Length < maxUploadSize)
-									{
-										//upload video:
-										return new InstagramProcessorResponse(false, "", imageUrl.ToString(), url, stream.ToArray());
-									}
+									//upload video:
+									return new InstagramProcessorResponse(false, "", imageUrl.ToString(), url, data);
 								}
+								
 							}
 							return new InstagramProcessorResponse(false, "", imageUrl.ToString(), url, null);
 						}
@@ -191,14 +188,13 @@ namespace Instagram_Reels_Bot.Helpers
 						//TODO: support nitro uploads:
 						if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < maxUploadSize)
 						{
-							using (var stream = new MemoryStream(wc.DownloadData(videourl)))
+							byte[] data = wc.DownloadData(videourl);
+							if (data.Length < maxUploadSize)
 							{
-								if (stream.Length < maxUploadSize)
-								{
-									//upload video:
-									return new InstagramProcessorResponse(true, media.Value.Caption.Text, videourl, url, stream.ToArray());
-								}
+								//upload video:
+								return new InstagramProcessorResponse(true, media.Value.Caption.Text, videourl, url, data);
 							}
+							
 						}
 					}
 				}
@@ -219,14 +215,13 @@ namespace Instagram_Reels_Bot.Helpers
 					//TODO: support nitro uploads:
 					if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < maxUploadSize)
 					{
-						using (var stream = new MemoryStream(wc.DownloadData(imageUrl)))
+						byte[] data = wc.DownloadData(imageUrl);
+						if (data.Length < maxUploadSize)
 						{
-							if (stream.Length < maxUploadSize)
-							{
-								//upload video:
-								return new InstagramProcessorResponse(false, media.Value.Caption.Text, imageUrl.ToString(), url, stream.ToArray());
-							}
+							//upload video:
+							return new InstagramProcessorResponse(false, media.Value.Caption.Text, imageUrl.ToString(), url, data);
 						}
+						
 					}
 					return new InstagramProcessorResponse(false, media.Value.Caption.Text, imageUrl.ToString(), url, null);
 				}

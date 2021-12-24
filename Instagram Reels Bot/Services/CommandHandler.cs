@@ -217,15 +217,21 @@ namespace Instagram_Reels_Bot.Services
                 System.Console.WriteLine($"Command Executed.");
                 return;
             }
-            if(result.ErrorReason.Contains("Missing Permissions"))
+            else if(result.ErrorReason.Contains("Missing Permissions"))
             {
                 await context.Channel.SendMessageAsync($"I do not have permission to carry out this action. I need permission to Send Messages, Embed Links, Attach Files, Add Reactions, and Manage Messages in this channel.");
                 return;
             }
-
-
-            // failure scenario, let's let the user know
-            await context.Channel.SendMessageAsync($"Sorry, Something went wrong... Discord support server: https://top.gg/servers/921830686439124993");
+            else if (result.ErrorReason.Contains("timed out"))
+            {
+                await context.Channel.SendMessageAsync($"Your command timed out. This may be because the bot is overloaded. Please try again later.");
+                //report to owner anyway.
+            }
+            else
+            {
+                // failure scenario, let's let the user know
+                await context.Channel.SendMessageAsync($"Sorry, Something went wrong... Discord support server: https://top.gg/servers/921830686439124993");
+            }
 
             //notify owner if desired:
             if (notifyOwnerOnError&&!string.IsNullOrEmpty(_config["OwnerID"]))

@@ -134,6 +134,11 @@ namespace Instagram_Reels_Bot
         /// </summary>
         public static void InstagramLogin()
         {
+            if (instaApi.IsUserAuthenticated)
+            {
+                //Skip. Already Authenticated.
+                return;
+            }
             // create the configuration
             var _builder = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
@@ -178,33 +183,31 @@ namespace Instagram_Reels_Bot
                 Console.WriteLine(e);
             }
 
-            if (!instaApi.IsUserAuthenticated)
+            // login
+            Console.WriteLine($"Logging in as {userSession.UserName}");
+            var logInResult = instaApi.LoginAsync().GetAwaiter().GetResult();
+            if (!logInResult.Succeeded)
             {
-                // login
-                Console.WriteLine($"Logging in as {userSession.UserName}");
-                var logInResult = instaApi.LoginAsync().GetAwaiter().GetResult();
-                if (!logInResult.Succeeded)
-                {
-                    Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
-                    return;
-                }
-                var state = instaApi.GetStateDataAsStream();
-                // in .net core or uwp apps don't use GetStateDataAsStream.
-                // use this one:
-                // var state = _instaApi.GetStateDataAsString ();
-                // this returns you session as json string.
-                try
-                {
-                    using (var fileStream = File.Create(stateFile))
-                    {
-                        state.Seek(0, SeekOrigin.Begin);
-                        state.CopyTo(fileStream);
-                    }
-                }catch(Exception e)
-                {
-                    Console.WriteLine("Error writing state file. Error: " + e);
-                }
+                Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
+                return;
             }
+            var state = instaApi.GetStateDataAsStream();
+            // in .net core or uwp apps don't use GetStateDataAsStream.
+            // use this one:
+            // var state = _instaApi.GetStateDataAsString ();
+            // this returns you session as json string.
+            try
+            {
+                using (var fileStream = File.Create(stateFile))
+                {
+                    state.Seek(0, SeekOrigin.Begin);
+                    state.CopyTo(fileStream);
+                }
+            }catch(Exception e)
+            {
+                Console.WriteLine("Error writing state file. Error: " + e);
+            }
+            
         }
         static bool IsDebug()
         {

@@ -11,7 +11,16 @@ namespace Instagram_Reels_Bot.Helpers
 			this.caption = caption;
 			this.contentURL = new Uri(contentURL);
 			this.postURL = new Uri(postURL);
-			this.stream = stream;
+            if (stream != null)
+            {
+				this.stream = new Byte[stream.Length];
+				stream.CopyTo(this.stream, 0);
+            }
+            else
+            {
+				this.stream = null;
+            }
+			
 		}
 		public InstagramProcessorResponse(string error, bool success = false)
 		{
@@ -25,7 +34,7 @@ namespace Instagram_Reels_Bot.Helpers
 		public Uri contentURL = null;
 		public Uri postURL = null;
 		public long sizeByte = 0;
-		public byte[] stream = null;
+		public byte[] stream;
 
 	}
 }

@@ -26,7 +26,6 @@ namespace Instagram_Reels_Bot.Modules
 		[SlashCommand("link","Processes an Instagram link.", runMode: RunMode.Async)]
 		public async Task Link(string url, [Summary(description: "The post number for the desired post in a carousel.")][MinValue(1)] int index = 1)
         {
-			Console.WriteLine(url);
 			//Buy more time to process posts:
 			await DeferAsync(false);
 
@@ -35,10 +34,11 @@ namespace Instagram_Reels_Bot.Modules
 
             if (!response.success)
             {
-				await FollowupAsync(response.error);
+				//Failed to process post:
+				await FollowupAsync(response.error, ephemeral: true);
 				return;
             }
-			if (response.isVideo)
+			else if (response.isVideo)
 			{
 				if (response.stream != null)
                 {
@@ -69,13 +69,13 @@ namespace Instagram_Reels_Bot.Modules
 					using (Stream stream = new MemoryStream(response.stream))
 					{
 						FileAttachment attachment = new FileAttachment(stream, "IGMedia.jpg", "An Instagram Image.");
-						await Context.Interaction.FollowupWithFileAsync(attachment, null, null, false, false, null, null, embed.Build());
+						await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.Build());
 					}
 				}
 				else
 				{
 					embed.ImageUrl = response.contentURL.ToString();
-					await FollowupAsync(null, null, false, false, null, null, null, embed.Build());
+					await FollowupAsync(embed: embed.Build());
 				}
 			}
 			
@@ -87,9 +87,9 @@ namespace Instagram_Reels_Bot.Modules
 			var embed = new Discord.EmbedBuilder();
 			embed.Title = "Help With Instagram Embed";
 			embed.Url = "https://discord.gg/6K3tdsYd6J";
-			embed.Description = "This bot links content from an Instagram post put in the chat from an Instagram URL. No setup is needed. For more help and to view the status of the bot, please join our support server: https://discord.gg/6K3tdsYd6J";
+			embed.Description = "This bot uploads videos and images from an Instagram post provided via a link. This bot does not require any setup besides basic Discord permission. For more help and to view the status of the bot, please join our support server: https://discord.gg/6K3tdsYd6J";
 			embed.WithColor(new Color(131, 58, 180));
-			await RespondAsync(null, null, false,true, null, null, null, embed.Build());
+			await RespondAsync(embed: embed.Build(), ephemeral: false);
 		}
 		[SlashCommand("invite", "Invite the bot to your server!", runMode: RunMode.Async)]
 		public async Task Invite()
@@ -100,7 +100,7 @@ namespace Instagram_Reels_Bot.Modules
 			embed.Url = "https://top.gg/bot/815695225678463017";
 			embed.Description = "Please visit our top.gg page to invite the bot to your server. https://top.gg/bot/815695225678463017";
 			embed.WithColor(new Color(131, 58, 180));
-			await RespondAsync(null, null, false, true, null, null, null, embed.Build());
+			await RespondAsync(embed: embed.Build(), ephemeral: true);
 		}
 		[SlashCommand("topgg", "Visit our top.gg page.", runMode: RunMode.Async)]
 		public async Task Topgg()
@@ -111,7 +111,7 @@ namespace Instagram_Reels_Bot.Modules
 			embed.Url = "https://top.gg/bot/815695225678463017";
 			embed.Description = "Please vote for us and leave a rating on Top.gg. https://top.gg/bot/815695225678463017";
 			embed.WithColor(new Color(131, 58, 180));
-			await RespondAsync(null, null, false, true, null, null, null, embed.Build());
+			await RespondAsync(embed: embed.Build(), ephemeral: true);
 		}
 		[SlashCommand("github", "Visit our github page", runMode: RunMode.Async)]
 		public async Task Github()
@@ -120,9 +120,9 @@ namespace Instagram_Reels_Bot.Modules
 			var embed = new Discord.EmbedBuilder();
 			embed.Title = "GitHub";
 			embed.Url = "https://github.com/bman46/InstagramEmbedDiscordBot";
-			embed.Description = "View the source code and file issues for improvements or bugs. https://github.com/bman46/InstagramEmbedDiscordBot";
+			embed.Description = "View the source code, contribute to the bot, and file issues for improvements or bugs. https://github.com/bman46/InstagramEmbedDiscordBot";
 			embed.WithColor(new Color(131, 58, 180));
-			await RespondAsync(null, null, false, true, null, null,null, embed.Build());
+			await RespondAsync(embed: embed.Build(), ephemeral: true);
 		}
 	}
 }

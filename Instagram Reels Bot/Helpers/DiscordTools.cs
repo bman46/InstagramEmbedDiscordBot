@@ -16,15 +16,10 @@ namespace Instagram_Reels_Bot.Helpers
         /// <param name="atWord">Try to cutoff at the end or start of a word instead of the middle.</param>
         /// <param name="addEllipsis">Add ... to the end of a truncated string.</param>
         /// <returns></returns>
-        public static string Truncate(string s, int length = 45, bool atWord = true, bool addEllipsis = true)
+        public static string Truncate(string s, int length = 100, bool atWord = true, bool addEllipsis = true)
         {
-            // Return if the string is less than or equal to the truncation length
-            if (s == null || s.Length <= length)
-            {
-                return s;
-            }
-            //cut description at new line
-            else if (s.Contains("\n"))
+            //cut description at new line:
+            if (s.Contains("\n"))
             {
                 //cut string at newline:
                 s = s.Substring(0, s.IndexOf("\n")) + "...";
@@ -33,6 +28,11 @@ namespace Instagram_Reels_Bot.Helpers
                 {
                     return s;
                 }
+            }
+            // Return if the string is less than or equal to the truncation length:
+            else if (s == null || s.Length <= length)
+            {
+                return s;
             }
             // Do a simple tuncation at the desired length
             string s2 = s.Substring(0, length);

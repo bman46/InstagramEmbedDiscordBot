@@ -299,11 +299,8 @@ namespace Instagram_Reels_Bot.Helpers
 					Console.WriteLine("Loading state from file");
 					using (var fs = File.OpenRead(stateFile))
 					{
+						// Load state data from file:
 						instaApi.LoadStateDataFromStream(fs);
-						// in .net core or uwp apps don't use LoadStateDataFromStream
-						// use this one:
-						// _instaApi.LoadStateDataFromString(new StreamReader(fs).ReadToEnd());
-						// you should pass json string as parameter to this function.
 					}
 				}
 			}

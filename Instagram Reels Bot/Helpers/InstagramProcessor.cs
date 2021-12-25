@@ -187,6 +187,13 @@ namespace Instagram_Reels_Bot.Helpers
 				return new InstagramProcessorResponse("Private Account.");
 			}
 
+			string caption = "";
+			//check caption value (ensure not null)
+			if (media.Value.Caption!=null)
+            {
+				caption = media.Value.Caption.Text;
+			}
+
 			//inject image from carousel:
 			if (media.Value.Carousel != null && media.Value.Carousel.Count > 0)
 			{
@@ -223,7 +230,7 @@ namespace Instagram_Reels_Bot.Helpers
 							if (data.Length < maxUploadSize)
 							{
 								//upload video:
-								return new InstagramProcessorResponse(true, media.Value.Caption.Text, videourl, url, data);
+								return new InstagramProcessorResponse(true, caption, videourl, url, data);
 							}
 							
 						}
@@ -234,7 +241,7 @@ namespace Instagram_Reels_Bot.Helpers
 					//Log Error:
 					Console.WriteLine(e);
 				}
-				return new InstagramProcessorResponse(true, media.Value.Caption.Text, videourl, url, null);
+				return new InstagramProcessorResponse(true, caption, videourl, url, null);
 			}
 			else
 			{
@@ -250,11 +257,11 @@ namespace Instagram_Reels_Bot.Helpers
 						if (data.Length < maxUploadSize)
 						{
 							//upload video:
-							return new InstagramProcessorResponse(false, media.Value.Caption.Text, imageUrl.ToString(), url, data);
+							return new InstagramProcessorResponse(false, caption, imageUrl.ToString(), url, data);
 						}
 						
 					}
-					return new InstagramProcessorResponse(false, media.Value.Caption.Text, imageUrl.ToString(), url, null);
+					return new InstagramProcessorResponse(false, caption, imageUrl.ToString(), url, null);
 				}
 			}
 		}

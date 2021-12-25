@@ -18,7 +18,11 @@ namespace Instagram_Reels_Bot.Helpers
         /// <returns></returns>
         public static string Truncate(string s, int length = 100, bool atWord = true, bool addEllipsis = true)
         {
-            //cut description at new line:
+            if (s == null)
+            {
+                return s;
+            }
+            //cut description at new line, regardless of length:
             if (s.Contains("\n"))
             {
                 //cut string at newline:
@@ -30,7 +34,7 @@ namespace Instagram_Reels_Bot.Helpers
                 }
             }
             // Return if the string is less than or equal to the truncation length:
-            else if (s == null || s.Length <= length)
+            else if (s.Length <= length)
             {
                 return s;
             }

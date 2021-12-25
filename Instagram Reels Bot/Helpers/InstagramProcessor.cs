@@ -130,7 +130,6 @@ namespace Instagram_Reels_Bot.Helpers
 						using (System.Net.WebClient wc = new System.Net.WebClient())
 						{
 							wc.OpenRead(imageUrl);
-							//TODO: support nitro uploads:
 							if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < maxUploadSize)
 							{
 								byte[] data = wc.DownloadData(imageUrl);
@@ -223,7 +222,6 @@ namespace Instagram_Reels_Bot.Helpers
 					using (System.Net.WebClient wc = new System.Net.WebClient())
 					{
 						wc.OpenRead(videourl);
-						//TODO: support nitro uploads:
 						if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < maxUploadSize)
 						{
 							byte[] data = wc.DownloadData(videourl);
@@ -250,7 +248,6 @@ namespace Instagram_Reels_Bot.Helpers
 				using (System.Net.WebClient wc = new System.Net.WebClient())
 				{
 					wc.OpenRead(imageUrl);
-					//TODO: support nitro uploads:
 					if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < maxUploadSize)
 					{
 						byte[] data = wc.DownloadData(imageUrl);

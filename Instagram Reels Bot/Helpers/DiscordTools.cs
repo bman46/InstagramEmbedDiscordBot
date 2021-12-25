@@ -18,6 +18,7 @@ namespace Instagram_Reels_Bot.Helpers
         /// <returns></returns>
         public static string Truncate(string s, int length = 100, bool atWord = true, bool addEllipsis = true)
         {
+            // Dont process null values:
             if (s == null)
             {
                 return s;

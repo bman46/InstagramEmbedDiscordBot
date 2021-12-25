@@ -13,6 +13,7 @@ using InstagramApiSharp.Logger;
 using System.IO;
 using System.Collections.Generic;
 using Discord.Interactions;
+using Instagram_Reels_Bot.Helpers;
 
 namespace Instagram_Reels_Bot
 {
@@ -22,7 +23,6 @@ namespace Instagram_Reels_Bot
         private readonly IConfiguration _config;
         private DiscordShardedClient _client;
         private InteractionService _interact;
-        public static InstagramApiSharp.API.IInstaApi instaApi;
 
         static void Main(string[] args)
         {
@@ -46,10 +46,11 @@ namespace Instagram_Reels_Bot
                 WebRequest.DefaultWebProxy = proxyObject;
             }
 
-            instaApi = InstaApiBuilder.CreateBuilder()
+            //Login to Instagram:
+            InstagramProcessor.instaApi = InstaApiBuilder.CreateBuilder()
                 .UseLogger(new DebugLogger(LogLevel.Exceptions))
                 .Build();
-            InstagramLogin();
+            InstagramProcessor.InstagramLogin();
 
         }
 
@@ -129,86 +130,7 @@ namespace Instagram_Reels_Bot
                 .AddSingleton<InteractionService>()
                 .BuildServiceProvider();
         }
-        /// <summary>
-        /// Login to instagram if unauthenticated:
-        /// </summary>
-        public static void InstagramLogin()
-        {
-            if (instaApi.IsUserAuthenticated)
-            {
-                //Skip. Already Authenticated.
-                return;
-            }
-            // create the configuration
-            var _builder = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile(path: "config.json");
 
-            // build the configuration and assign to _config          
-            var config = _builder.Build();
-            //set user session
-            var userSession = new UserSessionData
-            {
-                UserName = config["IGUserName"],
-                Password = config["IGPassword"]
-            };
-            instaApi.SetUser(userSession);
-            string stateFile;
-            if (config["StateFile"]!=null && config["StateFile"] != "")
-            {
-                stateFile = config["StateFile"];
-            }
-            else
-            {
-                stateFile = "state.bin";
-            }
-            try
-            {
-                // load session file if exists
-                if (File.Exists(stateFile))
-                {
-                    Console.WriteLine("Loading state from file");
-                    using (var fs = File.OpenRead(stateFile))
-                    {
-                        instaApi.LoadStateDataFromStream(fs);
-                        // in .net core or uwp apps don't use LoadStateDataFromStream
-                        // use this one:
-                        // _instaApi.LoadStateDataFromString(new StreamReader(fs).ReadToEnd());
-                        // you should pass json string as parameter to this function.
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
-            // login
-            Console.WriteLine($"Logging in as {userSession.UserName}");
-            var logInResult = instaApi.LoginAsync().GetAwaiter().GetResult();
-            if (!logInResult.Succeeded)
-            {
-                Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
-                return;
-            }
-            var state = instaApi.GetStateDataAsStream();
-            // in .net core or uwp apps don't use GetStateDataAsStream.
-            // use this one:
-            // var state = _instaApi.GetStateDataAsString ();
-            // this returns you session as json string.
-            try
-            {
-                using (var fileStream = File.Create(stateFile))
-                {
-                    state.Seek(0, SeekOrigin.Begin);
-                    state.CopyTo(fileStream);
-                }
-            }catch(Exception e)
-            {
-                Console.WriteLine("Error writing state file. Error: " + e);
-            }
-            
-        }
         static bool IsDebug()
         {
 #if DEBUG

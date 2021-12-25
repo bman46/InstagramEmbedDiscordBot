@@ -2,21 +2,33 @@
 using System.IO;
 using System.Threading.Tasks;
 using Discord.WebSocket;
+using InstagramApiSharp.Classes;
+using Microsoft.Extensions.Configuration;
 
 namespace Instagram_Reels_Bot.Helpers
 {
 	public class InstagramProcessor
 	{
+		public static InstagramApiSharp.API.IInstaApi instaApi;
+
 		/// <summary>
-        /// Routes the url to the desired method.
-        /// </summary>
-        /// <returns>
-        /// The Instagram post output.
-        /// </returns>
+		/// Routes the url to the desired method.
+		/// </summary>
+		/// <param name="url">Link to the post.</param>
+		/// <param name="guild">The guild that the message originated from. Used to determine max upload size.</param>
+		/// <param name="postIndex">Post number in carousel.</param>
+		/// <returns></returns>
 		public static async Task<InstagramProcessorResponse> PostRouter(string url, SocketGuild guild, int postIndex = 1)
         {
 			return await PostRouter(url, ((int)guild.PremiumTier), postIndex);
         }
+		/// <summary>
+		/// Routes the url to the desired method.
+		/// </summary>
+		/// <param name="url">Link to the post.</param>
+		/// <param name="tier">Discord nitro tier</param>
+		/// <param name="postIndex">Post number in carousel.</param>
+		/// <returns></returns>
 		public static async Task<InstagramProcessorResponse> PostRouter(string url, int tier, int postIndex = 1)
 		{
 			Uri link;
@@ -44,24 +56,36 @@ namespace Instagram_Reels_Bot.Helpers
 				return await PostProcessorAsync(url, postIndex, tier);
 			}
 		}
+		/// <summary>
+        /// Decides if a link is a story or not.
+        /// </summary>
+        /// <param name="url">Link to the content.</param>
+        /// <returns>True if the post is a story.</returns>
 		private static bool isStory(Uri url)
         {
 			//URL Starts with stories
 			//https://instagram.com/stories/google/2733780123514124411?utm_source=ig_story_item_share&utm_medium=copy_link
 			return url.Segments[1].StartsWith("stories");
         }
+		/// <summary>
+		/// Processes an Instagram story.
+        /// Doesnt work with highlights.
+		/// </summary>
+		/// <param name="url">Link to the story.</param>
+		/// <param name="premiumTier">Discord Nitro tier. For max file upload size.</param>
+		/// <returns>Instagram processor response with related information.</returns>
 		public static async Task<InstagramProcessorResponse> StoryProcessor(string url, int premiumTier)
 		{
 			//ensure login:
-			Program.InstagramLogin();
+			InstagramLogin();
 			Uri link = new Uri(url);
 			string userName = link.Segments[2].Replace("/", "");
 			string storyID = link.Segments[3].Replace("/", "");
 
 			//get user:
-			var user = await Program.instaApi.UserProcessor.GetUserAsync(userName);
+			var user = await instaApi.UserProcessor.GetUserAsync(userName);
 			long userId = user.Value.Pk;
-			var stories = await Program.instaApi.StoryProcessor.GetUserStoryAsync(userId);
+			var stories = await instaApi.StoryProcessor.GetUserStoryAsync(userId);
 			if (stories.Value.Items.Count == 0)
 			{
 				return new InstagramProcessorResponse("No stories exist for that user. (Is the account private?)");
@@ -125,10 +149,17 @@ namespace Instagram_Reels_Bot.Helpers
 			}
 			return new InstagramProcessorResponse("Could not find story.");
 		}
-			public static async Task<InstagramProcessorResponse> PostProcessorAsync(string url, int index, int premiumTier)
+		/// <summary>
+		/// Processes an Instagram post.
+		/// </summary>
+		/// <param name="url">Link to the post</param>
+		/// <param name="index">Post number in carousel</param>
+		/// <param name="premiumTier">Discord Nitro tier. For max file upload size.</param>
+		/// <returns>Instagram processor response with related information.</returns>
+		public static async Task<InstagramProcessorResponse> PostProcessorAsync(string url, int index, int premiumTier)
         {
 			//ensure login:
-			Program.InstagramLogin();
+			InstagramLogin();
 
 			//Arrays start at zero:
 			index--;
@@ -139,10 +170,10 @@ namespace Instagram_Reels_Bot.Helpers
 			try
 			{
 				//parse URL:
-				mediaId = await Program.instaApi.MediaProcessor.GetMediaIdFromUrlAsync(new Uri(url));
+				mediaId = await instaApi.MediaProcessor.GetMediaIdFromUrlAsync(new Uri(url));
 
 				//Parse for url:
-				media = await Program.instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value);
+				media = await instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value);
 			}
 			catch (Exception)
 			{
@@ -227,7 +258,88 @@ namespace Instagram_Reels_Bot.Helpers
 				}
 			}
 		}
-		
+		/// <summary>
+		/// Logs the bot into Instagram if logged out.
+		/// </summary>
+		public static void InstagramLogin()
+		{
+			if (instaApi.IsUserAuthenticated)
+			{
+				//Skip. Already Authenticated.
+				return;
+			}
+			// create the configuration
+			var _builder = new ConfigurationBuilder()
+				.SetBasePath(AppContext.BaseDirectory)
+				.AddJsonFile(path: "config.json");
+
+			// build the configuration and assign to _config          
+			var config = _builder.Build();
+			//set user session
+			var userSession = new UserSessionData
+			{
+				UserName = config["IGUserName"],
+				Password = config["IGPassword"]
+			};
+			instaApi.SetUser(userSession);
+			string stateFile;
+			if (config["StateFile"] != null && config["StateFile"] != "")
+			{
+				stateFile = config["StateFile"];
+			}
+			else
+			{
+				stateFile = "state.bin";
+			}
+			try
+			{
+				// load session file if exists
+				if (File.Exists(stateFile))
+				{
+					Console.WriteLine("Loading state from file");
+					using (var fs = File.OpenRead(stateFile))
+					{
+						instaApi.LoadStateDataFromStream(fs);
+						// in .net core or uwp apps don't use LoadStateDataFromStream
+						// use this one:
+						// _instaApi.LoadStateDataFromString(new StreamReader(fs).ReadToEnd());
+						// you should pass json string as parameter to this function.
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e);
+			}
+
+			// login
+			Console.WriteLine($"Logging in as {userSession.UserName}");
+			var logInResult = instaApi.LoginAsync().GetAwaiter().GetResult();
+			if (!logInResult.Succeeded)
+			{
+				Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
+				return;
+			}
+			var state = instaApi.GetStateDataAsStream();
+			// in .net core or uwp apps don't use GetStateDataAsStream.
+			// use this one:
+			// var state = _instaApi.GetStateDataAsString ();
+			// this returns you session as json string.
+			try
+			{
+				using (var fileStream = File.Create(stateFile))
+				{
+					state.Seek(0, SeekOrigin.Begin);
+					state.CopyTo(fileStream);
+				}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine("Error writing state file. Error: " + e);
+			}
+
+		}
+
 	}
 }
 

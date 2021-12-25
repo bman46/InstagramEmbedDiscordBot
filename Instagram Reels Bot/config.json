@@ -1,5 +1,5 @@
 {
-  "Token": "Token Here",
+  "Token": "TokenHere",
   "Prefix": [ "https://www.instagram.com/", "https://instagram.com/", "http://www.instagram.com/", "http://instagram.com/" ],
   "OwnerID": "Owner UID",
   "ProxyURL": "",

@@ -62,7 +62,7 @@ namespace Instagram_Reels_Bot.Modules
 				embed.Title = "Content from " + Context.User.Username + "'s linked post";
 				embed.Url = url;
 				embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption, 40)) : ("");
-				embed.ImageUrl = "attachment://IGImage.jpg";
+				embed.ImageUrl = "attachment://IGMedia.jpg";
 				embed.WithColor(new Color(131, 58, 180));
 				if (response.stream != null)
 				{

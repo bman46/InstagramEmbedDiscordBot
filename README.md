@@ -13,3 +13,16 @@ Embeds videos and images from users linked Instagram posts, videos, and reels in
 
 ## Example: 
 ![Example of reels bot on discord](https://github.com/bman46/Instagram-Reels-Bot/raw/master/Example.png)
+
+### Config.json format:
+```
+{
+  "Token": "Token Here",
+  "Prefix": [ "https://www.instagram.com/", "https://instagram.com/", "http://www.instagram.com/", "http://instagram.com/" ],
+  "OwnerID": "Owner UID",
+  "ProxyURL": "",
+  "IGUserName": "IGUsername",
+  "IGPassword": "IGPassword",
+  "TestGuildID": "Test Guild"
+}
+```

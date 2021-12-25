@@ -17,7 +17,7 @@ namespace Instagram_Reels_Bot.Helpers
 		/// <param name="url">Link to the post.</param>
 		/// <param name="guild">The guild that the message originated from. Used to determine max upload size.</param>
 		/// <param name="postIndex">Post number in carousel.</param>
-		/// <returns></returns>
+		/// <returns>Instagram processor response with related information.</returns>
 		public static async Task<InstagramProcessorResponse> PostRouter(string url, SocketGuild guild, int postIndex = 1)
         {
 			return await PostRouter(url, ((int)guild.PremiumTier), postIndex);
@@ -28,7 +28,7 @@ namespace Instagram_Reels_Bot.Helpers
 		/// <param name="url">Link to the post.</param>
 		/// <param name="tier">Discord nitro tier</param>
 		/// <param name="postIndex">Post number in carousel.</param>
-		/// <returns></returns>
+		/// <returns>Instagram processor response with related information.</returns>
 		public static async Task<InstagramProcessorResponse> PostRouter(string url, int tier, int postIndex = 1)
 		{
 			Uri link;

@@ -1,9 +1,9 @@
-﻿{
-  "Token": "ODMyNjk4MzAwMzkzMzI0NTU0.YHnkuQ.R0blV9vsONYw8BvA-3oHWerEnFE",
+{
+  "Token": "TokenHere",
   "Prefix": [ "https://www.instagram.com/", "https://instagram.com/", "http://www.instagram.com/", "http://instagram.com/" ],
-  "OwnerID": "423135719675002890",
+  "OwnerID": "Owner UID",
   "ProxyURL": "",
-  "IGUserName": "discordigbotdev",
-  "IGPassword": "4Y-\"%qC5,}R6!3#",
-  "TestGuildID": "489243978235904001"
+  "IGUserName": "IGUsername",
+  "IGPassword": "IGPassword",
+  "TestGuildID": "Test Guild"
 }

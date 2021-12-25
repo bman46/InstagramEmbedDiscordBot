@@ -9,12 +9,12 @@ namespace Instagram_Reels_Bot.Helpers
 	public class DiscordTools
 	{
         /// <summary>
-        /// Cuts the size of the string down.
+        /// Cuts the size of the string down and cuts the string at a convenient location.
         /// </summary>
-        /// <param name="s"></param>
-        /// <param name="length"></param>
-        /// <param name="atWord"></param>
-        /// <param name="addEllipsis"></param>
+        /// <param name="s">The target string.</param>
+        /// <param name="length">Desired maximum length</param>
+        /// <param name="atWord">Try to cutoff at the end or start of a word instead of the middle.</param>
+        /// <param name="addEllipsis">Add ... to the end of a truncated string.</param>
         /// <returns></returns>
         public static string Truncate(string s, int length = 45, bool atWord = true, bool addEllipsis = true)
         {
@@ -62,20 +62,35 @@ namespace Instagram_Reels_Bot.Helpers
         /// <summary>
         /// Calculates the max upload size of a given server.
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">Message context to get guild information from</param>
         /// <returns>Upload size in bytes</returns>
         public static long MaxUploadSize(ICommandContext context)
         {
             return MaxUploadSize(context.Guild);
         }
+        /// <summary>
+        /// Calculates the max upload size of a given server.
+        /// </summary>
+        /// <param name="guild">The guild to get the max size from.</param>
+        /// <returns>Upload size in bytes</returns>
         public static long MaxUploadSize(SocketGuild guild)
         {
             return MaxUploadSize(((int)guild.PremiumTier));
         }
+        /// <summary>
+        /// Calculates the max upload size of a given server.
+        /// </summary>
+        /// <param name="guild">The guild to get the max size from.</param>
+        /// <returns>Upload size in bytes</returns>
         public static long MaxUploadSize(IGuild guild)
         {
             return MaxUploadSize(((int)guild.PremiumTier));
         }
+        /// <summary>
+        /// Calculates the max upload size of a given server.
+        /// </summary>
+        /// <param name="tier">The nitro tier of the server converted to an int.</param>
+        /// <returns>Upload size in bytes</returns>
         public static long MaxUploadSize(int tier)
         {
             switch (tier)

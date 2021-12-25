@@ -7,7 +7,7 @@ using Discord.WebSocket;
 namespace Instagram_Reels_Bot.Helpers
 {
 	public class DiscordTools
-	{
+	{ 
         /// <summary>
         /// Cuts the size of the string down and cuts the string at a convenient location.
         /// </summary>

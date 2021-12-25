@@ -341,3 +341,6 @@ healthchecksdb
 
 # ignore config file
 config.json
+
+# ignore .DS_Store
+*.DS_Store

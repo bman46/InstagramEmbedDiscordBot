@@ -49,7 +49,7 @@ namespace Instagram_Reels_Bot.Modules
         }
         /// <summary>
         /// Parse Story Link
-        /// Ex: https://instagram.com/stories/wevolverapp/2718330735469161935?utm_source=ig_story_item_share&utm_medium=copy_link
+        /// Ex: https://instagram.com/stories/wevolverapp/2718330735469161935
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
@@ -60,7 +60,12 @@ namespace Instagram_Reels_Bot.Modules
             string url = "https://www.instagram.com/stories/" + args.Replace(" ", "/");
             await Responder(url, Context);
         }
-
+        /// <summary>
+        /// Centralized method to handle all Instagram links and respond to text based messages (No slash commands).
+        /// </summary>
+        /// <param name="url">The Instagram URL of the content</param>
+        /// <param name="context">The discord context of the message</param>
+        /// <returns></returns>
         private static async Task Responder(string url, ICommandContext context)
         {
             //Process Post:

@@ -57,9 +57,9 @@ namespace Instagram_Reels_Bot.Helpers
 				return await StoryProcessorAsync(url, tier);
 			}
 			//TODO Highlights:
-			else if (false)
+			else if (isHighlight(link))
 			{
-				return new InstagramProcessorResponse("Highlights not implemented.");
+				return new InstagramProcessorResponse("Highlights are not supported yet.");
 			}
 			//all others:
 			else
@@ -74,13 +74,24 @@ namespace Instagram_Reels_Bot.Helpers
         /// <returns>True if the post is a story.</returns>
 		private static bool isStory(Uri url)
         {
-			//URL Starts with stories
+			//Stories URL Starts with stories
 			//https://instagram.com/stories/google/2733780123514124411?utm_source=ig_story_item_share&utm_medium=copy_link
-			return url.Segments[1].StartsWith("stories");
+			return url.Segments[1].Equals("stories/");
         }
 		/// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+		private static bool isHighlight(Uri url)
+		{
+			//Highlights URL Starts with an s
+			//https://www.instagram.com/s/aGlnaGxpZ2h0OjE3ODU1NDgxNjc0NjE3ODM0?story_media_id=2643763694163262580&utm_medium=copy_link
+			return url.Segments[1].Equals("s/");
+		}
+		/// <summary>
 		/// Processes an Instagram story.
-        /// Doesnt work with highlights.
+		/// Doesnt work with highlights.
 		/// </summary>
 		/// <param name="url">Link to the story.</param>
 		/// <param name="premiumTier">Discord Nitro tier. For max file upload size.</param>

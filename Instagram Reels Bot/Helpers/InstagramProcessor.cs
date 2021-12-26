@@ -210,7 +210,7 @@ namespace Instagram_Reels_Bot.Helpers
 			//check for private account:
 			if (media.Value == null)
 			{
-				return new InstagramProcessorResponse("Private Account.");
+				return new InstagramProcessorResponse("Private Account or unknown link format.");
 			}
 
 			string caption = "";

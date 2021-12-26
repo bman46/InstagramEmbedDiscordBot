@@ -44,7 +44,7 @@ namespace Instagram_Reels_Bot.Helpers
 			//Process story
 			if (isStory(link))
 			{
-				return await StoryProcessor(url, tier);
+				return await StoryProcessorAsync(url, tier);
 			}
 			//TODO Highlights:
 			else if (false)
@@ -75,7 +75,7 @@ namespace Instagram_Reels_Bot.Helpers
 		/// <param name="url">Link to the story.</param>
 		/// <param name="premiumTier">Discord Nitro tier. For max file upload size.</param>
 		/// <returns>Instagram processor response with related information.</returns>
-		public static async Task<InstagramProcessorResponse> StoryProcessor(string url, int premiumTier)
+		public static async Task<InstagramProcessorResponse> StoryProcessorAsync(string url, int premiumTier)
 		{
 			//ensure login:
 			InstagramLogin();
@@ -97,54 +97,59 @@ namespace Instagram_Reels_Bot.Helpers
 				if (story.Id.Contains(storyID))
 				{
 					long maxUploadSize = DiscordTools.MaxUploadSize(premiumTier);
-					if (story.VideoList.Count > 0)
+					bool isVideo = story.VideoList.Count > 0;
+					string downloadUrl = "";
+
+					if (isVideo)
 					{
 						//process video:
-						string videourl = story.VideoList[0].Uri;
-						try
-						{
-							using (System.Net.WebClient wc = new System.Net.WebClient())
-							{
-								wc.OpenRead(videourl);
-								if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < maxUploadSize)
-								{
-									byte[] data = wc.DownloadData(videourl);
-									if (data.Length < maxUploadSize)
-									{
-										return new InstagramProcessorResponse(true, "", videourl, url, data);
-									}
-								}
-							}
-						}
-						catch (Exception e)
-						{
-							//failback to link to video:
-							Console.WriteLine(e);
-						}
-						return new InstagramProcessorResponse(true, "", videourl, url, null);
-
+						downloadUrl = story.VideoList[0].Uri;
 					}
 					else if (story.ImageList.Count > 0)
 					{
 						//Image:
-						Uri imageUrl = new Uri(story.ImageList[0].Uri);
-						using (System.Net.WebClient wc = new System.Net.WebClient())
+						downloadUrl = story.ImageList[0].Uri;
+
+					}
+                    else
+                    {
+						return new InstagramProcessorResponse("This story uses a format that we do not support.");
+                    }
+					//Return downloaded content (if possible):
+					try
+					{
+						using (HttpClient client = new HttpClient())
 						{
-							wc.OpenRead(imageUrl);
-							if (Convert.ToInt64(wc.ResponseHeaders["Content-Length"]) < maxUploadSize)
+							client.MaxResponseContentBufferSize = maxUploadSize;
+							var response = await client.GetAsync(downloadUrl);
+							byte[] data = await response.Content.ReadAsByteArrayAsync();
+							//If statement to double check size.
+							if (data.Length < maxUploadSize)
 							{
-								byte[] data = wc.DownloadData(imageUrl);
-								if (data.Length < maxUploadSize)
-								{
-									//upload video:
-									return new InstagramProcessorResponse(false, "", imageUrl.ToString(), url, data);
-								}
-								
+								return new InstagramProcessorResponse(isVideo, "", downloadUrl, url, data);
 							}
-							return new InstagramProcessorResponse(false, "", imageUrl.ToString(), url, null);
+
 						}
 					}
-
+					catch (HttpRequestException e)
+					{
+						if (e.Message.Contains("Cannot write more bytes to the buffer than the configured maximum buffer size"))
+						{
+							//File too big to upload to discord. Just ignore the error.
+						}
+						else
+						{
+							//Unexpected error:
+							Console.WriteLine("HttpRequestException Error:\n" + e);
+						}
+					}
+					catch (Exception e)
+					{
+						//Log Error:
+						Console.WriteLine(e);
+					}
+					//Fallback to URL:
+					return new InstagramProcessorResponse(true, "", downloadUrl, url, null);
 				}
 			}
 			return new InstagramProcessorResponse("Could not find story.");

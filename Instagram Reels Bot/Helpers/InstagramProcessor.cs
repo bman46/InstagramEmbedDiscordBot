@@ -41,6 +41,16 @@ namespace Instagram_Reels_Bot.Helpers
 			{
 				return new InstagramProcessorResponse("Malformed URL.");
 			}
+			//Ensure link is an Instagram Link:
+			if(!(link.DnsSafeHost.ToLower().Equals("www.instagram.com")|| link.DnsSafeHost.ToLower().Equals("instagram.com")))
+            {
+				return new InstagramProcessorResponse("Not a recognized Instagram link.");
+			}
+			if(!(link.Scheme.ToLower().Equals("https")|| link.Scheme.ToLower().Equals("http")))
+            {
+				return new InstagramProcessorResponse("Link must be served over http or https.");
+			}
+
 			//Process story
 			if (isStory(link))
 			{

@@ -21,6 +21,11 @@ namespace Instagram_Reels_Bot.Helpers
 		/// <returns>Instagram processor response with related information.</returns>
 		public static async Task<InstagramProcessorResponse> PostRouter(string url, SocketGuild guild, int postIndex = 1)
         {
+			//No guild in DMs
+            if (guild == null)
+            {
+				return await PostRouter(url, 0, postIndex);
+			}
 			return await PostRouter(url, ((int)guild.PremiumTier), postIndex);
         }
 		/// <summary>

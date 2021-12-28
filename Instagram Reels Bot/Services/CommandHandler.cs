@@ -77,6 +77,7 @@ namespace Instagram_Reels_Bot.Services
             //DMs:
             if (message.Channel.GetType() == typeof(SocketDMChannel))
             {
+                //TODO: Move this to a module file:
                 if (message.Content.ToLower().StartsWith("debug"))
                 {
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
@@ -200,7 +201,13 @@ namespace Instagram_Reels_Bot.Services
                 }
             }
         }
-       
+        /// <summary>
+        /// Handles text command success and failures.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="context"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
         public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, Discord.Commands.IResult result)
         {
             // if a command isn't found, log that info to console and exit this method
@@ -219,7 +226,11 @@ namespace Instagram_Reels_Bot.Services
             }
             else if(result.ErrorReason.Contains("Missing Permissions"))
             {
-                await context.Channel.SendMessageAsync($"I do not have permission to carry out this action. I need permission to Send Messages, Embed Links, Attach Files, Add Reactions, and Manage Messages in this channel.");
+                await context.Channel.SendMessageAsync($"I do not have permission to carry out this action. I need permission to Send Messages, Embed Links, Attach Files, Add Reactions, Read Message History, and Manage Messages in this channel.");
+                return;
+            }else if(result.ErrorReason.Contains("Cannot reply without permission to read message history"))
+            {
+                await context.Channel.SendMessageAsync("I need permission to read message history in order to reply to a message and carry out the command.");
                 return;
             }
             else if (result.ErrorReason.Contains("timed out"))
@@ -245,6 +256,13 @@ namespace Instagram_Reels_Bot.Services
             }
 
         }
+        /// <summary>
+        /// Handles success and failures from slash commands.
+        /// </summary>
+        /// <param name="arg1"></param>
+        /// <param name="arg2"></param>
+        /// <param name="arg3"></param>
+        /// <returns></returns>
         private Task SlashCommandExecuted(SlashCommandInfo arg1, Discord.IInteractionContext arg2, Discord.Interactions.IResult arg3)
         {
             if (!arg3.IsSuccess)

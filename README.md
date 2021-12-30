@@ -5,6 +5,10 @@ Embeds videos and images from users linked Instagram posts, videos, and reels in
 
 [Support Discord Server](https://discord.gg/6K3tdsYd6J)
 
+[Rate and Upvote on Top.gg](https://top.gg/bot/815695225678463017)
+
+[Rate and Upvote on DiscordBotList.com](https://discord.ly/instagram-embed)
+
 ## Features:
 - No prefixes needed
 - Videos are downloadable

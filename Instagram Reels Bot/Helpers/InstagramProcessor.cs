@@ -3,7 +3,9 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Discord.WebSocket;
+using InstagramApiSharp.API.Builder;
 using InstagramApiSharp.Classes;
+using InstagramApiSharp.Logger;
 using Microsoft.Extensions.Configuration;
 
 namespace Instagram_Reels_Bot.Helpers
@@ -299,13 +301,25 @@ namespace Instagram_Reels_Bot.Helpers
 		}
 		/// <summary>
 		/// Logs the bot into Instagram if logged out.
+        /// Also allows for logging out and back in again.
 		/// </summary>
-		public static void InstagramLogin()
+		public static void InstagramLogin(bool clearStateFile = false, bool logOutFirst = false)
 		{
-			if (instaApi.IsUserAuthenticated)
+			if (instaApi.IsUserAuthenticated && !logOutFirst)
 			{
 				//Skip. Already Authenticated.
 				return;
+			}
+			else if (logOutFirst)
+            {
+				// Log out of account:
+				Console.WriteLine("Logging out.");
+				//Logout:
+				instaApi.LogoutAsync().GetAwaiter().GetResult();
+				//Re-initialize instaApi object:
+				instaApi = InstaApiBuilder.CreateBuilder()
+					.UseLogger(new DebugLogger(LogLevel.Exceptions))
+					.Build();
 			}
 			// create the configuration
 			var _builder = new ConfigurationBuilder()
@@ -333,7 +347,7 @@ namespace Instagram_Reels_Bot.Helpers
 			try
 			{
 				// load session file if exists
-				if (File.Exists(stateFile))
+				if (File.Exists(stateFile)&&!clearStateFile)
 				{
 					Console.WriteLine("Loading state from file");
 					using (var fs = File.OpenRead(stateFile))
@@ -341,7 +355,10 @@ namespace Instagram_Reels_Bot.Helpers
 						// Load state data from file:
 						instaApi.LoadStateDataFromStream(fs);
 					}
-				}
+				}else if (clearStateFile)
+                {
+					File.Delete(stateFile);
+                }
 			}
 			catch (Exception e)
 			{
@@ -373,9 +390,6 @@ namespace Instagram_Reels_Bot.Helpers
 			{
 				Console.WriteLine("Error writing state file. Error: " + e);
 			}
-
 		}
-
 	}
 }
-

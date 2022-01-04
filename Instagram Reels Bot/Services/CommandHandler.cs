@@ -10,6 +10,7 @@ using OpenGraphNet;
 using System.Linq;
 using Instagram_Reels_Bot.Modules;
 using Discord.Interactions;
+using Instagram_Reels_Bot.Helpers;
 
 namespace Instagram_Reels_Bot.Services
 {
@@ -142,6 +143,15 @@ namespace Instagram_Reels_Bot.Services
                             users += guild.MemberCount;
                         }
                         await message.ReplyAsync("Users: "+users);
+                    }
+                }
+                else if (message.Content.ToLower().StartsWith("relogin"))
+                {
+                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    {
+                        //Clear login information and relogin:
+                        InstagramProcessor.InstagramLogin(true, true);
+                        await message.ReplyAsync("Success");
                     }
                 }
                 return;

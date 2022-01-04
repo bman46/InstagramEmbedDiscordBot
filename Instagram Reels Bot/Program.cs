@@ -51,7 +51,6 @@ namespace Instagram_Reels_Bot
                 .UseLogger(new DebugLogger(LogLevel.Exceptions))
                 .Build();
             InstagramProcessor.InstagramLogin();
-
         }
 
         public async Task MainAsync()

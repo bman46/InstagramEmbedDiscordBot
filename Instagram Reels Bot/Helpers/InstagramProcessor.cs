@@ -427,6 +427,12 @@ namespace Instagram_Reels_Bot.Helpers
 			// build the configuration and assign to _config          
 			var config = _builder.Build();
 
+            // Check to ensure that 2FASecret is set:
+            if (string.IsNullOrEmpty(config["2FASecret"]))
+            {
+				throw new ArgumentException("2FASecret config not set.");
+			}
+
 			//Convert secret:
 			var bytes = Base32Encoding.ToBytes(config["2FASecret"]);
 			var totp = new Totp(bytes);

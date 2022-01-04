@@ -453,5 +453,13 @@ namespace Instagram_Reels_Bot.Helpers
 				return totp.ComputeTotp();
 			}
 		}
+		/// <summary>
+        /// Returns the username of the logged in Instagram account.
+        /// </summary>
+        /// <returns></returns>
+		public static string GetIGUsername()
+        {
+			return instaApi.GetLoggedUser().UserName;
+        }
 	}
 }

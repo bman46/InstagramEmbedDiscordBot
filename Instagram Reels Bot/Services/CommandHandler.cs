@@ -153,7 +153,8 @@ namespace Instagram_Reels_Bot.Services
                         InstagramProcessor.InstagramLogin(true, true);
                         await message.ReplyAsync("Success");
                     }
-                }else if (message.Content.ToLower().StartsWith("2facode"))
+                }
+                else if (message.Content.ToLower().StartsWith("2fa"))
                 {
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
@@ -161,7 +162,7 @@ namespace Instagram_Reels_Bot.Services
                         try
                         {
                             var code = InstagramProcessor.GetTwoFactorAuthCode();
-                            await message.ReplyAsync("2FA Code: " + code);
+                            await message.ReplyAsync("Username: "+InstagramProcessor.GetIGUsername()+ "\n2FA Code: " + code);
                         }catch(Exception e)
                         {
                             await message.ReplyAsync("Failed to get 2FA code.");

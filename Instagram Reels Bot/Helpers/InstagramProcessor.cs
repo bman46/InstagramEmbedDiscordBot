@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using InstagramApiSharp.API.Builder;
 using InstagramApiSharp.Classes;
 using InstagramApiSharp.Logger;
 using Microsoft.Extensions.Configuration;
+using OtpNet;
 
 namespace Instagram_Reels_Bot.Helpers
 {
@@ -302,6 +304,7 @@ namespace Instagram_Reels_Bot.Helpers
 		/// <summary>
 		/// Logs the bot into Instagram if logged out.
         /// Also allows for logging out and back in again.
+        /// TODO: Add 2FA support
 		/// </summary>
 		public static void InstagramLogin(bool clearStateFile = false, bool logOutFirst = false)
 		{
@@ -370,8 +373,31 @@ namespace Instagram_Reels_Bot.Helpers
 			var logInResult = instaApi.LoginAsync().GetAwaiter().GetResult();
 			if (!logInResult.Succeeded)
 			{
-				Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
-				return;
+				if (logInResult.Value == InstaLoginResult.TwoFactorRequired)
+				{
+					Console.WriteLine("Logging in with 2FA...");
+					//Sleep to make it more human like:
+					Random rnd = new Random();
+					Thread.Sleep(rnd.Next(1, 3));
+					//Try to log in:
+					string code = GetTwoFactorAuthCode();
+					Console.WriteLine(code);
+					var twoFAlogInResult = instaApi.TwoFactorLoginAsync(code).GetAwaiter().GetResult();
+					if (!twoFAlogInResult.Succeeded)
+					{
+						Console.WriteLine("Failed to log in with 2FA.");
+						Console.WriteLine(twoFAlogInResult.Info.Message);
+					}
+					else
+					{
+						Console.WriteLine("Logged in with 2FA.");
+					}
+				}
+				else
+				{
+					Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
+					return;
+				}
 			}
 			var state = instaApi.GetStateDataAsStream();
 			// in .net core or uwp apps don't use GetStateDataAsStream.
@@ -389,6 +415,31 @@ namespace Instagram_Reels_Bot.Helpers
 			catch (Exception e)
 			{
 				Console.WriteLine("Error writing state file. Error: " + e);
+			}
+		}
+		public static string GetTwoFactorAuthCode()
+        {
+			// create the configuration
+			var _builder = new ConfigurationBuilder()
+				.SetBasePath(AppContext.BaseDirectory)
+				.AddJsonFile(path: "config.json");
+
+			// build the configuration and assign to _config          
+			var config = _builder.Build();
+
+			//Convert secret:
+			var bytes = Base32Encoding.ToBytes(config["2FASecret"]);
+			var totp = new Totp(bytes);
+
+            if (totp.RemainingSeconds() > 1)
+            {
+				return totp.ComputeTotp();
+			}
+            else
+            {
+				//Wait for next code if the current code is about to expire:
+				Thread.Sleep(totp.RemainingSeconds() * 1000 + 100);
+				return totp.ComputeTotp();
 			}
 		}
 	}

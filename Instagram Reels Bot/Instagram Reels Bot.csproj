@@ -17,12 +17,14 @@
     <PackageReference Include="OpenGraph-Net" Version="3.2.8" />
     <PackageReference Include="InstagramApiSharp" Version="1.7.1" />
     <PackageReference Include="Discord.Net.Interactions" Version="3.1.0" />
+    <PackageReference Include="Otp.NET" Version="1.2.2" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="InstagramApiSharp" />
     <None Remove="Discord.Net.Interactions" />
     <None Remove="InstagramHelpers\" />
+    <None Remove="Otp.NET" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helpers\" />

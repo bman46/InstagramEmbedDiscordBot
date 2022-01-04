@@ -153,6 +153,14 @@ namespace Instagram_Reels_Bot.Services
                         InstagramProcessor.InstagramLogin(true, true);
                         await message.ReplyAsync("Success");
                     }
+                }else if (message.Content.ToLower().StartsWith("2facode"))
+                {
+                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    {
+                        //Clear login information and relogin:
+                        var code = InstagramProcessor.GetTwoFactorAuthCode();
+                        await message.ReplyAsync("2FA Code: "+code);
+                    }
                 }
                 return;
             }

@@ -382,7 +382,7 @@ namespace Instagram_Reels_Bot.Helpers
 					//Try to log in:
 					string code = GetTwoFactorAuthCode();
 					Console.WriteLine(code);
-					var twoFAlogInResult = instaApi.TwoFactorLoginAsync(code).GetAwaiter().GetResult();
+					var twoFAlogInResult = instaApi.TwoFactorLoginAsync(code, 0).GetAwaiter().GetResult();
 					if (!twoFAlogInResult.Succeeded)
 					{
 						Console.WriteLine("Failed to log in with 2FA.");

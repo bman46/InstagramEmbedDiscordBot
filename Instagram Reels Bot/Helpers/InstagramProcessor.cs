@@ -417,6 +417,11 @@ namespace Instagram_Reels_Bot.Helpers
 				Console.WriteLine("Error writing state file. Error: " + e);
 			}
 		}
+		/// <summary>
+        /// Gets the 2FA OTP.
+        /// </summary>
+        /// <returns>A 2FA Auth code</returns>
+        /// <exception cref="ArgumentException">Thrown if 2FASecret is not set in the config.</exception>
 		public static string GetTwoFactorAuthCode()
         {
 			// create the configuration

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using InstagramApiSharp.API.Builder;
+using InstagramApiSharp;
 using InstagramApiSharp.Classes;
 using InstagramApiSharp.Classes.Android.DeviceInfo;
 using InstagramApiSharp.Logger;
@@ -307,6 +309,72 @@ namespace Instagram_Reels_Bot.Helpers
 			}
 			//Fallback to URL:
 			return new InstagramProcessorResponse(true, caption, downloadUrl, url, null);
+		}
+		public static async Task<long> GetUserIDFromUsername(string username)
+        {
+			return (await instaApi.UserProcessor.GetUserAsync(username)).Value.Pk;
+        }
+		/// <summary>
+        /// Gets the date of the last instagram post from a user.
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <returns></returns>
+		public static async Task<DateTime> GetLatestPostDate(long userID)
+        {
+			//Check for login:
+			InstagramLogin();
+
+			//get the IG user:
+			var user = (await instaApi.UserProcessor.GetUserInfoByIdAsync(userID)).Value;
+
+			var LatestMedia = (await instaApi.UserProcessor.GetUserMediaAsync(user.Username, PaginationParameters.MaxPagesToLoad(1))).Value;
+			//Ensure there are posts:
+			if(LatestMedia == null || LatestMedia.Count==0)
+            {
+				Console.WriteLine("Cannot see profile. May be private.");
+				return DateTime.UnixEpoch;
+            }
+			return LatestMedia[0].TakenAt;
+        }
+		/// <summary>
+        /// Gets the latest instagram posts from a user account:
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="startDate"></param>
+        /// <returns></returns>
+		public static async Task<InstagramProcessorResponse[]> PostsSinceDate(long userID, DateTime startDate)
+        {
+			//Check for login:
+			InstagramLogin();
+
+			//get the IG user:
+			var user = (await instaApi.UserProcessor.GetUserInfoByIdAsync(userID)).Value;
+			List<InstagramProcessorResponse> responses = new List<InstagramProcessorResponse>();
+			var LatestMedia = (await instaApi.UserProcessor.GetUserMediaAsync(user.Username, PaginationParameters.MaxPagesToLoad(1))).Value;
+
+			if (LatestMedia == null || LatestMedia.Count == 0)
+			{
+				responses.Add(new InstagramProcessorResponse("Cannot get profile."));
+				return responses.ToArray();
+			}
+			//Only show the latest 4 for resource reasons:
+            if (LatestMedia.Count > 4)
+            {
+				LatestMedia.RemoveRange(4, LatestMedia.Count - 4);
+				//Add notification for more posts:
+				responses.Add(new InstagramProcessorResponse("And " + (LatestMedia.Count - 4) + " more posts.", true));
+            }
+			foreach(var media in LatestMedia)
+            {
+                if (media.TakenAt > startDate)
+                {
+					Uri url = (await instaApi.MediaProcessor.GetShareLinkFromMediaIdAsync(media.InstaIdentifier)).Value;
+					//TODO: Support Nitro:
+					//Insert the post at the front of the list.
+					responses.Insert(0, await PostRouter(url.ToString(), 0));
+                }
+            }
+			return responses.ToArray();
 		}
 		/// <summary>
 		/// Logs the bot into Instagram if logged out.

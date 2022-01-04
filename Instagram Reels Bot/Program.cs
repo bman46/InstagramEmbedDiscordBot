@@ -80,7 +80,7 @@ namespace Instagram_Reels_Bot
 
                 // we get the CommandHandler class here and call the InitializeAsync method to start things up for the CommandHandler service
                 await services.GetRequiredService<CommandHandler>().InitializeAsync();
-               
+
                 await Task.Delay(-1);
             }
         }
@@ -127,6 +127,7 @@ namespace Instagram_Reels_Bot
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<InteractionService>()
+                .AddSingleton<Subscriptions>()
                 .BuildServiceProvider();
         }
 

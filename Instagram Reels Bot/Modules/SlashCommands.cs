@@ -124,6 +124,22 @@ namespace Instagram_Reels_Bot.Modules
 			embed.WithColor(new Color(131, 58, 180));
 			await RespondAsync(embed: embed.Build(), ephemeral: true);
 		}
+		[SlashCommand("subscribe", "Get updates when a user posts a new post on Instagram.", runMode: RunMode.Async)]
+		public async Task Subscribe([Summary("username", "The username of the Instagram user.")]string username)
+		{
+			//Buy more time to process posts:
+			await DeferAsync(false);
+
+
+			await FollowupAsync();
+
+			//TODO: Implement.
+		}
+		[SlashCommand("unsubscribe", "Stop getting updates when a user posts a new post on Instagram.", runMode: RunMode.Async)]
+		public async Task Unsubscribe([Summary("username","The username of the Instagram user.")] string username)
+		{
+			//TODO: Implement.
+		}
 	}
 }
 

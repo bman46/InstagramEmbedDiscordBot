@@ -216,10 +216,16 @@ namespace Instagram_Reels_Bot.Helpers
 				return new InstagramProcessorResponse("Error Loading Post.");
 			}
 
+			//Check for private account:
+            if (media.Info.NeedsChallenge)
+            {
+				throw new Exception("Bot challenged by Instagram.");
+            }
+
 			//check for private account:
 			if (media.Value == null)
 			{
-				return new InstagramProcessorResponse("Private Account or unknown link format.");
+				return new InstagramProcessorResponse("The account may be private. Please report this on our support server if the account is public. https://discord.gg/6K3tdsYd6J");
 			}
 
 			string caption = "";

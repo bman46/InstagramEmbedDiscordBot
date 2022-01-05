@@ -311,7 +311,6 @@ namespace Instagram_Reels_Bot.Helpers
 		/// <summary>
 		/// Logs the bot into Instagram if logged out.
         /// Also allows for logging out and back in again.
-        /// TODO: Add 2FA support
 		/// </summary>
 		public static void InstagramLogin(bool clearStateFile = false, bool logOutFirst = false)
 		{

@@ -471,6 +471,9 @@ namespace Instagram_Reels_Bot.Helpers
         {
 			return instaApi.GetLoggedUser().UserName;
         }
+		/// <summary>
+        /// An android device to use for login with instagram to keep one consistant device.
+        /// </summary>
 		public static AndroidDevice device = new AndroidDevice
 		{
 			// Device name

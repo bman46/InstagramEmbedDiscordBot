@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Discord.WebSocket;
 using InstagramApiSharp.API.Builder;
 using InstagramApiSharp.Classes;
+using InstagramApiSharp.Classes.Android.DeviceInfo;
 using InstagramApiSharp.Logger;
 using Microsoft.Extensions.Configuration;
 using OtpNet;
@@ -330,6 +331,9 @@ namespace Instagram_Reels_Bot.Helpers
 					.UseLogger(new DebugLogger(LogLevel.Exceptions))
 					.Build();
 			}
+			// Set the Android Device:
+			instaApi.SetDevice(device);
+
 			// create the configuration
 			var _builder = new ConfigurationBuilder()
 				.SetBasePath(AppContext.BaseDirectory)
@@ -467,5 +471,32 @@ namespace Instagram_Reels_Bot.Helpers
         {
 			return instaApi.GetLoggedUser().UserName;
         }
+		public static AndroidDevice device = new AndroidDevice
+		{
+			// Device name
+			AndroidBoardName = "HONOR",
+			// Device brand
+			DeviceBrand = "HUAWEI",
+			// Hardware manufacturer
+			HardwareManufacturer = "HUAWEI",
+			// Device model
+			DeviceModel = "PRA-LA1",
+			// Device model identifier
+			DeviceModelIdentifier = "PRA-LA1",
+			// Firmware brand
+			FirmwareBrand = "HWPRA-H",
+			// Hardware model
+			HardwareModel = "hi6250",
+			// Device guid
+			DeviceGuid = new Guid("be897499-c663-492e-a125-f4c8d3786ebf"),
+			// Phone guid
+			PhoneGuid = new Guid("7b72321f-dd9a-425e-b3ee-d4aaf476ec53"),
+			// Device id based on Device guid
+			DeviceId = ApiRequestMessage.GenerateDeviceIdFromGuid(new Guid("be897499-c663-492e-a125-f4c8d3786ebf")),
+			// Resolution
+			Resolution = "1080x1812",
+			// Dpi
+			Dpi = "480dpi",
+		};
 	}
 }

@@ -31,11 +31,12 @@ namespace Instagram_Reels_Bot.DataTables
     {
         public RespondChannel(ulong guildID, ulong ChannelID)
         {
-            this.GuildID = guildID;
-            this.ChannelID = ChannelID;
+            this.GuildID = guildID.ToString();
+            this.ChannelID = ChannelID.ToString();
         }
-        public ulong GuildID { get; set; }
-        public ulong ChannelID { get; set; }
+
+        public string GuildID { get; set; }
+        public string ChannelID { get; set; }
 
         public override string ToString()
         {

@@ -19,10 +19,10 @@ namespace Instagram_Reels_Bot.Services
     /// </summary>
 	public class Subscriptions
     {
-        private readonly IConfiguration config;
+        private readonly IConfiguration _config;
         private readonly IServiceProvider services;
         private System.Timers.Timer UpdateTimer;
-        private readonly DiscordShardedClient client;
+        private readonly DiscordShardedClient _client;
         //CosmosDB:
         private static string EndpointUri;
         private static string PrimaryKey;
@@ -37,12 +37,11 @@ namespace Instagram_Reels_Bot.Services
         /// Initialize sub
         /// </summary>
         /// <param name="services"></param>
-        public Subscriptions(IServiceProvider services)
+        public Subscriptions(DiscordShardedClient client, IConfiguration config)
         {
             // Dependancy injection:
-            config = services.GetRequiredService<IConfiguration>();
-            client = services.GetRequiredService<DiscordShardedClient>();
-            this.services = services;
+            _config = config;
+            _client = client;
 
             //Dont set database locations unless AllowSubscriptions is true:
             if (config["AllowSubscriptions"].ToLower() != "true")
@@ -93,7 +92,7 @@ namespace Instagram_Reels_Bot.Services
             {
                 foreach(RespondChannel chan in databaseValue.SubscribedChannels)
                 {
-                    if(chan.ChannelID == channelID)
+                    if(ulong.Parse(chan.ChannelID) == channelID)
                     {
                         throw new Exception("Already subscribed");
                     }
@@ -122,7 +121,7 @@ namespace Instagram_Reels_Bot.Services
             this.FollowedAccountsContainer = await this.Database.CreateContainerIfNotExistsAsync("FollowedAccounts", "/id");
 
             // Timer:
-            UpdateTimer = new System.Timers.Timer(3600000.0 * double.Parse(config["HoursToCheckForNewContent"])); //one hour in milliseconds
+            UpdateTimer = new System.Timers.Timer(3600000.0 * double.Parse(_config["HoursToCheckForNewContent"])); //one hour in milliseconds
             UpdateTimer.Elapsed += new ElapsedEventHandler(GetLatestsPosts);
             UpdateTimer.Start();
         }
@@ -147,11 +146,10 @@ namespace Instagram_Reels_Bot.Services
                         //Set last check as now:
                         igAccount.LastCheckTime = DateTime.Now;
                         var newIGPosts = await InstagramProcessor.PostsSinceDate(long.Parse(igAccount.InstagramID), igAccount.LastPostDate);
-                        if (newIGPosts.Length>0 && newIGPosts[0].success)
+                        if (newIGPosts.Length>0 && newIGPosts[newIGPosts.Length - 1].success)
                         {
                             //Set the most recent posts date:
-                            //TODO: Reinstate set date:
-                            //igAccount.LastPostDate = newIGPosts[0].postDate;
+                            igAccount.LastPostDate = newIGPosts[newIGPosts.Length-1].postDate;
                         }
                         foreach(InstagramProcessorResponse response in newIGPosts)
                         {
@@ -175,7 +173,7 @@ namespace Instagram_Reels_Bot.Services
                                             IMessageChannel chan = null;
                                             try
                                             {
-                                                chan = client.GetChannel(subbedGuild.ChannelID) as IMessageChannel;
+                                                chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
                                             }
                                             catch (Exception e)
                                             {
@@ -199,7 +197,7 @@ namespace Instagram_Reels_Bot.Services
                                         IMessageChannel chan = null;
                                         try
                                         {
-                                            chan = client.GetChannel(subbedGuild.ChannelID) as IMessageChannel;
+                                            chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
                                         }
                                         catch (Exception e)
                                         {
@@ -247,7 +245,8 @@ namespace Instagram_Reels_Bot.Services
                                             IMessageChannel chan = null;
                                             try
                                             {
-                                                chan = client.Rest.GetChannelAsync(subbedGuild.ChannelID) as IMessageChannel;
+                                                Console.WriteLine(subbedGuild.ChannelID);
+                                                chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
                                             }
                                             catch (Exception e)
                                             {
@@ -271,7 +270,7 @@ namespace Instagram_Reels_Bot.Services
                                         IMessageChannel chan = null;
                                         try
                                         {
-                                            chan = client.GetChannel(subbedGuild.ChannelID) as IMessageChannel;
+                                            chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
                                         }
                                         catch (Exception e)
                                         {

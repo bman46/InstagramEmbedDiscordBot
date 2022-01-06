@@ -369,7 +369,7 @@ namespace Instagram_Reels_Bot.Helpers
 					Uri url = (await instaApi.MediaProcessor.GetShareLinkFromMediaIdAsync(media.InstaIdentifier)).Value;
 					//TODO: Support Nitro:
 					//Insert the post at the front of the list.
-					responses.Add(await PostRouter(url.ToString(), 0));
+					responses.Insert(0, await PostRouter(url.ToString(), 0));
                 }
             }
 			return responses.ToArray();

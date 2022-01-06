@@ -10,17 +10,20 @@ namespace Instagram_Reels_Bot.Helpers
         /// </summary>
         /// <param name="isVideo">Set to true if the response is a video</param>
         /// <param name="caption">Post caption</param>
+        /// <param name="accountName">The name of the IG account.</param>
         /// <param name="contentURL">URL to the content (image of video)</param>
         /// <param name="postURL">URL to the post.</param>
         /// <param name="date">Time of the post.</param>
         /// <param name="stream">Byte array of the downloaded video or image.</param>
-		public InstagramProcessorResponse(bool isVideo, string caption, string contentURL, string postURL, DateTime date, byte[] stream)
+		public InstagramProcessorResponse(bool isVideo, string caption, string accountName, Uri accountImage, string contentURL, string postURL, DateTime date, byte[] stream)
 		{
 			this.isVideo = isVideo;
 			this.caption = caption;
 			this.contentURL = new Uri(contentURL);
 			this.postURL = new Uri(postURL);
 			this.postDate = date;
+			this.accountName = accountName;
+			this.iconURL = accountImage;
             if (stream != null)
             {
 				this.stream = new Byte[stream.Length];
@@ -51,5 +54,7 @@ namespace Instagram_Reels_Bot.Helpers
 		public long sizeByte = 0;
 		public byte[] stream = null;
 		public DateTime postDate = DateTime.Now;
+		public string accountName = "";
+		public Uri iconURL = null;
 	}
 }

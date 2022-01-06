@@ -28,14 +28,15 @@
     <None Remove="Otp.NET" />
     <None Remove="Microsoft.Azure.Cosmos" />
     <None Remove="DataTables\" />
+    <None Remove="config.json" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helpers\" />
     <Folder Include="DataTables\" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="config.json">
+    <EmbeddedResource Include="config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

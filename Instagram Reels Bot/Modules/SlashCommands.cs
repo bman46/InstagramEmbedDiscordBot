@@ -153,6 +153,9 @@ namespace Instagram_Reels_Bot.Modules
 		[SlashCommand("unsubscribe", "Stop getting updates when a user posts a new post on Instagram.", runMode: RunMode.Async)]
 		public async Task Unsubscribe([Summary("username","The username of the Instagram user.")] string username)
 		{
+			await DeferAsync(true);
+			await _subscriptions.GetLatestsPosts();
+			await FollowupAsync("Done.");
 			//TODO: Implement.
 		}
 	}

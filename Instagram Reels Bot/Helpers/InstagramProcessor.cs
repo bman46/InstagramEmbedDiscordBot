@@ -159,7 +159,7 @@ namespace Instagram_Reels_Bot.Helpers
 							//If statement to double check size.
 							if (data.Length < maxUploadSize)
 							{
-								return new InstagramProcessorResponse(isVideo, "", downloadUrl, url, story.DeviceTimestamp, data);
+								return new InstagramProcessorResponse(isVideo, "", story.User.FullName, new Uri(story.User.ProfilePicture), downloadUrl, url, story.TakenAt, data);
 							}
 
 						}
@@ -182,7 +182,7 @@ namespace Instagram_Reels_Bot.Helpers
 						Console.WriteLine(e);
 					}
 					//Fallback to URL:
-					return new InstagramProcessorResponse(true, "", downloadUrl, url, story.DeviceTimestamp, null);
+					return new InstagramProcessorResponse(true, "", story.User.FullName, new Uri(story.User.ProfilePicture), downloadUrl, url, story.TakenAt, null);
 				}
 			}
 			return new InstagramProcessorResponse("Could not find story.");
@@ -285,7 +285,7 @@ namespace Instagram_Reels_Bot.Helpers
 					//If statement to double check size.
 					if (data.Length < maxUploadSize)
 					{
-						return new InstagramProcessorResponse(isVideo, caption, downloadUrl, url, media.Value.DeviceTimeStamp, data);
+						return new InstagramProcessorResponse(isVideo, caption, media.Value.User.FullName, new Uri(media.Value.User.ProfilePicture), downloadUrl, url, media.Value.TakenAt, data);
 					}
 
 				}
@@ -308,7 +308,7 @@ namespace Instagram_Reels_Bot.Helpers
 				Console.WriteLine(e);
 			}
 			//Fallback to URL:
-			return new InstagramProcessorResponse(true, caption, downloadUrl, url, media.Value.DeviceTimeStamp, null);
+			return new InstagramProcessorResponse(true, caption, media.Value.User.FullName, new Uri(media.Value.User.ProfilePicture), downloadUrl, url, media.Value.TakenAt, null);
 		}
 		public static async Task<long> GetUserIDFromUsername(string username)
         {
@@ -340,7 +340,7 @@ namespace Instagram_Reels_Bot.Helpers
         /// Gets the latest instagram posts from a user account:
         /// </summary>
         /// <param name="userID">IG User ID</param>
-        /// <param name="startDate">Time to get </param>
+        /// <param name="startDate">Time of the last post.</param>
         /// <returns></returns>
 		public static async Task<InstagramProcessorResponse[]> PostsSinceDate(long userID, DateTime startDate)
         {
@@ -364,12 +364,12 @@ namespace Instagram_Reels_Bot.Helpers
             }
 			foreach(var media in LatestMedia)
             {
-                if (media.TakenAt > startDate)
+                if (media.TakenAt.ToUniversalTime() > startDate.ToUniversalTime())
                 {
 					Uri url = (await instaApi.MediaProcessor.GetShareLinkFromMediaIdAsync(media.InstaIdentifier)).Value;
 					//TODO: Support Nitro:
 					//Insert the post at the front of the list.
-					responses.Insert(0, await PostRouter(url.ToString(), 0));
+					responses.Add(await PostRouter(url.ToString(), 0));
                 }
             }
 			return responses.ToArray();

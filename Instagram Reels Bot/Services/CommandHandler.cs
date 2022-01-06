@@ -22,6 +22,7 @@ namespace Instagram_Reels_Bot.Services
         private readonly InteractionService _interact;
         private readonly DiscordShardedClient _client;
         private readonly IServiceProvider _services;
+        private readonly Subscriptions _subscriptions;
         /// <summary>
         /// Notifies the owner of an error
         /// false by default. Toggled by user DM command.
@@ -29,7 +30,7 @@ namespace Instagram_Reels_Bot.Services
         /// </summary>
         public static bool notifyOwnerOnError = false;
 
-        public CommandHandler(IServiceProvider services)
+        public CommandHandler(IServiceProvider services, Services.Subscriptions subs)
         {
             // juice up the fields with these services
             // since we passed the services in, we can use GetRequiredService to pass them into the fields set earlier
@@ -38,6 +39,7 @@ namespace Instagram_Reels_Bot.Services
             _interact = services.GetRequiredService<InteractionService>();
             _client = services.GetRequiredService<DiscordShardedClient>();
             _services = services;
+            _subscriptions = subs;
 
             // take action when we execute a command
             _commands.CommandExecuted += CommandExecutedAsync;
@@ -94,7 +96,7 @@ namespace Instagram_Reels_Bot.Services
                         }
                         catch (Exception e)
                         {
-                            await message.ReplyAsync("Could not connect to server. Error: "+e);
+                            await message.ReplyAsync("Could not connect to server. Error: " + e);
                         }
                     }
                 }
@@ -104,7 +106,7 @@ namespace Instagram_Reels_Bot.Services
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
                         string serverList = Format.Bold("Servers:");
-                        foreach(SocketGuild guild in _client.Guilds)
+                        foreach (SocketGuild guild in _client.Guilds)
                         {
                             String serverLine = "\n" + guild.Name + " \tBoost: " + guild.PremiumTier + " \tUsers: " + guild.MemberCount + " \tLocale: " + guild.PreferredLocale;
                             //Discord max message length:
@@ -133,16 +135,17 @@ namespace Instagram_Reels_Bot.Services
                             await message.ReplyAsync("Error notifications disabled.");
                         }
                     }
-                }else if (message.Content.ToLower().StartsWith("users"))
+                }
+                else if (message.Content.ToLower().StartsWith("users"))
                 {
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
                         int users = 0;
-                        foreach(SocketGuild guild in _client.Guilds)
+                        foreach (SocketGuild guild in _client.Guilds)
                         {
                             users += guild.MemberCount;
                         }
-                        await message.ReplyAsync("Users: "+users);
+                        await message.ReplyAsync("Users: " + users);
                     }
                 }
                 else if (message.Content.ToLower().StartsWith("relogin"))
@@ -162,12 +165,21 @@ namespace Instagram_Reels_Bot.Services
                         try
                         {
                             var code = InstagramProcessor.GetTwoFactorAuthCode();
-                            await message.ReplyAsync("Username: "+InstagramProcessor.GetIGUsername()+ "\n2FA Code: " + code);
-                        }catch(Exception e)
+                            await message.ReplyAsync("Username: " + InstagramProcessor.GetIGUsername() + "\n2FA Code: " + code);
+                        }
+                        catch (Exception e)
                         {
                             await message.ReplyAsync("Failed to get 2FA code.");
                             Console.WriteLine("2FA Code error: " + e);
                         }
+                    }
+                }
+                else if (message.Content.ToLower().StartsWith("sync"))
+                {
+                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    {
+                        _subscriptions.GetLatestsPosts();
+                        await message.ReplyAsync("Working on it...");
                     }
                 }
                 return;

@@ -21,6 +21,7 @@ namespace Instagram_Reels_Bot.Services
     {
         private readonly IConfiguration config;
         private readonly DiscordShardedClient client;
+        private readonly IServiceProvider services;
         private System.Timers.Timer UpdateTimer;
         //CosmosDB:
         private static string EndpointUri;
@@ -41,6 +42,7 @@ namespace Instagram_Reels_Bot.Services
             // Dependancy injection:
             config = services.GetRequiredService<IConfiguration>();
             client = services.GetRequiredService<DiscordShardedClient>();
+            this.services = services;
 
             //Dont set database locations unless AllowSubscriptions is true:
             if (config["AllowSubscriptions"].ToLower() != "true")
@@ -106,6 +108,7 @@ namespace Instagram_Reels_Bot.Services
         /// <returns></returns>
         public async Task InitializeAsync()
         {
+            Console.WriteLine("Starting the subscription task...");
             if(string.IsNullOrEmpty(PrimaryKey)|| string.IsNullOrEmpty(EndpointUri))
             {
                 Console.WriteLine("Databases not setup.");
@@ -122,9 +125,6 @@ namespace Instagram_Reels_Bot.Services
             UpdateTimer = new System.Timers.Timer(3600000.0 * double.Parse(config["HoursToCheckForNewContent"])); //one hour in milliseconds
             UpdateTimer.Elapsed += new ElapsedEventHandler(GetLatestsPosts);
             UpdateTimer.Start();
-
-            // Check latest posts:
-            GetLatestsPosts();
         }
         /// <summary>
         /// Main loop to parse through all subscribed accounts and upload their contents.
@@ -146,11 +146,12 @@ namespace Instagram_Reels_Bot.Services
                         Console.WriteLine("Checking " + igAccount.InstagramID);
                         //Set last check as now:
                         igAccount.LastCheckTime = DateTime.Now;
-                        var newIGPosts = await InstagramProcessor.PostsSinceDate(long.Parse(igAccount.InstagramID), igAccount.LastPostDate.AddSeconds(1));
-                        if (newIGPosts.Length!=0&&newIGPosts[0].success)
+                        var newIGPosts = await InstagramProcessor.PostsSinceDate(long.Parse(igAccount.InstagramID), igAccount.LastPostDate);
+                        if (newIGPosts.Length>0 && newIGPosts[0].success)
                         {
                             //Set the most recent posts date:
-                            igAccount.LastPostDate = newIGPosts[0].postDate;
+                            //TODO: Reinstate set date:
+                            //igAccount.LastPostDate = newIGPosts[0].postDate;
                         }
                         foreach(InstagramProcessorResponse response in newIGPosts)
                         {
@@ -216,8 +217,21 @@ namespace Instagram_Reels_Bot.Services
                             }
                             else
                             {
+                                //Account Name:
+                                var account = new EmbedAuthorBuilder();
+                                account.IconUrl = response.iconURL.ToString();
+                                account.Name = response.accountName;
+                                account.Url = response.postURL.ToString();
+
+                                //Instagram Footer:
+                                EmbedFooterBuilder footer = new EmbedFooterBuilder();
+                                footer.IconUrl = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png";
+                                footer.Text = "Instagram";
+
                                 var embed = new EmbedBuilder();
-                                embed.Title = "New Post!";
+                                embed.Author = account;
+                                embed.Footer = footer;
+                                embed.Timestamp = new DateTimeOffset(response.postDate);
                                 embed.Url = response.postURL.ToString();
                                 embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption)) : ("");
                                 embed.ImageUrl = "attachment://IGMedia.jpg";
@@ -288,8 +302,8 @@ namespace Instagram_Reels_Bot.Services
                         Thread.Sleep(2000);
                     }
                 }
-                Console.WriteLine("Done.");
             }
+            Console.WriteLine("Done.");
         }
     }
 }

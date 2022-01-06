@@ -21,7 +21,7 @@ namespace Instagram_Reels_Bot
     {
         // setup our fields we assign later
         private readonly IConfiguration _config;
-        private DiscordShardedClient _client;
+        public DiscordShardedClient _client;
         private InteractionService _interact;
 
         static void Main(string[] args)
@@ -79,11 +79,11 @@ namespace Instagram_Reels_Bot
                 //Set status:
                 await client.SetActivityAsync(new Game("for Instagram links", ActivityType.Watching));
 
+                //Start subscriptions
+                await services.GetRequiredService<Subscriptions>().InitializeAsync();
+
                 // we get the CommandHandler class here and call the InitializeAsync method to start things up for the CommandHandler service
                 await services.GetRequiredService<CommandHandler>().InitializeAsync();
-
-                //start subscriptions:
-                await services.GetRequiredService<Subscriptions>().InitializeAsync();
 
                 await Task.Delay(-1);
             }

@@ -155,7 +155,7 @@ namespace Instagram_Reels_Bot.Modules
 		{
 			await DeferAsync(true);
 			await _subscriptions.GetLatestsPosts();
-			await FollowupAsync("Done.");
+			await FollowupAsync("Complete.");
 			//TODO: Implement.
 		}
 	}

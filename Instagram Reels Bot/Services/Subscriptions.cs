@@ -20,9 +20,9 @@ namespace Instagram_Reels_Bot.Services
 	public class Subscriptions
     {
         private readonly IConfiguration config;
-        private readonly DiscordShardedClient client;
         private readonly IServiceProvider services;
         private System.Timers.Timer UpdateTimer;
+        private readonly DiscordShardedClient client;
         //CosmosDB:
         private static string EndpointUri;
         private static string PrimaryKey;
@@ -247,7 +247,7 @@ namespace Instagram_Reels_Bot.Services
                                             IMessageChannel chan = null;
                                             try
                                             {
-                                                chan = client.GetChannel(subbedGuild.ChannelID) as IMessageChannel;
+                                                chan = client.Rest.GetChannelAsync(subbedGuild.ChannelID) as IMessageChannel;
                                             }
                                             catch (Exception e)
                                             {

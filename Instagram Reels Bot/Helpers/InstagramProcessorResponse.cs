@@ -12,13 +12,15 @@ namespace Instagram_Reels_Bot.Helpers
         /// <param name="caption">Post caption</param>
         /// <param name="contentURL">URL to the content (image of video)</param>
         /// <param name="postURL">URL to the post.</param>
+        /// <param name="date">Time of the post.</param>
         /// <param name="stream">Byte array of the downloaded video or image.</param>
-		public InstagramProcessorResponse(bool isVideo, string caption, string contentURL, string postURL, byte[] stream)
+		public InstagramProcessorResponse(bool isVideo, string caption, string contentURL, string postURL, DateTime date, byte[] stream)
 		{
 			this.isVideo = isVideo;
 			this.caption = caption;
 			this.contentURL = new Uri(contentURL);
 			this.postURL = new Uri(postURL);
+			this.postDate = date;
             if (stream != null)
             {
 				this.stream = new Byte[stream.Length];
@@ -48,5 +50,6 @@ namespace Instagram_Reels_Bot.Helpers
 		public Uri postURL = null;
 		public long sizeByte = 0;
 		public byte[] stream = null;
+		public DateTime postDate = DateTime.Now;
 	}
 }

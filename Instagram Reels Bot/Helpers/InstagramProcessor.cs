@@ -159,7 +159,7 @@ namespace Instagram_Reels_Bot.Helpers
 							//If statement to double check size.
 							if (data.Length < maxUploadSize)
 							{
-								return new InstagramProcessorResponse(isVideo, "", downloadUrl, url, data);
+								return new InstagramProcessorResponse(isVideo, "", downloadUrl, url, story.DeviceTimestamp, data);
 							}
 
 						}
@@ -182,7 +182,7 @@ namespace Instagram_Reels_Bot.Helpers
 						Console.WriteLine(e);
 					}
 					//Fallback to URL:
-					return new InstagramProcessorResponse(true, "", downloadUrl, url, null);
+					return new InstagramProcessorResponse(true, "", downloadUrl, url, story.DeviceTimestamp, null);
 				}
 			}
 			return new InstagramProcessorResponse("Could not find story.");
@@ -285,7 +285,7 @@ namespace Instagram_Reels_Bot.Helpers
 					//If statement to double check size.
 					if (data.Length < maxUploadSize)
 					{
-						return new InstagramProcessorResponse(isVideo, caption, downloadUrl, url, data);
+						return new InstagramProcessorResponse(isVideo, caption, downloadUrl, url, media.Value.DeviceTimeStamp, data);
 					}
 
 				}
@@ -308,7 +308,7 @@ namespace Instagram_Reels_Bot.Helpers
 				Console.WriteLine(e);
 			}
 			//Fallback to URL:
-			return new InstagramProcessorResponse(true, caption, downloadUrl, url, null);
+			return new InstagramProcessorResponse(true, caption, downloadUrl, url, media.Value.DeviceTimeStamp, null);
 		}
 		public static async Task<long> GetUserIDFromUsername(string username)
         {
@@ -339,8 +339,8 @@ namespace Instagram_Reels_Bot.Helpers
 		/// <summary>
         /// Gets the latest instagram posts from a user account:
         /// </summary>
-        /// <param name="userID"></param>
-        /// <param name="startDate"></param>
+        /// <param name="userID">IG User ID</param>
+        /// <param name="startDate">Time to get </param>
         /// <returns></returns>
 		public static async Task<InstagramProcessorResponse[]> PostsSinceDate(long userID, DateTime startDate)
         {
@@ -352,7 +352,7 @@ namespace Instagram_Reels_Bot.Helpers
 			List<InstagramProcessorResponse> responses = new List<InstagramProcessorResponse>();
 			var LatestMedia = (await instaApi.UserProcessor.GetUserMediaAsync(user.Username, PaginationParameters.MaxPagesToLoad(1))).Value;
 
-			if (LatestMedia == null || LatestMedia.Count == 0)
+			if (LatestMedia == null)
 			{
 				responses.Add(new InstagramProcessorResponse("Cannot get profile."));
 				return responses.ToArray();
@@ -361,8 +361,6 @@ namespace Instagram_Reels_Bot.Helpers
             if (LatestMedia.Count > 4)
             {
 				LatestMedia.RemoveRange(4, LatestMedia.Count - 4);
-				//Add notification for more posts:
-				responses.Add(new InstagramProcessorResponse("And " + (LatestMedia.Count - 4) + " more posts.", true));
             }
 			foreach(var media in LatestMedia)
             {

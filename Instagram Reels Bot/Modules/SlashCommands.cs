@@ -7,6 +7,7 @@ using Discord.WebSocket;
 using System.Linq;
 using System.Collections.Generic;
 using Instagram_Reels_Bot.Helpers;
+using Instagram_Reels_Bot.Services;
 
 namespace Instagram_Reels_Bot.Modules
 {
@@ -16,11 +17,13 @@ namespace Instagram_Reels_Bot.Modules
 		public InteractionService Commands { get; set; }
 
 		private Services.CommandHandler _handler;
+		private Subscriptions _subscriptions;
 
 		// Constructor injection is also a valid way to access the dependecies
-		public SlashCommands(Services.CommandHandler handler)
+		public SlashCommands(Services.CommandHandler handler, Services.Subscriptions subs)
 		{
 			_handler = handler;
+			_subscriptions = subs;
 		}
 
 		[SlashCommand("link","Processes an Instagram link.", runMode: RunMode.Async)]
@@ -128,12 +131,24 @@ namespace Instagram_Reels_Bot.Modules
 		public async Task Subscribe([Summary("username", "The username of the Instagram user.")]string username)
 		{
 			//Buy more time to process posts:
-			await DeferAsync(false);
+			await DeferAsync(true);
 
-
-			await FollowupAsync();
-
-			//TODO: Implement.
+			long IGID;
+            try
+            {
+				IGID = await InstagramProcessor.GetUserIDFromUsername(username);
+            }catch(Exception e)
+            {
+				//Possibly incorrect username:
+				Console.WriteLine("Get username failure: " + e);
+				await FollowupAsync("Failed to get Instagram ID. Is the account name correct?");
+				return;
+            }
+			//Subscribe:
+			await _subscriptions.SubscribeToAccount(IGID, Context.Channel.Id, Context.Guild.Id);
+			//Notify:
+			await Context.Channel.SendMessageAsync("This channel has been subscribed to " + username + " on Instagram by " + Context.User.Mention);
+			await FollowupAsync("Success! You will receive new posts to this channel. They will not be instant and accounts are checked on a time interval.");
 		}
 		[SlashCommand("unsubscribe", "Stop getting updates when a user posts a new post on Instagram.", runMode: RunMode.Async)]
 		public async Task Unsubscribe([Summary("username","The username of the Instagram user.")] string username)

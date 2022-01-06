@@ -62,6 +62,7 @@ namespace Instagram_Reels_Bot
                 // you get the services via GetRequiredService<T>
                 var client = services.GetRequiredService<DiscordShardedClient>();
                 var interact = services.GetRequiredService<InteractionService>();
+                var subscriptions = services.GetRequiredService<Subscriptions>();
                 _client = client;
                 _interact = interact;
 
@@ -80,6 +81,9 @@ namespace Instagram_Reels_Bot
 
                 // we get the CommandHandler class here and call the InitializeAsync method to start things up for the CommandHandler service
                 await services.GetRequiredService<CommandHandler>().InitializeAsync();
+
+                //start subscriptions:
+                await services.GetRequiredService<Subscriptions>().InitializeAsync();
 
                 await Task.Delay(-1);
             }

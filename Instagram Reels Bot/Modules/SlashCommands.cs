@@ -46,13 +46,13 @@ namespace Instagram_Reels_Bot.Modules
 					using (Stream stream = new MemoryStream(response.stream))
 					{
 						FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.");
-						await Context.Interaction.FollowupWithFileAsync(attachment, "Video from " + Context.User.Mention + "'s linked reel: ");
+						await Context.Interaction.FollowupWithFileAsync(attachment, "Video from " + Context.User.Mention + "'s linked reel: ", allowedMentions: AllowedMentions.None);
 					}
 				}
                 else
                 {
 					//Response without stream:
-					await FollowupAsync("Video from " + Context.User.Mention + "'s linked reel: " + response.contentURL);
+					await FollowupAsync("Video from " + Context.User.Mention + "'s linked reel: " + response.contentURL, allowedMentions: AllowedMentions.None);
                 }
 
 			}
@@ -69,7 +69,7 @@ namespace Instagram_Reels_Bot.Modules
 					using (Stream stream = new MemoryStream(response.stream))
 					{
 						FileAttachment attachment = new FileAttachment(stream, "IGMedia.jpg", "An Instagram Image.");
-						await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.Build());
+						await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.Build(), allowedMentions: AllowedMentions.None);
 					}
 				}
 				else
@@ -126,4 +126,3 @@ namespace Instagram_Reels_Bot.Modules
 		}
 	}
 }
-

@@ -84,14 +84,14 @@ namespace Instagram_Reels_Bot.Modules
                     using (Stream stream = new MemoryStream(response.stream))
                     {
                         FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.");
-                        await context.Message.Channel.SendFileAsync(attachment, "Video from " + context.Message.Author.Mention + "'s Instagram link:");
+                        await context.Message.Channel.SendFileAsync(attachment, "Video from " + context.Message.Author.Mention + "'s Instagram link:", allowedMentions: AllowedMentions.None);
                     }
                     return;
                 }
                 else
                 {
                     //Response without stream:
-                    await context.Message.ReplyAsync("Video from " + context.User.Mention + "'s linked reel: " + response.contentURL);
+                    await context.Message.ReplyAsync("Video from " + context.User.Mention + "'s linked reel: " + response.contentURL, allowedMentions: AllowedMentions.None);
                     return;
                 }
 

@@ -179,7 +179,7 @@ namespace Instagram_Reels_Bot.Modules
 				return;
 			}
 			//Notify:
-			await Context.Channel.SendMessageAsync("This channel has been subscribed to " + username + " on Instagram by " + Context.User.Mention);
+			await Context.Channel.SendMessageAsync("This channel has been subscribed to " + username + " on Instagram by " + Context.User.Mention, allowedMentions: AllowedMentions.None);
 			await FollowupAsync("Success! You will receive new posts to this channel. They will not be instant and accounts are checked on a time interval.");
 		}
 		[SlashCommand("unsubscribe", "Stop getting updates when a user posts a new post on Instagram.", runMode: RunMode.Async)]
@@ -212,7 +212,7 @@ namespace Instagram_Reels_Bot.Modules
 			//Subscribe:
 			await _subscriptions.UnsubscribeToAccount(IGID, Context.Channel.Id, Context.Guild.Id);
 			//Notify:
-			await Context.Channel.SendMessageAsync("This channel has been unsubscribed to " + username + " on Instagram by " + Context.User.Mention);
+			await Context.Channel.SendMessageAsync("This channel has been unsubscribed to " + username + " on Instagram by " + Context.User.Mention, allowedMentions: AllowedMentions.None);
 			await FollowupAsync("Success! You will no longer receive new posts to this channel.");
 		}
 	}

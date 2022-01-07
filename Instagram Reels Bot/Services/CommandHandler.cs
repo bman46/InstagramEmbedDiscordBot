@@ -178,8 +178,15 @@ namespace Instagram_Reels_Bot.Services
                 {
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
-                        _subscriptions.GetLatestsPosts();
-                        await message.ReplyAsync("Working on it...");
+                        if (_subscriptions.CurrentlyCheckingAccounts())
+                        {
+                            await message.ReplyAsync("Already doing that.");
+                        }
+                        else
+                        {
+                            _subscriptions.GetLatestsPosts();
+                            await message.ReplyAsync("Working on it...");
+                        }
                     }
                 }
                 return;

@@ -156,6 +156,11 @@ namespace Instagram_Reels_Bot.Modules
 				await FollowupAsync("Failed to get Instagram ID. Is the account name correct?");
 				return;
             }
+            if (!await InstagramProcessor.AccountIsPublic(IGID))
+            {
+				await FollowupAsync("The account appears to be private and cannot be viewed by the bot.");
+				return;
+			}
 			//Subscribe:
 			await _subscriptions.SubscribeToAccount(IGID, Context.Channel.Id, Context.Guild.Id);
 			//Notify:

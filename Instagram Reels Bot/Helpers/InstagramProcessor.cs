@@ -383,8 +383,23 @@ namespace Instagram_Reels_Bot.Helpers
 			return responses.ToArray();
 		}
 		/// <summary>
+        /// Checks to see if an account is public and accesible or not.
+        /// </summary>
+        /// <param name="instagramID"></param>
+        /// <returns>True if the account is public. False on error or private.</returns>
+		public static async Task<bool> AccountIsPublic(long instagramID)
+		{
+			var userInfo = (await instaApi.UserProcessor.GetUserInfoByIdAsync(instagramID));
+            if (!userInfo.Succeeded)
+            {
+				Console.WriteLine("Failed to get user. " + userInfo.Info);
+				return false;
+            }
+			return !userInfo.Value.IsPrivate;
+		}
+		/// <summary>
 		/// Logs the bot into Instagram if logged out.
-        /// Also allows for logging out and back in again.
+		/// Also allows for logging out and back in again.
 		/// </summary>
 		public static void InstagramLogin(bool clearStateFile = false, bool logOutFirst = false)
 		{

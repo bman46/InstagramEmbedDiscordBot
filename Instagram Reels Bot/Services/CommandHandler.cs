@@ -22,7 +22,7 @@ namespace Instagram_Reels_Bot.Services
         private readonly InteractionService _interact;
         public readonly DiscordShardedClient _client;
         private readonly IServiceProvider _services;
-        //private readonly Subscriptions _subscriptions;
+        private readonly Subscriptions _subscriptions;
         /// <summary>
         /// Notifies the owner of an error
         /// false by default. Toggled by user DM command.
@@ -30,7 +30,7 @@ namespace Instagram_Reels_Bot.Services
         /// </summary>
         public static bool notifyOwnerOnError = false;
 
-        public CommandHandler(IServiceProvider services)
+        public CommandHandler(IServiceProvider services, Services.Subscriptions subs)
         {
             // juice up the fields with these services
             // since we passed the services in, we can use GetRequiredService to pass them into the fields set earlier
@@ -39,7 +39,7 @@ namespace Instagram_Reels_Bot.Services
             _interact = services.GetRequiredService<InteractionService>();
             _client = services.GetRequiredService<DiscordShardedClient>();
             _services = services;
-            //_subscriptions = subs;
+            _subscriptions = subs;
 
             // take action when we execute a command
             _commands.CommandExecuted += CommandExecutedAsync;
@@ -178,7 +178,7 @@ namespace Instagram_Reels_Bot.Services
                 {
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
-                        //_subscriptions.GetLatestsPosts();
+                        _subscriptions.GetLatestsPosts();
                         await message.ReplyAsync("Working on it...");
                     }
                 }
@@ -310,12 +310,14 @@ namespace Instagram_Reels_Bot.Services
                 {
                     case InteractionCommandError.UnmetPrecondition:
                         // implement
+                        arg2.Interaction.RespondAsync("You are not able to perform this action (UnmetPrecondition). Discord support server: https://top.gg/servers/921830686439124993", ephemeral: true);
                         break;
                     case InteractionCommandError.UnknownCommand:
-                        // implement
+                        arg2.Interaction.RespondAsync("Unknown command.", ephemeral: true);
                         break;
                     case InteractionCommandError.BadArgs:
                         // implement
+                        arg2.Interaction.FollowupAsync("The provided values are invalid. (BadArgs)");
                         break;
                     case InteractionCommandError.Exception:
                         //notify owner if desired:
@@ -328,6 +330,7 @@ namespace Instagram_Reels_Bot.Services
                             }
                             Discord.UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
                         }
+                        arg2.Interaction.FollowupAsync("Sorry, Something went wrong... Discord support server: https://top.gg/servers/921830686439124993");
                         break;
                     case InteractionCommandError.Unsuccessful:
                         //notify owner if desired:
@@ -340,6 +343,7 @@ namespace Instagram_Reels_Bot.Services
                             }
                             Discord.UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
                         }
+                        arg2.Interaction.FollowupAsync("Sorry, Something went wrong... Discord support server: https://top.gg/servers/921830686439124993");
                         break;
                     default:
                         //notify owner if desired:
@@ -352,6 +356,7 @@ namespace Instagram_Reels_Bot.Services
                             }
                             Discord.UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
                         }
+                        arg2.Interaction.FollowupAsync("Sorry, Something went wrong... Discord support server: https://top.gg/servers/921830686439124993");
                         break;
                 }
             }

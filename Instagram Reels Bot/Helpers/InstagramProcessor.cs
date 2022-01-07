@@ -44,6 +44,10 @@ namespace Instagram_Reels_Bot.Helpers
 		/// <returns>Instagram processor response with related information.</returns>
 		public static async Task<InstagramProcessorResponse> PostRouter(string url, int tier, int postIndex = 1)
 		{
+            if (string.IsNullOrEmpty(url))
+            {
+				throw new ArgumentNullException("URL is null.");
+            }
 			Uri link;
 			try
 			{
@@ -194,7 +198,7 @@ namespace Instagram_Reels_Bot.Helpers
 		/// <param name="index">Post number in carousel</param>
 		/// <param name="premiumTier">Discord Nitro tier. For max file upload size.</param>
 		/// <returns>Instagram processor response with related information.</returns>
-		public static async Task<InstagramProcessorResponse> PostProcessorAsync(string url, int index, int premiumTier)
+		public static async Task<InstagramProcessorResponse> PostProcessorAsync(string url, int index, int premiumTier, InstagramApiSharp.Classes.Models.InstaMedia media = null)
         {
 			//ensure login:
 			InstagramLogin();
@@ -202,76 +206,82 @@ namespace Instagram_Reels_Bot.Helpers
 			//Arrays start at zero:
 			index--;
 
-			//parse url:
-			InstagramApiSharp.Classes.IResult<string> mediaId;
-			InstagramApiSharp.Classes.IResult<InstagramApiSharp.Classes.Models.InstaMedia> media;
-			try
+			//Check for 'prefed' media
+			if (media == null)
 			{
-				//parse URL:
-				mediaId = await instaApi.MediaProcessor.GetMediaIdFromUrlAsync(new Uri(url));
+				//parse url:
+				InstagramApiSharp.Classes.IResult<string> mediaId;
+				InstagramApiSharp.Classes.IResult<InstagramApiSharp.Classes.Models.InstaMedia> mediaSource;
+				try
+				{
+					//parse URL:
+					mediaId = await instaApi.MediaProcessor.GetMediaIdFromUrlAsync(new Uri(url));
 
-				//Parse for url:
-				media = await instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value);
-			}
-			catch (Exception)
-			{
-				//Error loading
-				return new InstagramProcessorResponse("Error Loading Post.");
-			}
+					//Parse for url:
+					mediaSource = (await instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value));
+				}
+				catch (Exception)
+				{
+					//Error loading
+					return new InstagramProcessorResponse("Error Loading Post.");
+				}
 
-			//Check for private account:
-            if (media.Info.NeedsChallenge)
-            {
-				throw new Exception("Bot challenged by Instagram.");
-            }
+				//Check for private account:
+				if (mediaSource.Info.NeedsChallenge)
+				{
+					throw new Exception("Bot challenged by Instagram.");
+				}
+
+				media = mediaSource.Value;
+			}
 
 			//check for private account:
-			if (media.Value == null)
+			if (media == null)
 			{
 				return new InstagramProcessorResponse("The account may be private. Please report this on our support server if the account is public. https://discord.gg/6K3tdsYd6J");
 			}
 
 			string caption = "";
 			//check caption value (ensure not null)
-			if (media.Value.Caption!=null)
+			if (media.Caption!=null)
             {
-				caption = media.Value.Caption.Text;
+				caption = media.Caption.Text;
 			}
 
 			//inject image from carousel:
-			if (media.Value.Carousel != null && media.Value.Carousel.Count > 0)
+			if (media.Carousel != null && media.Carousel.Count > 0)
 			{
-				if (media.Value.Carousel.Count <= index)
+				if (media.Carousel.Count <= index)
 				{
-					return new InstagramProcessorResponse("Index out of bounds. There is only " + media.Value.Carousel.Count + " Posts.");
+					return new InstagramProcessorResponse("Index out of bounds. There is only " + media.Carousel.Count + " Posts.");
 				}
-				if (media.Value.Carousel[index].Videos.Count > 0)
+				if (media.Carousel[index].Videos.Count > 0)
 				{
-					var video = media.Value.Carousel[index].Videos[0];
-					media.Value.Videos.Add(video);
+					var video = media.Carousel[index].Videos[0];
+					media.Videos.Add(video);
 				}
 				else
 				{
-					var image = media.Value.Carousel[index].Images[0];
-					media.Value.Images.Add(image);
+					var image = media.Carousel[index].Images[0];
+					media.Images.Add(image);
 				}
 			}
 			//get upload tier:
 			long maxUploadSize = DiscordTools.MaxUploadSize(premiumTier);
 
-			bool isVideo = media.Value.Videos.Count > 0;
+			bool isVideo = media.Videos.Count > 0;
 			string downloadUrl = "";
 
 			//Video or image:
 			if (isVideo)
 			{
 				//video:
-				downloadUrl = media.Value.Videos[0].Uri;
+				downloadUrl = media.Videos[0].Uri;
 			}
 			else
 			{
 				//Image:
-				downloadUrl = media.Value.Images[0].Uri;
+				downloadUrl = media.Images[0].Uri;
 			}
 			
 			//Return downloaded content (if possible):
@@ -285,7 +295,7 @@ namespace Instagram_Reels_Bot.Helpers
 					//If statement to double check size.
 					if (data.Length < maxUploadSize)
 					{
-						return new InstagramProcessorResponse(isVideo, caption, media.Value.User.FullName, new Uri(media.Value.User.ProfilePicture), downloadUrl, url, media.Value.TakenAt, data);
+						return new InstagramProcessorResponse(isVideo, caption, media.User.FullName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, data);
 					}
 
 				}
@@ -308,7 +318,7 @@ namespace Instagram_Reels_Bot.Helpers
 				Console.WriteLine(e);
 			}
 			//Fallback to URL:
-			return new InstagramProcessorResponse(true, caption, media.Value.User.FullName, new Uri(media.Value.User.ProfilePicture), downloadUrl, url, media.Value.TakenAt, null);
+			return new InstagramProcessorResponse(true, caption, media.User.FullName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, null);
 		}
 		public static async Task<long> GetUserIDFromUsername(string username)
         {
@@ -366,11 +376,9 @@ namespace Instagram_Reels_Bot.Helpers
             {
                 if (media.TakenAt.ToUniversalTime() > startDate.ToUniversalTime())
                 {
-					Uri url = (await instaApi.MediaProcessor.GetShareLinkFromMediaIdAsync(media.InstaIdentifier)).Value;
-					//TODO: Support Nitro:
-					//Insert the post at the front of the list.
-					responses.Insert(0, await PostRouter(url.ToString(), 0));
-                }
+					//Add post to array:
+					responses.Insert(0, await PostProcessorAsync("https://www.instagram.com/" + media.User.UserName, 1, 0, media));
+				}
             }
 			return responses.ToArray();
 		}
@@ -537,8 +545,18 @@ namespace Instagram_Reels_Bot.Helpers
 			return instaApi.GetLoggedUser().UserName;
         }
 		/// <summary>
-        /// An android device to use for login with instagram to keep one consistant device.
+        /// The Instagram username of the user.
         /// </summary>
+        /// <param name="igid"></param>
+        /// <returns></returns>
+		public static async Task<string> GetIGUsername(string igid)
+        {
+			return (await instaApi.UserProcessor.GetUserInfoByIdAsync(long.Parse(igid))).Value.Username;
+        }
+
+		/// <summary>
+		/// An android device to use for login with instagram to keep one consistant device.
+		/// </summary>
 		public static AndroidDevice device = new AndroidDevice
 		{
 			// Device name

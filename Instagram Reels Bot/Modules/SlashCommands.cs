@@ -128,16 +128,28 @@ namespace Instagram_Reels_Bot.Modules
 			await RespondAsync(embed: embed.Build(), ephemeral: true);
 		}
 		[SlashCommand("subscribe", "Get updates when a user posts a new post on Instagram.", runMode: RunMode.Async)]
+		[RequireContext(ContextType.Guild)]
+		[RequireRole("InstagramSubscribe")]
 		public async Task Subscribe([Summary("username", "The username of the Instagram user.")]string username)
 		{
 			//Buy more time to process posts:
 			await DeferAsync(true);
 
+			// Account limits:
+			int subcount = _subscriptions.GuildSubscriptionCount(Context.Guild.Id);
+			int maxcount = _subscriptions.MaxSubscriptionsCountForGuild(Context.Guild.Id);
+			if (subcount >= maxcount)
+            {
+				await FollowupAsync("You are already subscribed to "+ subcount +" Instagram accounts which is greater than or equal to your limit of "+maxcount+" accounts. use `/unsubscribe` to remove these accounts.");
+				return;
+			}
+
 			long IGID;
             try
             {
 				IGID = await InstagramProcessor.GetUserIDFromUsername(username);
-            }catch(Exception e)
+            }
+			catch(Exception e)
             {
 				//Possibly incorrect username:
 				Console.WriteLine("Get username failure: " + e);
@@ -151,12 +163,30 @@ namespace Instagram_Reels_Bot.Modules
 			await FollowupAsync("Success! You will receive new posts to this channel. They will not be instant and accounts are checked on a time interval.");
 		}
 		[SlashCommand("unsubscribe", "Stop getting updates when a user posts a new post on Instagram.", runMode: RunMode.Async)]
+		[RequireContext(ContextType.Guild)]
+		[RequireRole("InstagramSubscribe")]
 		public async Task Unsubscribe([Summary("username","The username of the Instagram user.")] string username)
 		{
+			//Buy more time to process posts:
 			await DeferAsync(true);
-			await _subscriptions.GetLatestsPosts();
-			await FollowupAsync("Complete.");
-			//TODO: Implement.
+
+			long IGID;
+			try
+			{
+				IGID = await InstagramProcessor.GetUserIDFromUsername(username);
+			}
+			catch (Exception e)
+			{
+				//Possibly incorrect username:
+				Console.WriteLine("Get username failure: " + e);
+				await FollowupAsync("Failed to get Instagram ID. Is the account name correct?");
+				return;
+			}
+			//Subscribe:
+			await _subscriptions.UnsubscribeToAccount(IGID, Context.Channel.Id, Context.Guild.Id);
+			//Notify:
+			await Context.Channel.SendMessageAsync("This channel has been unsubscribed to " + username + " on Instagram by " + Context.User.Mention);
+			await FollowupAsync("Success! You will no longer receive new posts to this channel.");
 		}
 	}
 }

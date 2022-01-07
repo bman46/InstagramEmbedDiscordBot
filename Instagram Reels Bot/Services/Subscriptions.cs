@@ -257,7 +257,7 @@ namespace Instagram_Reels_Bot.Services
                                             var account = new EmbedAuthorBuilder();
                                             account.IconUrl = response.iconURL.ToString();
                                             account.Name = response.accountName;
-                                            account.Url = response.postURL.ToString();
+                                            account.Url = response.accountUrl.ToString();
 
                                             //Instagram Footer:
                                             EmbedFooterBuilder footer = new EmbedFooterBuilder();

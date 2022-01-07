@@ -15,7 +15,7 @@ namespace Instagram_Reels_Bot.Helpers
         /// <param name="postURL">URL to the post.</param>
         /// <param name="date">Time of the post.</param>
         /// <param name="stream">Byte array of the downloaded video or image.</param>
-		public InstagramProcessorResponse(bool isVideo, string caption, string accountName, Uri accountImage, string contentURL, string postURL, DateTime date, byte[] stream)
+		public InstagramProcessorResponse(bool isVideo, string caption, string accountName, string username, Uri accountImage, string contentURL, string postURL, DateTime date, byte[] stream)
 		{
 			this.isVideo = isVideo;
 			this.caption = caption;
@@ -24,7 +24,9 @@ namespace Instagram_Reels_Bot.Helpers
 			this.postDate = date;
 			this.accountName = accountName;
 			this.iconURL = accountImage;
-            if (stream != null)
+			this.accountUrl = new Uri("https://www.instagram.com/"+username);
+
+			if (stream != null)
             {
 				this.stream = new Byte[stream.Length];
 				stream.CopyTo(this.stream, 0);
@@ -33,7 +35,6 @@ namespace Instagram_Reels_Bot.Helpers
             {
 				this.stream = null;
             }
-			
 		}
 		/// <summary>
 		/// Creates a new failed Instagram response.
@@ -51,6 +52,7 @@ namespace Instagram_Reels_Bot.Helpers
 		public string caption = "";
 		public Uri contentURL = null;
 		public Uri postURL = null;
+		public Uri accountUrl = null;
 		public long sizeByte = 0;
 		public byte[] stream = null;
 		public DateTime postDate = DateTime.Now;

@@ -41,7 +41,29 @@ namespace Instagram_Reels_Bot.Modules
 				await FollowupAsync(response.error, ephemeral: true);
 				return;
             }
-			else if (response.isVideo)
+
+			//Embeds:
+			//Account Name:
+			var account = new EmbedAuthorBuilder();
+			account.IconUrl = response.iconURL.ToString();
+			account.Name = response.accountName;
+			account.Url = response.accountUrl.ToString();
+
+			//Instagram Footer:
+			EmbedFooterBuilder footer = new EmbedFooterBuilder();
+			footer.IconUrl = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png";
+			footer.Text = "Instagram";
+
+			var embed = new EmbedBuilder();
+			embed.Author = account;
+			embed.Title = "Content from " + Context.User.Username + "'s linked post.";
+			embed.Footer = footer;
+			embed.Timestamp = new DateTimeOffset(response.postDate);
+			embed.Url = response.postURL.ToString();
+			embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption)) : ("");
+			embed.WithColor(new Color(131, 58, 180));
+
+			if (response.isVideo)
 			{
 				if (response.stream != null)
                 {
@@ -49,24 +71,19 @@ namespace Instagram_Reels_Bot.Modules
 					using (Stream stream = new MemoryStream(response.stream))
 					{
 						FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.");
-						await Context.Interaction.FollowupWithFileAsync(attachment, "Video from " + Context.User.Mention + "'s linked reel: ");
+						await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.Build());
 					}
 				}
                 else
                 {
 					//Response without stream:
-					await FollowupAsync("Video from " + Context.User.Mention + "'s linked reel: " + response.contentURL);
+					await FollowupAsync(response.contentURL.ToString(), embed: embed.Build());
                 }
 
 			}
             else
             {
-				var embed = new EmbedBuilder();
-				embed.Title = "Content from " + Context.User.Username + "'s linked post";
-				embed.Url = url;
-				embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption)) : ("");
 				embed.ImageUrl = "attachment://IGMedia.jpg";
-				embed.WithColor(new Color(131, 58, 180));
 				if (response.stream != null)
 				{
 					using (Stream stream = new MemoryStream(response.stream))

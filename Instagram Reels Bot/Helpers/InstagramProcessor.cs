@@ -163,7 +163,7 @@ namespace Instagram_Reels_Bot.Helpers
 							//If statement to double check size.
 							if (data.Length < maxUploadSize)
 							{
-								return new InstagramProcessorResponse(isVideo, "", story.User.FullName, new Uri(story.User.ProfilePicture), downloadUrl, url, story.TakenAt, data);
+								return new InstagramProcessorResponse(isVideo, "", story.User.FullName, story.User.UserName, new Uri(story.User.ProfilePicture), downloadUrl, url, story.TakenAt, data);
 							}
 
 						}
@@ -186,7 +186,7 @@ namespace Instagram_Reels_Bot.Helpers
 						Console.WriteLine(e);
 					}
 					//Fallback to URL:
-					return new InstagramProcessorResponse(true, "", story.User.FullName, new Uri(story.User.ProfilePicture), downloadUrl, url, story.TakenAt, null);
+					return new InstagramProcessorResponse(true, "", story.User.FullName, story.User.UserName, new Uri(story.User.ProfilePicture), downloadUrl, url, story.TakenAt, null);
 				}
 			}
 			return new InstagramProcessorResponse("Could not find story.");
@@ -295,7 +295,7 @@ namespace Instagram_Reels_Bot.Helpers
 					//If statement to double check size.
 					if (data.Length < maxUploadSize)
 					{
-						return new InstagramProcessorResponse(isVideo, caption, media.User.FullName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, data);
+						return new InstagramProcessorResponse(isVideo, caption, media.User.FullName, media.User.UserName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, data);
 					}
 
 				}
@@ -318,7 +318,7 @@ namespace Instagram_Reels_Bot.Helpers
 				Console.WriteLine(e);
 			}
 			//Fallback to URL:
-			return new InstagramProcessorResponse(true, caption, media.User.FullName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, null);
+			return new InstagramProcessorResponse(true, caption, media.User.FullName, media.User.UserName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, null);
 		}
 		public static async Task<long> GetUserIDFromUsername(string username)
         {

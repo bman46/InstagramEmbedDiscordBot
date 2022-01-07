@@ -71,6 +71,27 @@ namespace Instagram_Reels_Bot.Modules
             //Process Post:
             InstagramProcessorResponse response = await InstagramProcessor.PostRouter(url, (int)context.Guild.PremiumTier, 1);
 
+            //Embeds:
+            //Account Name:
+            var account = new EmbedAuthorBuilder();
+            account.IconUrl = response.iconURL.ToString();
+            account.Name = response.accountName;
+            account.Url = response.accountUrl.ToString();
+
+            //Instagram Footer:
+            EmbedFooterBuilder footer = new EmbedFooterBuilder();
+            footer.IconUrl = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png";
+            footer.Text = "Instagram";
+
+            var embed = new EmbedBuilder();
+            embed.Author = account;
+            embed.Title = "Content from " + context.Message.Author.Username + "'s linked post.";
+            embed.Footer = footer;
+            embed.Timestamp = new DateTimeOffset(response.postDate);
+            embed.Url = response.postURL.ToString();
+            embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption)) : ("");
+            embed.WithColor(new Color(131, 58, 180));
+
             if (!response.success)
             {
                 await context.Message.ReplyAsync(response.error);
@@ -84,38 +105,33 @@ namespace Instagram_Reels_Bot.Modules
                     using (Stream stream = new MemoryStream(response.stream))
                     {
                         FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.");
-                        await context.Message.Channel.SendFileAsync(attachment, "Video from " + context.Message.Author.Mention + "'s Instagram link:");
+                        await context.Message.Channel.SendFileAsync(attachment, embed: embed.Build());
                     }
                     return;
                 }
                 else
                 {
                     //Response without stream:
-                    await context.Message.ReplyAsync("Video from " + context.User.Mention + "'s linked reel: " + response.contentURL);
+                    await context.Message.ReplyAsync(response.contentURL.ToString(), embed: embed.Build(), allowedMentions: AllowedMentions.None);
                     return;
                 }
 
             }
             else
             {
-                var embed = new EmbedBuilder();
-                embed.Title = "Content from " + context.User.Username + "'s linked post";
-                embed.Url = url;
-                embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption)) : ("");
                 embed.ImageUrl = "attachment://IGMedia.jpg";
-                embed.WithColor(new Color(131, 58, 180));
                 if (response.stream != null)
                 {
                     using (Stream stream = new MemoryStream(response.stream))
                     {
                         FileAttachment attachment = new FileAttachment(stream, "IGMedia.jpg", "An Instagram Image.");
-                        await context.Channel.SendFileAsync(attachment, "", false, embed.Build());
+                        await context.Channel.SendFileAsync(attachment, embed: embed.Build());
                     }
                 }
                 else
                 {
                     embed.ImageUrl = response.contentURL.ToString();
-                    await context.Message.ReplyAsync(null, false, embed.Build());
+                    await context.Message.ReplyAsync(embed: embed.Build(), allowedMentions: AllowedMentions.None);
                 }
             }
         }

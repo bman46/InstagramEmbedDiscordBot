@@ -86,6 +86,7 @@ namespace Instagram_Reels_Bot.Modules
 		[SlashCommand("help", "For help with the bot.", runMode: RunMode.Async)]
 		public async Task Help()
 		{
+			//TODO: Update this!
 			//response embed:
 			var embed = new Discord.EmbedBuilder();
 			embed.Title = "Help With Instagram Embed";
@@ -132,6 +133,13 @@ namespace Instagram_Reels_Bot.Modules
 		[RequireRole("InstagramSubscribe")]
 		public async Task Subscribe([Summary("username", "The username of the Instagram user.")]string username)
 		{
+			//Ensure subscriptions are enabled:
+			if (!_subscriptions.ModuleEnabled)
+			{
+				await RespondAsync("Subscriptions module is currently disabled.");
+				return;
+			}
+
 			//Buy more time to process posts:
 			await DeferAsync(true);
 
@@ -162,7 +170,14 @@ namespace Instagram_Reels_Bot.Modules
 				return;
 			}
 			//Subscribe:
-			await _subscriptions.SubscribeToAccount(IGID, Context.Channel.Id, Context.Guild.Id);
+			try
+			{
+				await _subscriptions.SubscribeToAccount(IGID, Context.Channel.Id, Context.Guild.Id);
+			}catch(ArgumentException e) when (e.Message.Contains("Already subscribed"))
+            {
+				await FollowupAsync("You are already subscribed to this account.");
+				return;
+			}
 			//Notify:
 			await Context.Channel.SendMessageAsync("This channel has been subscribed to " + username + " on Instagram by " + Context.User.Mention);
 			await FollowupAsync("Success! You will receive new posts to this channel. They will not be instant and accounts are checked on a time interval.");
@@ -172,6 +187,13 @@ namespace Instagram_Reels_Bot.Modules
 		[RequireRole("InstagramSubscribe")]
 		public async Task Unsubscribe([Summary("username","The username of the Instagram user.")] string username)
 		{
+			//Ensure subscriptions are enabled:
+			if (!_subscriptions.ModuleEnabled)
+			{
+				await RespondAsync("Subscriptions module is currently disabled.");
+				return;
+			}
+
 			//Buy more time to process posts:
 			await DeferAsync(true);
 

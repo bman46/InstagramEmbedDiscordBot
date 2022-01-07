@@ -36,6 +36,8 @@ namespace Instagram_Reels_Bot.Services
         private Container PremiumGuildsContainer;
         //To ensure that the loop is only run one at a time.
         private static bool InSubLoop = false;
+        //Enable and disable the module
+        public readonly bool ModuleEnabled;
 
         /// <summary>
         /// Initialize sub
@@ -50,9 +52,13 @@ namespace Instagram_Reels_Bot.Services
             //Dont set database locations unless AllowSubscriptions is true:
             if (config["AllowSubscriptions"].ToLower() != "true")
             {
+                //Disable the module:
+                ModuleEnabled = false;
                 Console.WriteLine("Subscriptions not allowed.");
                 return;
             }
+            //Enable the module:
+            ModuleEnabled = true;
 
             //Set cosmos DB info:
             EndpointUri = config["EndpointUrl"];
@@ -125,8 +131,6 @@ namespace Instagram_Reels_Bot.Services
                     if(ulong.Parse(chan.ChannelID) == channelID)
                     {
                         //Already subscribed:
-                        return;
-                        //TODO: notify users:
                         throw new ArgumentException("Already subscribed");
                     }
                 }

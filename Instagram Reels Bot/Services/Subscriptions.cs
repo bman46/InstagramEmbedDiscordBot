@@ -245,6 +245,7 @@ namespace Instagram_Reels_Bot.Services
                                 }
                                 foreach (InstagramProcessorResponse response in newIGPosts)
                                 {
+                                    List<RespondChannel> invalidChannels = new List<RespondChannel>();
                                     foreach (RespondChannel subbedGuild in igAccount.SubscribedChannels)
                                     {
                                         if (response.success)
@@ -291,7 +292,7 @@ namespace Instagram_Reels_Bot.Services
                                                         catch (Exception e)
                                                         {
                                                             Console.WriteLine("Cannot find channel. Removing from DB.");
-                                                            igAccount.SubscribedChannels.Remove(subbedGuild);
+                                                            invalidChannels.Add(subbedGuild);
                                                         }
                                                         if (chan != null)
                                                         {
@@ -301,7 +302,7 @@ namespace Instagram_Reels_Bot.Services
                                                         else
                                                         {
                                                             Console.WriteLine("Cannot find channel. Removing from DB.");
-                                                            igAccount.SubscribedChannels.Remove(subbedGuild);
+                                                            invalidChannels.Add(subbedGuild);
                                                         }
 
                                                     }
@@ -318,7 +319,7 @@ namespace Instagram_Reels_Bot.Services
                                                     catch (Exception e)
                                                     {
                                                         Console.WriteLine("Cannot find channel. Removing from DB.");
-                                                        igAccount.SubscribedChannels.Remove(subbedGuild);
+                                                        invalidChannels.Add(subbedGuild);
                                                     }
                                                     if (chan != null)
                                                     {
@@ -328,7 +329,7 @@ namespace Instagram_Reels_Bot.Services
                                                     else
                                                     {
                                                         Console.WriteLine("Cannot find channel. Removing from DB.");
-                                                        igAccount.SubscribedChannels.Remove(subbedGuild);
+                                                        invalidChannels.Add(subbedGuild);
                                                     }
 
                                                 }
@@ -347,13 +348,12 @@ namespace Instagram_Reels_Bot.Services
                                                         IMessageChannel chan = null;
                                                         try
                                                         {
-                                                            Console.WriteLine(subbedGuild.ChannelID);
                                                             chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
                                                         }
                                                         catch (Exception e)
                                                         {
                                                             Console.WriteLine("Cannot find channel. Removing from DB.");
-                                                            igAccount.SubscribedChannels.Remove(subbedGuild);
+                                                            invalidChannels.Add(subbedGuild);
                                                         }
                                                         if (chan != null)
                                                         {
@@ -363,7 +363,7 @@ namespace Instagram_Reels_Bot.Services
                                                         else
                                                         {
                                                             Console.WriteLine("Cannot find channel. Removing from DB.");
-                                                            igAccount.SubscribedChannels.Remove(subbedGuild);
+                                                            invalidChannels.Add(subbedGuild);
                                                         }
 
                                                     }
@@ -380,7 +380,7 @@ namespace Instagram_Reels_Bot.Services
                                                     catch (Exception e)
                                                     {
                                                         Console.WriteLine("Cannot find channel. Removing from DB.");
-                                                        igAccount.SubscribedChannels.Remove(subbedGuild);
+                                                        invalidChannels.Add(subbedGuild);
                                                     }
                                                     if (chan != null)
                                                     {
@@ -390,7 +390,7 @@ namespace Instagram_Reels_Bot.Services
                                                     else
                                                     {
                                                         Console.WriteLine("Cannot find channel. Removing from DB.");
-                                                        igAccount.SubscribedChannels.Remove(subbedGuild);
+                                                        invalidChannels.Add(subbedGuild);
                                                     }
 
                                                 }
@@ -398,12 +398,16 @@ namespace Instagram_Reels_Bot.Services
                                         }
                                         else
                                         {
+                                            //TODO: Decide if the user should be informed or not. May create spam.
                                             Console.WriteLine("Failed auto post. ID: " + igAccount.InstagramID);
                                             var chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
                                             string igUsername = await InstagramProcessor.GetIGUsername(igAccount.InstagramID);
                                             await chan.SendMessageAsync("Failed to get latest posts for " + igUsername + ". Use `/unsubscribe " + igUsername + "` to remove the inaccessible account.");
                                         }
                                     }
+
+                                    //Remove all invalid channels:
+                                    invalidChannels.ForEach(item => igAccount.SubscribedChannels.RemoveAll(c => c.ChannelID.Equals(item.ChannelID)));
                                 }
                                 //Update database:
                                 await this.FollowedAccountsContainer.UpsertItemAsync<FollowedIGUser>(igAccount, new PartitionKey(igAccount.InstagramID));

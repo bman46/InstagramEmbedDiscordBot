@@ -157,9 +157,12 @@ namespace Instagram_Reels_Bot.Services
             }
             catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                throw new Exception("Cannot find user.");
+                throw new ArgumentException("Cannot find user.");
             }
-
+            if (databaseValue == null)
+            {
+                throw new ArgumentException("Cannot find user.");
+            }
             foreach (RespondChannel chan in databaseValue.SubscribedChannels)
             {
                 if (ulong.Parse(chan.ChannelID) == channelID)

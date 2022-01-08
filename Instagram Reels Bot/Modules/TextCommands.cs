@@ -71,6 +71,13 @@ namespace Instagram_Reels_Bot.Modules
             //Process Post:
             InstagramProcessorResponse response = await InstagramProcessor.PostRouter(url, (int)context.Guild.PremiumTier, 1);
 
+            //Check for failed post:
+            if (!response.success)
+            {
+                await context.Message.ReplyAsync(response.error);
+                return;
+            }
+
             //Embeds:
             //Account Name:
             var account = new EmbedAuthorBuilder();
@@ -92,11 +99,6 @@ namespace Instagram_Reels_Bot.Modules
             embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption)) : ("");
             embed.WithColor(new Color(131, 58, 180));
 
-            if (!response.success)
-            {
-                await context.Message.ReplyAsync(response.error);
-                return;
-            }
             if (response.isVideo)
             {
                 if (response.stream != null)

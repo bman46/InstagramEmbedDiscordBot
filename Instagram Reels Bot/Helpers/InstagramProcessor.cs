@@ -122,11 +122,23 @@ namespace Instagram_Reels_Bot.Helpers
 
 			//get user:
 			var user = await instaApi.UserProcessor.GetUserAsync(userName);
+            // On failed to get user:
+            if (!user.Succeeded)
+            {
+				return HandleFailure(user);
+			}else if (user.Value.IsPrivate)
+            {
+				return new InstagramProcessorResponse("The account is private.");
+			}
 			long userId = user.Value.Pk;
 			var stories = await instaApi.StoryProcessor.GetUserStoryAsync(userId);
+            if (!stories.Succeeded)
+            {
+				return new InstagramProcessorResponse("Failed to load stories for the user. Support Server: https://discord.gg/6K3tdsYd6J");
+			}
 			if (stories.Value.Items.Count == 0)
 			{
-				return new InstagramProcessorResponse("No stories exist for that user. (Is the account private?)");
+				return new InstagramProcessorResponse("No stories exist for that user.");
 			}
 			foreach (var story in stories.Value.Items)
 			{
@@ -212,33 +224,26 @@ namespace Instagram_Reels_Bot.Helpers
 				//parse url:
 				InstagramApiSharp.Classes.IResult<string> mediaId;
 				InstagramApiSharp.Classes.IResult<InstagramApiSharp.Classes.Models.InstaMedia> mediaSource;
-				try
-				{
-					//parse URL:
-					mediaId = await instaApi.MediaProcessor.GetMediaIdFromUrlAsync(new Uri(url));
 
-					//Parse for url:
+				//Get the media ID:
+				mediaId = await instaApi.MediaProcessor.GetMediaIdFromUrlAsync(new Uri(url));
+
+				//Check to see if it worked:
+                if (!mediaId.Succeeded)
+                {
+					return HandleFailure(mediaId);
+				}
+                else
+                {
 					mediaSource = (await instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value));
-				}
-				catch (Exception)
-				{
-					//Error loading
-					return new InstagramProcessorResponse("Error Loading Post.");
-				}
-
-				//Check for private account:
-				if (mediaSource.Info.NeedsChallenge)
-				{
-					throw new Exception("Bot challenged by Instagram.");
+					//Check for failure:
+                    if (!mediaSource.Succeeded)
+                    {
+						HandleFailure(mediaSource);
+                    }
 				}
 
 				media = mediaSource.Value;
-			}
-
-			//check for private account:
-			if (media == null)
-			{
-				return new InstagramProcessorResponse("The account may be private. Please report this on our support server if the account is public. https://discord.gg/6K3tdsYd6J");
 			}
 
 			string caption = "";
@@ -568,7 +573,6 @@ namespace Instagram_Reels_Bot.Helpers
         {
 			return (await instaApi.UserProcessor.GetUserInfoByIdAsync(long.Parse(igid))).Value.Username;
         }
-
 		/// <summary>
 		/// An android device to use for login with instagram to keep one consistant device.
 		/// </summary>
@@ -599,5 +603,28 @@ namespace Instagram_Reels_Bot.Helpers
 			// Dpi
 			Dpi = "480dpi",
 		};
+		/// <summary>
+		/// Handles conditions where a IResult is unsuccessful.
+		/// </summary>
+		/// <param name="result"></param>
+		/// <returns></returns>
+		/// <exception cref="Exception"></exception>
+		private static InstagramProcessorResponse HandleFailure(IResult<object> result)
+        {
+			switch (result.Info.ResponseType)
+			{
+				case ResponseType.ChallengeRequired:
+					throw new Exception("Challanged by Instagram.");
+				case ResponseType.MediaNotFound:
+					return new InstagramProcessorResponse("Could not find that post. Is the account private?");
+				case ResponseType.DeletedPost:
+					return new InstagramProcessorResponse("The post was deleted from Instagram.");
+				case ResponseType.NetworkProblem:
+					return new InstagramProcessorResponse("Could not connect to Instagram. Is Instagram down? https://discord.gg/6K3tdsYd6J");
+				default:
+					Console.WriteLine("Error: "+result.Info);
+					return new InstagramProcessorResponse("Error retrieving the post. The account may be private. Please report this on our support server if the account is public or if this is unexpected. https://discord.gg/6K3tdsYd6J");
+			}
+		}
 	}
 }

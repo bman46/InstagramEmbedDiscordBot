@@ -27,7 +27,7 @@ namespace Instagram_Reels_Bot.Services
         /// false by default. Toggled by user DM command.
         /// Reverts to false when bot is restarted.
         /// </summary>
-        public static bool notifyOwnerOnError = false;
+        public static bool notifyOwnerOnError;
 
         public CommandHandler(IServiceProvider services)
         {
@@ -53,6 +53,16 @@ namespace Instagram_Reels_Bot.Services
             _interact.ContextCommandExecuted += ContextCommandExecuted;
             _interact.ComponentCommandExecuted += ComponentCommandExecuted;
 
+            //set DM errors flag if possible:
+            try
+            {
+                notifyOwnerOnError = bool.Parse(_config["DMErrors"]);
+            }
+            catch
+            {
+                //Default to false
+                notifyOwnerOnError = false;
+            }
         }
 
         public async Task InitializeAsync()

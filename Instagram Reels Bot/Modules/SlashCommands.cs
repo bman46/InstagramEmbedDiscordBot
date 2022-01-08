@@ -8,6 +8,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Instagram_Reels_Bot.Helpers;
 using Instagram_Reels_Bot.Services;
+using Instagram_Reels_Bot.DataTables;
 
 namespace Instagram_Reels_Bot.Modules
 {
@@ -109,8 +110,8 @@ namespace Instagram_Reels_Bot.Modules
 			embed.Url = "https://discord.gg/6K3tdsYd6J";
 			embed.Description = "This bot uploads videos and images from an Instagram post provided via a link. The bot also allows for subscribing to new posts from accounts using the `/subscribe` command.  For more help and to view the status of the bot, please join our support server: https://discord.gg/6K3tdsYd6J";
 			embed.AddField("Embedding Posts", "To embed the contents of an Instagram url, simply paste the link into the chat and the bot will do the rest (as long as it has permission to).\nYou can also use the `/link` along with a URL.\nFor posts with multiple slides, use the `/link` command along with the optional `Index:` parameter to select the specific slide.");
-			embed.AddField("Subscriptions", "Note: The subscriptions module is currently under beta testing.\nTo subscribe to an account, use `/subscribe` and the users Instagram account to get new posts from that account delivered to the channel where the command is executed.\nTo unsubscribe from an account, use `/unsubscribe` and the username of the Instagram account in the channel that is subscribed to the account.");
-			embed.AddField("Roles", "Users with the role `InstagramBotSubscribe` or guild Administrator permission are allowed to unsubscribe and subscribe to accounts.");
+			embed.AddField("Subscriptions", "Note: The subscriptions module is currently under beta testing.\nTo subscribe to an account, use `/subscribe` and the users Instagram account to get new posts from that account delivered to the channel where the command is executed.\nTo unsubscribe from an account, use `/unsubscribe` and the username of the Instagram account in the channel that is subscribed to the account. You can also use `/unsubscribeall` to unsubscribe from all Instagram accounts.\nUse `/subscribed` to list all of the Instagram accounts that the guild is subscribed to.");
+			embed.AddField("Roles", "Only users with the role `InstagramBotSubscribe` (case sensitive) or guild administrator permission are allowed to unsubscribe and subscribe to accounts.");
 			embed.WithColor(new Color(131, 58, 180));
 			await RespondAsync(embed: embed.Build(), ephemeral: false);
 		}
@@ -220,7 +221,7 @@ namespace Instagram_Reels_Bot.Modules
 			//Ensure subscriptions are enabled:
 			if (!_subscriptions.ModuleEnabled)
 			{
-				await RespondAsync("Subscriptions module is currently disabled.");
+				await RespondAsync("Subscriptions module is currently disabled.", ephemeral: true);
 				return;
 			}
 
@@ -260,6 +261,101 @@ namespace Instagram_Reels_Bot.Modules
 			//Notify:
 			await Context.Channel.SendMessageAsync("This channel has been unsubscribed to " + username + " on Instagram by " + Context.User.Mention, allowedMentions: AllowedMentions.None);
 			await FollowupAsync("Success! You will no longer receive new posts to this channel.");
+		}
+		[SlashCommand("unsubscribeall", "Unsubscribe from all Instagram accounts.", runMode: RunMode.Async)]
+		[RequireContext(ContextType.Guild)]
+		public async Task UnsubscribeAll()
+        {
+			//Ensure subscriptions are enabled:
+			if (!_subscriptions.ModuleEnabled)
+			{
+				await RespondAsync("Subscriptions module is currently disabled.", ephemeral: true);
+				return;
+			}
+
+			//Check role:
+			var role = (Context.User as SocketGuildUser).Roles.FirstOrDefault(role => role.Name == "InstagramBotSubscribe");
+			if (role == null && !(Context.User as SocketGuildUser).GuildPermissions.Administrator)
+			{
+				await RespondAsync("You need guild Administrator permission or the role `InstagramSubscribe` assigned to your account to perform this action.", ephemeral: true);
+				return;
+			}
+
+			//Buy more time to process posts:
+			await DeferAsync(false);
+
+			var subs = _subscriptions.GuildSubscriptions(Context.Guild.Id);
+			int errorCount = 0;
+			foreach (FollowedIGUser user in subs)
+			{
+				foreach (RespondChannel chan in user.SubscribedChannels)
+				{
+					if (chan.GuildID.Equals(Context.Guild.Id.ToString()))
+					{
+						try
+						{
+							await _subscriptions.UnsubscribeToAccount(long.Parse(user.InstagramID), ulong.Parse(chan.ChannelID), Context.Guild.Id);
+						}
+						catch (Exception e)
+						{
+							Console.WriteLine(e);
+							errorCount++;
+						}
+					}
+				}
+			}
+            if (errorCount > 0)
+            {
+				await FollowupAsync("Failed to unsubscribe " + errorCount + " account(s).");
+            }
+            else
+            {
+                if (subs.Length == 0)
+                {
+					await FollowupAsync("This guild is not subscribed to any accounts.");
+                }
+                else
+                {
+					await FollowupAsync("Success! Unsubscribed from all accounts.");
+				}
+			}
+		}
+		[SlashCommand("subscribed", "List of accounts that the guild is subscribed to.", runMode: RunMode.Async)]
+		[RequireContext(ContextType.Guild)]
+		public async Task Subscribed()
+        {
+			// buy time:
+			await DeferAsync(false);
+
+			var embed = new Discord.EmbedBuilder();
+			embed.Title = "Guild Subscriptions";
+			embed.Description = "**Instagram Accounts:**";
+			embed.WithColor(new Color(131, 58, 180));
+
+			var subs = _subscriptions.GuildSubscriptions(Context.Guild.Id);
+			foreach(FollowedIGUser user in subs)
+            {
+				foreach(RespondChannel chan in user.SubscribedChannels)
+                {
+                    if (chan.GuildID.Equals(Context.Guild.Id.ToString()))
+                    {
+						string chanMention = "Missing channel.";
+                        try
+                        {
+							chanMention = "<#"+Context.Guild.GetChannel(ulong.Parse(chan.ChannelID)).Id+">";
+						}catch(Exception e)
+                        {
+							Console.WriteLine(e);
+                        }
+						embed.Description += "\n- " + await InstagramProcessor.GetIGUsername(user.InstagramID)+" "+ chanMention;
+					}
+                }
+			}
+            if (subs.Length == 0)
+            {
+				embed.Description = "No accounts followed. Get started by using `/subscribe`";
+			}
+			await FollowupAsync(embed: embed.Build());
 		}
 	}
 }

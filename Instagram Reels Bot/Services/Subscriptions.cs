@@ -439,11 +439,21 @@ namespace Instagram_Reels_Bot.Services
         /// <returns></returns>
         public int GuildSubscriptionCount(ulong guildID)
         {
+            return GuildSubscriptions(guildID).Length;
+        }
+        /// <summary>
+        /// The accounts that a guild is subscribed to.
+        /// </summary>
+        /// <param name="guildID"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public FollowedIGUser[] GuildSubscriptions(ulong guildID)
+        {
             try
             {
                 IQueryable<FollowedIGUser> queryable = FollowedAccountsContainer.GetItemLinqQueryable<FollowedIGUser>(true);
                 queryable = queryable.Where<FollowedIGUser>(item => item.SubscribedChannels.Any<RespondChannel>(n=>n.GuildID.Equals(guildID.ToString())));
-                return queryable.Count();
+                return queryable.ToArray();
             }
             catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {

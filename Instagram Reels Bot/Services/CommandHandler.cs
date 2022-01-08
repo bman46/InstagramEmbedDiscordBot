@@ -80,7 +80,7 @@ namespace Instagram_Reels_Bot.Services
             //DMs:
             if (message.Channel.GetType() == typeof(SocketDMChannel))
             {
-                //TODO: Move this to a module file:
+                //TODO: Move this to a module file and make it a switch statement:
                 if (message.Content.ToLower().StartsWith("debug"))
                 {
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))

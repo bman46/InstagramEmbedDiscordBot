@@ -334,6 +334,9 @@ namespace Instagram_Reels_Bot.Modules
 			embed.WithColor(new Color(131, 58, 180));
 
 			var subs = _subscriptions.GuildSubscriptions(Context.Guild.Id);
+
+			string accountOutput = "";
+			string channelOutput = "";
 			foreach(FollowedIGUser user in subs)
             {
 				foreach(RespondChannel chan in user.SubscribedChannels)
@@ -348,13 +351,19 @@ namespace Instagram_Reels_Bot.Modules
                         {
 							Console.WriteLine(e);
                         }
-						embed.Description += "\n- [" + await InstagramProcessor.GetIGUsername(user.InstagramID)+"](https://www.instagram.com/" + await InstagramProcessor.GetIGUsername(user.InstagramID) + ") " + chanMention;
+						accountOutput += "- [" + await InstagramProcessor.GetIGUsername(user.InstagramID) + "](https://www.instagram.com/" + await InstagramProcessor.GetIGUsername(user.InstagramID) + ")\n";
+						channelOutput += chanMention + "\n";
 					}
                 }
 			}
-            if (subs.Length == 0)
+			if (subs.Length == 0)
             {
 				embed.Description = "No accounts followed. Get started by using `/subscribe`";
+            }
+            else
+            {
+				embed.AddField("Account", accountOutput, true);
+				embed.AddField("Channel", channelOutput, true);
 			}
 			await FollowupAsync(embed: embed.Build());
 		}

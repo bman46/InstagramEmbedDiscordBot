@@ -18,6 +18,7 @@
     <PackageReference Include="Discord.Net.Interactions" Version="3.1.0" />
     <PackageReference Include="Otp.NET" Version="1.2.2" />
     <PackageReference Include="Bman46InstagramApiSharpLabs" Version="1.7.3" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.23.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,9 +26,12 @@
     <None Remove="Discord.Net.Interactions" />
     <None Remove="InstagramHelpers\" />
     <None Remove="Otp.NET" />
+    <None Remove="Microsoft.Azure.Cosmos" />
+    <None Remove="DataTables\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helpers\" />
+    <Folder Include="DataTables\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="config.json">

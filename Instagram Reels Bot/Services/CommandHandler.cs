@@ -20,8 +20,9 @@ namespace Instagram_Reels_Bot.Services
         private readonly IConfiguration _config;
         private readonly CommandService _commands;
         private readonly InteractionService _interact;
-        private readonly DiscordShardedClient _client;
+        public readonly DiscordShardedClient _client;
         private readonly IServiceProvider _services;
+        private readonly Subscriptions _subscriptions;
         /// <summary>
         /// Notifies the owner of an error
         /// false by default. Toggled by user DM command.
@@ -29,7 +30,7 @@ namespace Instagram_Reels_Bot.Services
         /// </summary>
         public static bool notifyOwnerOnError;
 
-        public CommandHandler(IServiceProvider services)
+        public CommandHandler(IServiceProvider services, Services.Subscriptions subs)
         {
             // juice up the fields with these services
             // since we passed the services in, we can use GetRequiredService to pass them into the fields set earlier
@@ -38,6 +39,7 @@ namespace Instagram_Reels_Bot.Services
             _interact = services.GetRequiredService<InteractionService>();
             _client = services.GetRequiredService<DiscordShardedClient>();
             _services = services;
+            _subscriptions = subs;
 
             // take action when we execute a command
             _commands.CommandExecuted += CommandExecutedAsync;
@@ -88,7 +90,7 @@ namespace Instagram_Reels_Bot.Services
             //DMs:
             if (message.Channel.GetType() == typeof(SocketDMChannel))
             {
-                //TODO: Move this to a module file:
+                //TODO: Move this to a module file and make it a switch statement:
                 if (message.Content.ToLower().StartsWith("debug"))
                 {
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
@@ -104,7 +106,7 @@ namespace Instagram_Reels_Bot.Services
                         }
                         catch (Exception e)
                         {
-                            await message.ReplyAsync("Could not connect to server. Error: "+e);
+                            await message.ReplyAsync("Could not connect to server. Error: " + e);
                         }
                     }
                 }
@@ -114,7 +116,7 @@ namespace Instagram_Reels_Bot.Services
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
                         string serverList = Format.Bold("Servers:");
-                        foreach(SocketGuild guild in _client.Guilds)
+                        foreach (SocketGuild guild in _client.Guilds)
                         {
                             String serverLine = "\n" + guild.Name + " \tBoost: " + guild.PremiumTier + " \tUsers: " + guild.MemberCount + " \tLocale: " + guild.PreferredLocale;
                             //Discord max message length:
@@ -143,16 +145,17 @@ namespace Instagram_Reels_Bot.Services
                             await message.ReplyAsync("Error notifications disabled.");
                         }
                     }
-                }else if (message.Content.ToLower().StartsWith("users"))
+                }
+                else if (message.Content.ToLower().StartsWith("users"))
                 {
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
                         int users = 0;
-                        foreach(SocketGuild guild in _client.Guilds)
+                        foreach (SocketGuild guild in _client.Guilds)
                         {
                             users += guild.MemberCount;
                         }
-                        await message.ReplyAsync("Users: "+users);
+                        await message.ReplyAsync("Users: " + users);
                     }
                 }
                 else if (message.Content.ToLower().StartsWith("relogin"))
@@ -172,11 +175,27 @@ namespace Instagram_Reels_Bot.Services
                         try
                         {
                             var code = InstagramProcessor.GetTwoFactorAuthCode();
-                            await message.ReplyAsync("Username: "+InstagramProcessor.GetIGUsername()+ "\n2FA Code: " + code);
-                        }catch(Exception e)
+                            await message.ReplyAsync("Username: " + InstagramProcessor.GetIGUsername() + "\n2FA Code: " + code);
+                        }
+                        catch (Exception e)
                         {
                             await message.ReplyAsync("Failed to get 2FA code.");
                             Console.WriteLine("2FA Code error: " + e);
+                        }
+                    }
+                }
+                else if (message.Content.ToLower().StartsWith("sync"))
+                {
+                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    {
+                        if (_subscriptions.CurrentlyCheckingAccounts())
+                        {
+                            await message.ReplyAsync("Already doing that.");
+                        }
+                        else
+                        {
+                            _subscriptions.GetLatestsPosts();
+                            await message.ReplyAsync("Working on it...");
                         }
                     }
                 }
@@ -308,12 +327,14 @@ namespace Instagram_Reels_Bot.Services
                 {
                     case InteractionCommandError.UnmetPrecondition:
                         // implement
+                        arg2.Interaction.RespondAsync("You are not able to perform this action (UnmetPrecondition). Discord support server: https://top.gg/servers/921830686439124993", ephemeral: true);
                         break;
                     case InteractionCommandError.UnknownCommand:
-                        // implement
+                        arg2.Interaction.RespondAsync("Unknown command.", ephemeral: true);
                         break;
                     case InteractionCommandError.BadArgs:
                         // implement
+                        arg2.Interaction.FollowupAsync("The provided values are invalid. (BadArgs)");
                         break;
                     case InteractionCommandError.Exception:
                         //notify owner if desired:
@@ -326,6 +347,7 @@ namespace Instagram_Reels_Bot.Services
                             }
                             Discord.UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
                         }
+                        arg2.Interaction.FollowupAsync("Sorry, Something went wrong... Discord support server: https://top.gg/servers/921830686439124993");
                         break;
                     case InteractionCommandError.Unsuccessful:
                         //notify owner if desired:
@@ -338,6 +360,7 @@ namespace Instagram_Reels_Bot.Services
                             }
                             Discord.UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
                         }
+                        arg2.Interaction.FollowupAsync("Sorry, Something went wrong... Discord support server: https://top.gg/servers/921830686439124993");
                         break;
                     default:
                         //notify owner if desired:
@@ -350,6 +373,7 @@ namespace Instagram_Reels_Bot.Services
                             }
                             Discord.UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
                         }
+                        arg2.Interaction.FollowupAsync("Sorry, Something went wrong... Discord support server: https://top.gg/servers/921830686439124993");
                         break;
                 }
             }

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
 
 namespace Instagram_Reels_Bot.Helpers
 {
@@ -111,7 +113,35 @@ namespace Instagram_Reels_Bot.Helpers
                     return 8000000;
             }
         }
+        /// <summary>
+        /// Manually suppress embeds. Preferably use discord.net for this.
+        /// TODO: Remove this when Discord.Net is fixed.
+        /// </summary>
+        /// <param name="channelId"></param>
+        /// <param name="messageId"></param>
+        public static void SuppressEmbeds(ulong channelId, ulong messageId)
+        {
+            // create the configuration
+            var _builder = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile(path: "config.json");
+            // build the configuration and assign to _config          
+            var config = _builder.Build();
 
+            HttpClient client = new HttpClient();
+
+            Uri apiUrl = new Uri("https://discord.com/api/v9/channels/" + channelId + "/messages/" + messageId);
+
+            var request = new HttpRequestMessage(new HttpMethod("PATCH"), apiUrl)
+            {
+                Content = new StringContent("{\"flags\": 4}", System.Text.Encoding.UTF8, "application/json"),
+            };
+
+            request.Headers.Add("User-Agent", "DiscordBot (https://github.com/bman46/InstagramEmbedDiscordBot, 1.0)");
+            request.Headers.Add("Authorization", "Bot " + config["Token"]);
+
+            //Send the request:
+            client.Send(request);
+        }
     }
 }
-

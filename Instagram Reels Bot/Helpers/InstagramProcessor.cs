@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using InstagramApiSharp.API.Builder;
+using InstagramApiSharp;
 using InstagramApiSharp.Classes;
 using InstagramApiSharp.Classes.Android.DeviceInfo;
 using InstagramApiSharp.Logger;
@@ -42,6 +44,10 @@ namespace Instagram_Reels_Bot.Helpers
 		/// <returns>Instagram processor response with related information.</returns>
 		public static async Task<InstagramProcessorResponse> PostRouter(string url, int tier, int postIndex = 1)
 		{
+            if (string.IsNullOrEmpty(url))
+            {
+				throw new ArgumentNullException("URL is null.");
+            }
 			Uri link;
 			try
 			{
@@ -116,11 +122,23 @@ namespace Instagram_Reels_Bot.Helpers
 
 			//get user:
 			var user = await instaApi.UserProcessor.GetUserAsync(userName);
+            // On failed to get user:
+            if (!user.Succeeded)
+            {
+				return HandleFailure(user);
+			}else if (user.Value.IsPrivate)
+            {
+				return new InstagramProcessorResponse("The account is private.");
+			}
 			long userId = user.Value.Pk;
 			var stories = await instaApi.StoryProcessor.GetUserStoryAsync(userId);
+            if (!stories.Succeeded)
+            {
+				return new InstagramProcessorResponse("Failed to load stories for the user. Support Server: https://discord.gg/6K3tdsYd6J");
+			}
 			if (stories.Value.Items.Count == 0)
 			{
-				return new InstagramProcessorResponse("No stories exist for that user. (Is the account private?)");
+				return new InstagramProcessorResponse("No stories exist for that user.");
 			}
 			foreach (var story in stories.Value.Items)
 			{
@@ -157,7 +175,7 @@ namespace Instagram_Reels_Bot.Helpers
 							//If statement to double check size.
 							if (data.Length < maxUploadSize)
 							{
-								return new InstagramProcessorResponse(isVideo, "", downloadUrl, url, data);
+								return new InstagramProcessorResponse(isVideo, "", story.User.FullName, story.User.UserName, new Uri(story.User.ProfilePicture), downloadUrl, url, story.TakenAt, data);
 							}
 
 						}
@@ -180,7 +198,7 @@ namespace Instagram_Reels_Bot.Helpers
 						Console.WriteLine(e);
 					}
 					//Fallback to URL:
-					return new InstagramProcessorResponse(true, "", downloadUrl, url, null);
+					return new InstagramProcessorResponse(true, "", story.User.FullName, story.User.UserName, new Uri(story.User.ProfilePicture), downloadUrl, url, story.TakenAt, null);
 				}
 			}
 			return new InstagramProcessorResponse("Could not find story.");
@@ -192,7 +210,7 @@ namespace Instagram_Reels_Bot.Helpers
 		/// <param name="index">Post number in carousel</param>
 		/// <param name="premiumTier">Discord Nitro tier. For max file upload size.</param>
 		/// <returns>Instagram processor response with related information.</returns>
-		public static async Task<InstagramProcessorResponse> PostProcessorAsync(string url, int index, int premiumTier)
+		public static async Task<InstagramProcessorResponse> PostProcessorAsync(string url, int index, int premiumTier, InstagramApiSharp.Classes.Models.InstaMedia media = null)
         {
 			//ensure login:
 			InstagramLogin();
@@ -200,76 +218,75 @@ namespace Instagram_Reels_Bot.Helpers
 			//Arrays start at zero:
 			index--;
 
-			//parse url:
-			InstagramApiSharp.Classes.IResult<string> mediaId;
-			InstagramApiSharp.Classes.IResult<InstagramApiSharp.Classes.Models.InstaMedia> media;
-			try
+			//Check for 'prefed' media
+			if (media == null)
 			{
-				//parse URL:
+				//parse url:
+				InstagramApiSharp.Classes.IResult<string> mediaId;
+				InstagramApiSharp.Classes.IResult<InstagramApiSharp.Classes.Models.InstaMedia> mediaSource;
+
+				//Get the media ID:
 				mediaId = await instaApi.MediaProcessor.GetMediaIdFromUrlAsync(new Uri(url));
 
-				//Parse for url:
-				media = await instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value);
-			}
-			catch (Exception)
-			{
-				//Error loading
-				return new InstagramProcessorResponse("Error Loading Post.");
-			}
+				//Check to see if it worked:
+                if (!mediaId.Succeeded)
+                {
+					return HandleFailure(mediaId);
+				}
+                else
+                {
+					mediaSource = (await instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value));
+					//Check for failure:
+                    if (!mediaSource.Succeeded)
+                    {
+						HandleFailure(mediaSource);
+                    }
+				}
 
-			//Check for private account:
-            if (media.Info.NeedsChallenge)
-            {
-				throw new Exception("Bot challenged by Instagram.");
-            }
-
-			//check for private account:
-			if (media.Value == null)
-			{
-				return new InstagramProcessorResponse("The account may be private. Please report this on our support server if the account is public. https://discord.gg/6K3tdsYd6J");
+				media = mediaSource.Value;
 			}
 
 			string caption = "";
 			//check caption value (ensure not null)
-			if (media.Value.Caption!=null)
+			if (media.Caption!=null)
             {
-				caption = media.Value.Caption.Text;
+				caption = media.Caption.Text;
 			}
 
 			//inject image from carousel:
-			if (media.Value.Carousel != null && media.Value.Carousel.Count > 0)
+			if (media.Carousel != null && media.Carousel.Count > 0)
 			{
-				if (media.Value.Carousel.Count <= index)
+				if (media.Carousel.Count <= index)
 				{
-					return new InstagramProcessorResponse("Index out of bounds. There is only " + media.Value.Carousel.Count + " Posts.");
+					return new InstagramProcessorResponse("Index out of bounds. There is only " + media.Carousel.Count + " Posts.");
 				}
-				if (media.Value.Carousel[index].Videos.Count > 0)
+				if (media.Carousel[index].Videos.Count > 0)
 				{
-					var video = media.Value.Carousel[index].Videos[0];
-					media.Value.Videos.Add(video);
+					var video = media.Carousel[index].Videos[0];
+					media.Videos.Add(video);
 				}
 				else
 				{
-					var image = media.Value.Carousel[index].Images[0];
-					media.Value.Images.Add(image);
+					var image = media.Carousel[index].Images[0];
+					media.Images.Add(image);
 				}
 			}
 			//get upload tier:
 			long maxUploadSize = DiscordTools.MaxUploadSize(premiumTier);
 
-			bool isVideo = media.Value.Videos.Count > 0;
+			bool isVideo = media.Videos.Count > 0;
 			string downloadUrl = "";
 
 			//Video or image:
 			if (isVideo)
 			{
 				//video:
-				downloadUrl = media.Value.Videos[0].Uri;
+				downloadUrl = media.Videos[0].Uri;
 			}
 			else
 			{
 				//Image:
-				downloadUrl = media.Value.Images[0].Uri;
+				downloadUrl = media.Images[0].Uri;
 			}
 			
 			//Return downloaded content (if possible):
@@ -283,7 +300,7 @@ namespace Instagram_Reels_Bot.Helpers
 					//If statement to double check size.
 					if (data.Length < maxUploadSize)
 					{
-						return new InstagramProcessorResponse(isVideo, caption, downloadUrl, url, data);
+						return new InstagramProcessorResponse(isVideo, caption, media.User.FullName, media.User.UserName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, data);
 					}
 
 				}
@@ -306,11 +323,88 @@ namespace Instagram_Reels_Bot.Helpers
 				Console.WriteLine(e);
 			}
 			//Fallback to URL:
-			return new InstagramProcessorResponse(true, caption, downloadUrl, url, null);
+			return new InstagramProcessorResponse(true, caption, media.User.FullName, media.User.UserName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, null);
+		}
+		public static async Task<long> GetUserIDFromUsername(string username)
+        {
+			return (await instaApi.UserProcessor.GetUserAsync(username)).Value.Pk;
+        }
+		/// <summary>
+        /// Gets the date of the last instagram post from a user.
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <returns></returns>
+		public static async Task<DateTime> GetLatestPostDate(long userID)
+        {
+			//Check for login:
+			InstagramLogin();
+
+			//get the IG user:
+			var user = (await instaApi.UserProcessor.GetUserInfoByIdAsync(userID)).Value;
+
+			var LatestMedia = (await instaApi.UserProcessor.GetUserMediaAsync(user.Username, PaginationParameters.MaxPagesToLoad(1))).Value;
+			//Ensure there are posts:
+			if(LatestMedia == null || LatestMedia.Count==0)
+            {
+				Console.WriteLine("Cannot see profile. May be private.");
+				return DateTime.UnixEpoch;
+            }
+			return LatestMedia[0].TakenAt;
+        }
+		/// <summary>
+        /// Gets the latest instagram posts from a user account:
+        /// </summary>
+        /// <param name="userID">IG User ID</param>
+        /// <param name="startDate">Time of the last post.</param>
+        /// <returns></returns>
+		public static async Task<InstagramProcessorResponse[]> PostsSinceDate(long userID, DateTime startDate)
+        {
+			//Check for login:
+			InstagramLogin();
+
+			//get the IG user:
+			var user = (await instaApi.UserProcessor.GetUserInfoByIdAsync(userID)).Value;
+			List<InstagramProcessorResponse> responses = new List<InstagramProcessorResponse>();
+			var LatestMedia = (await instaApi.UserProcessor.GetUserMediaAsync(user.Username, PaginationParameters.MaxPagesToLoad(1))).Value;
+
+			if (LatestMedia == null)
+			{
+				responses.Add(new InstagramProcessorResponse("Cannot get profile."));
+				return responses.ToArray();
+			}
+			//Only show the latest 4 for resource reasons:
+            if (LatestMedia.Count > 4)
+            {
+				LatestMedia.RemoveRange(4, LatestMedia.Count - 4);
+            }
+			foreach(var media in LatestMedia)
+            {
+                if (media.TakenAt.ToUniversalTime() > startDate.ToUniversalTime())
+                {
+					//Add post to array:
+					responses.Insert(0, await PostProcessorAsync("https://www.instagram.com/" + media.User.UserName, 1, 0, media));
+				}
+            }
+			return responses.ToArray();
+		}
+		/// <summary>
+        /// Checks to see if an account is public and accesible or not.
+        /// </summary>
+        /// <param name="instagramID"></param>
+        /// <returns>True if the account is public. False on error or private.</returns>
+		public static async Task<bool> AccountIsPublic(long instagramID)
+		{
+			var userInfo = (await instaApi.UserProcessor.GetUserInfoByIdAsync(instagramID));
+            if (!userInfo.Succeeded)
+            {
+				Console.WriteLine("Failed to get user. " + userInfo.Info);
+				return false;
+            }
+			return !userInfo.Value.IsPrivate;
 		}
 		/// <summary>
 		/// Logs the bot into Instagram if logged out.
-        /// Also allows for logging out and back in again.
+		/// Also allows for logging out and back in again.
 		/// </summary>
 		public static void InstagramLogin(bool clearStateFile = false, bool logOutFirst = false)
 		{
@@ -471,8 +565,17 @@ namespace Instagram_Reels_Bot.Helpers
 			return instaApi.GetLoggedUser().UserName;
         }
 		/// <summary>
-        /// An android device to use for login with instagram to keep one consistant device.
+        /// The Instagram username of the user.
         /// </summary>
+        /// <param name="igid"></param>
+        /// <returns></returns>
+		public static async Task<string> GetIGUsername(string igid)
+        {
+			return (await instaApi.UserProcessor.GetUserInfoByIdAsync(long.Parse(igid))).Value.Username;
+        }
+		/// <summary>
+		/// An android device to use for login with instagram to keep one consistant device.
+		/// </summary>
 		public static AndroidDevice device = new AndroidDevice
 		{
 			// Device name
@@ -500,5 +603,28 @@ namespace Instagram_Reels_Bot.Helpers
 			// Dpi
 			Dpi = "480dpi",
 		};
+		/// <summary>
+		/// Handles conditions where a IResult is unsuccessful.
+		/// </summary>
+		/// <param name="result"></param>
+		/// <returns></returns>
+		/// <exception cref="Exception"></exception>
+		private static InstagramProcessorResponse HandleFailure(IResult<object> result)
+        {
+			switch (result.Info.ResponseType)
+			{
+				case ResponseType.ChallengeRequired:
+					throw new Exception("Challanged by Instagram.");
+				case ResponseType.MediaNotFound:
+					return new InstagramProcessorResponse("Could not find that post. Is the account private?");
+				case ResponseType.DeletedPost:
+					return new InstagramProcessorResponse("The post was deleted from Instagram.");
+				case ResponseType.NetworkProblem:
+					return new InstagramProcessorResponse("Could not connect to Instagram. Is Instagram down? https://discord.gg/6K3tdsYd6J");
+				default:
+					Console.WriteLine("Error: "+result.Info);
+					return new InstagramProcessorResponse("Error retrieving the post. The account may be private. Please report this on our support server if the account is public or if this is unexpected. https://discord.gg/6K3tdsYd6J");
+			}
+		}
 	}
 }

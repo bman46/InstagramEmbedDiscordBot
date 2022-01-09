@@ -1,5 +1,6 @@
 # Instagram Embed Discord Bot
-Embeds videos and images from users linked Instagram posts, videos, and reels into a Discord chat.
+Delivers new posts from Instagram accounts to a Discord channel.
+Embeds linked videos and images from users linked Instagram posts, videos, and reels into a Discord chat.
 
 [Invite To Discord Server](https://link.mcshane.systems/reelsbotinvite)
 
@@ -14,6 +15,7 @@ Embeds videos and images from users linked Instagram posts, videos, and reels in
 - Videos are downloadable
 - Adjusted upload sizes for Nitro Boosted servers
 - Supports Discord slash commands
+- Supports subscribing to new posts from Instagram users
 
 ## Example: 
 ![Example of reels bot on discord](https://github.com/bman46/Instagram-Reels-Bot/raw/master/Example.png)
@@ -21,12 +23,18 @@ Embeds videos and images from users linked Instagram posts, videos, and reels in
 ### Config.json format:
 ```
 {
-  "Token": "Token Here",
+  "Token": "TokenHere",
   "Prefix": [ "https://www.instagram.com/", "https://instagram.com/", "http://www.instagram.com/", "http://instagram.com/" ],
-  "OwnerID": "Owner UID",
+  "OwnerID": "OwnerID",
   "ProxyURL": "",
   "IGUserName": "IGUsername",
   "IGPassword": "IGPassword",
-  "TestGuildID": "Test Guild"
+  "2FASecret": "2FA OTP secret (optional)",
+
+  "AllowSubscriptions": true/false,
+  "EndpointUrl": "CosmosDB Endpoint (optional if AllowSubscriptions is false)",
+  "PrimaryKey": "CosmosDB key (optional if AllowSubscriptions is false)",
+  "DefaultSubscriptionsPerGuildMax": 0,
+  "HoursToCheckForNewContent": 3
 }
 ```

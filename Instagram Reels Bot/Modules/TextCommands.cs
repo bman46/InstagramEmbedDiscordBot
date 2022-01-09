@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using Instagram_Reels_Bot.Helpers;
+using System.Net.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace Instagram_Reels_Bot.Modules
 {
@@ -135,6 +137,15 @@ namespace Instagram_Reels_Bot.Modules
                     embed.ImageUrl = response.contentURL.ToString();
                     await context.Message.ReplyAsync(embed: embed.Build(), allowedMentions: AllowedMentions.None);
                 }
+            }
+
+            //Try to remove the embeds on the command post:
+            try
+            {
+                DiscordTools.SuppressEmbeds(context.Channel.Id, context.Message.Id);
+            }catch(Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
     }

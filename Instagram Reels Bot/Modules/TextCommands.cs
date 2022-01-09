@@ -140,6 +140,7 @@ namespace Instagram_Reels_Bot.Modules
             }
 
             //Try to remove the embeds on the command post:
+            //TODO: remove this when Discord.Net fix gets released.
             try
             {
                 DiscordTools.SuppressEmbeds(context.Channel.Id, context.Message.Id);

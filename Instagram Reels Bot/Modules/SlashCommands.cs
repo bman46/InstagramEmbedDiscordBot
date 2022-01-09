@@ -348,7 +348,7 @@ namespace Instagram_Reels_Bot.Modules
                         {
 							Console.WriteLine(e);
                         }
-						embed.Description += "\n- " + await InstagramProcessor.GetIGUsername(user.InstagramID)+" "+ chanMention;
+						embed.Description += "\n- [" + await InstagramProcessor.GetIGUsername(user.InstagramID)+"](https://www.instagram.com/" + await InstagramProcessor.GetIGUsername(user.InstagramID) + ") " + chanMention;
 					}
                 }
 			}

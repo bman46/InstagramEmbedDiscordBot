@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 
@@ -142,6 +143,20 @@ namespace Instagram_Reels_Bot.Helpers
 
             //Send the request:
             client.Send(request);
+        }
+        /// <summary>
+        /// Converts a slash param array to a string.
+        /// </summary>
+        /// <returns></returns>
+        public static string SlashParamToString(IInteractionContext arg2)
+        {
+            string output = "";
+
+            foreach(var param in (arg2.Interaction.Data as SocketSlashCommandData).Options)
+            {
+                output += param.Name + ": " + param.Value+" ";
+            }
+            return output;
         }
     }
 }

@@ -302,7 +302,7 @@ namespace Instagram_Reels_Bot.Services
             //notify owner if desired:
             if (notifyOwnerOnError&&!string.IsNullOrEmpty(_config["OwnerID"]))
             {
-                string error = Format.Bold("Error:") + "\n" + result.Error + "\n" + Format.Code(result.ErrorReason)+"\n\n"+ Format.Bold("Command:") + "\n" + Format.BlockQuote(context.Message.Content);
+                string error = Format.Bold("Error:") + "\n" + result.Error + "\n" + Format.Code(result.ErrorReason)+"\n\n"+ Format.Bold("Command:") + "\n" + Format.BlockQuote(context.Message.ToString());
                 if (error.Length > 2000)
                 {
                     error = error.Substring(0, 2000);
@@ -340,7 +340,7 @@ namespace Instagram_Reels_Bot.Services
                         //notify owner if desired:
                         if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
                         {
-                            string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + arg1.Parameters);
+                            string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + DiscordTools.SlashParamToString(arg2));
                             if (error.Length > 2000)
                             {
                                 error = error.Substring(0, 2000);
@@ -353,7 +353,7 @@ namespace Instagram_Reels_Bot.Services
                         //notify owner if desired:
                         if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
                         {
-                            string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + arg1.Parameters);
+                            string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + DiscordTools.SlashParamToString(arg2));
                             if (error.Length > 2000)
                             {
                                 error = error.Substring(0, 2000);
@@ -366,7 +366,7 @@ namespace Instagram_Reels_Bot.Services
                         //notify owner if desired:
                         if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
                         {
-                            string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + arg1.Parameters);
+                            string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + DiscordTools.SlashParamToString(arg2));
                             if (error.Length > 2000)
                             {
                                 error = error.Substring(0, 2000);

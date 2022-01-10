@@ -232,7 +232,10 @@ namespace Instagram_Reels_Bot.Helpers
                 if (!mediaId.Succeeded)
                 {
 					return HandleFailure(mediaId);
-				}
+				}else if (mediaId.Value == null)
+                {
+					return new InstagramProcessorResponse("No post information returned. Profile links are not supported (if applicable).");
+                }
                 else
                 {
 					mediaSource = (await instaApi.MediaProcessor.GetMediaByIdAsync(mediaId.Value));

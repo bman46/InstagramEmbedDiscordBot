@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace Instagram_Reels_Bot.DataTables
 {
@@ -21,6 +22,7 @@ namespace Instagram_Reels_Bot.DataTables
 		[JsonProperty(PropertyName = "id")]
 		public string GuildID { get; set; }
 		public uint AdditionalAccounts { get; set; }
+		public List<long> PaidDiscordUsers { get; set; }
 		public bool RecheckSubscribedAccounts { get; set; }
 	}
 }

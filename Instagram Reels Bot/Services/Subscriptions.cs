@@ -408,9 +408,10 @@ namespace Instagram_Reels_Bot.Services
                                             await chan.SendMessageAsync("Failed to get latest posts for " + igUsername + ". Use `/unsubscribe " + igUsername + "` to remove the inaccessible account.");
                                         }
                                     }
-
+#if (!DEBUG)
                                     //Remove all invalid channels:
                                     invalidChannels.ForEach(item => igAccount.SubscribedChannels.RemoveAll(c => c.ChannelID.Equals(item.ChannelID)));
+#endif
                                 }
                                 //Update database:
                                 await this.FollowedAccountsContainer.UpsertItemAsync<FollowedIGUser>(igAccount, new PartitionKey(igAccount.InstagramID));

@@ -409,7 +409,7 @@ namespace Instagram_Reels_Bot.Services
                                         }
                                     }
 #if (!DEBUG)
-                                    //Remove all invalid channels:
+                                    //Remove all invalid channels (if prod):
                                     invalidChannels.ForEach(item => igAccount.SubscribedChannels.RemoveAll(c => c.ChannelID.Equals(item.ChannelID)));
 #endif
                                 }

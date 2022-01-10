@@ -194,8 +194,10 @@ namespace Instagram_Reels_Bot.Services
                         }
                         else
                         {
+                            // Run this async to avoid blocking the current thread:
                             _subscriptions.GetLatestsPosts();
-                            await message.ReplyAsync("Working on it...");
+                            //Let the user know its being worked on:
+                            await message.ReplyAsync("Working on it.");
                         }
                     }
                 }

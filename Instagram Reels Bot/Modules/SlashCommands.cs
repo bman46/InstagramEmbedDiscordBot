@@ -164,7 +164,7 @@ namespace Instagram_Reels_Bot.Modules
 			var role = (Context.User as SocketGuildUser).Roles.FirstOrDefault(role => role.Name == "InstagramBotSubscribe");
 			if (role == null && !(Context.User as SocketGuildUser).GuildPermissions.Administrator)
             {
-				await RespondAsync("You need guild Administrator permission or the role `InstagramSubscribe` assigned to your account to perform this action.", ephemeral: true);
+				await RespondAsync("You need guild Administrator permission or the role `InstagramBotSubscribe` assigned to your account to perform this action.", ephemeral: true);
 				return;
 			}
 
@@ -230,7 +230,7 @@ namespace Instagram_Reels_Bot.Modules
 			var role = (Context.User as SocketGuildUser).Roles.FirstOrDefault(role => role.Name == "InstagramBotSubscribe");
 			if (role == null && !(Context.User as SocketGuildUser).GuildPermissions.Administrator)
 			{
-				await RespondAsync("You need guild Administrator permission or the role `InstagramSubscribe` assigned to your account to perform this action.", ephemeral: true);
+				await RespondAsync("You need guild Administrator permission or the role `InstagramBotSubscribe` assigned to your account to perform this action.", ephemeral: true);
 				return;
 			}
 
@@ -278,7 +278,7 @@ namespace Instagram_Reels_Bot.Modules
 			var role = (Context.User as SocketGuildUser).Roles.FirstOrDefault(role => role.Name == "InstagramBotSubscribe");
 			if (role == null && !(Context.User as SocketGuildUser).GuildPermissions.Administrator)
 			{
-				await RespondAsync("You need guild Administrator permission or the role `InstagramSubscribe` assigned to your account to perform this action.", ephemeral: true);
+				await RespondAsync("You need guild Administrator permission or the role `InstagramBotSubscribe` assigned to your account to perform this action.", ephemeral: true);
 				return;
 			}
 

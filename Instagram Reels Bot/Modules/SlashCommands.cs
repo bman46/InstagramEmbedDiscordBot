@@ -330,7 +330,6 @@ namespace Instagram_Reels_Bot.Modules
 
 			var embed = new Discord.EmbedBuilder();
 			embed.Title = "Guild Subscriptions";
-			embed.Description = "**Instagram Accounts:**";
 			embed.WithColor(new Color(131, 58, 180));
 
 			var subs = _subscriptions.GuildSubscriptions(Context.Guild.Id);
@@ -356,6 +355,7 @@ namespace Instagram_Reels_Bot.Modules
 					}
                 }
 			}
+			embed.Description = subs.Count()+" of "+_subscriptions.MaxSubscriptionsCountForGuild(Context.Guild.Id)+" subscribes used.\n**Instagram Accounts:**";
 			if (subs.Length == 0)
             {
 				embed.Description = "No accounts followed. Get started by using `/subscribe`";

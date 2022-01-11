@@ -79,8 +79,13 @@ namespace Instagram_Reels_Bot.Services
             //Connect to Database:
             this.CosmosClient = new CosmosClient(EndpointUri, PrimaryKey);
 
+            //Override database for debugging:
+            string databaseName = "InstagramEmbedDatabase";
+#if (DEBUG)
+            databaseName = "InstagramEmbedDatabaseDev";
+#endif
             //link and create the database if it is missing:
-            this.Database = await this.CosmosClient.CreateDatabaseIfNotExistsAsync("InstagramEmbedDatabase");
+            this.Database = await this.CosmosClient.CreateDatabaseIfNotExistsAsync(databaseName);
             this.FollowedAccountsContainer = await this.Database.CreateContainerIfNotExistsAsync("FollowedAccounts", "/id");
             this.PremiumGuildsContainer = await this.Database.CreateContainerIfNotExistsAsync("PremiumGuilds", "/id");
 
@@ -408,10 +413,8 @@ namespace Instagram_Reels_Bot.Services
                                             await chan.SendMessageAsync("Failed to get latest posts for " + igUsername + ". Use `/unsubscribe " + igUsername + "` to remove the inaccessible account.");
                                         }
                                     }
-#if (!DEBUG)
-                                    //Remove all invalid channels (if prod):
+                                    //Remove all invalid channels:
                                     invalidChannels.ForEach(item => igAccount.SubscribedChannels.RemoveAll(c => c.ChannelID.Equals(item.ChannelID)));
-#endif
                                 }
                                 //Update database:
                                 await this.FollowedAccountsContainer.UpsertItemAsync<FollowedIGUser>(igAccount, new PartitionKey(igAccount.InstagramID));

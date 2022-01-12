@@ -28,10 +28,12 @@
     <None Remove="Otp.NET" />
     <None Remove="Microsoft.Azure.Cosmos" />
     <None Remove="DataTables\" />
+    <None Remove="Helpers\Communications\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helpers\" />
     <Folder Include="DataTables\" />
+    <Folder Include="Helpers\Communications\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="config.json">

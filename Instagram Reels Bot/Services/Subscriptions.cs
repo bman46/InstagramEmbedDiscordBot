@@ -233,64 +233,91 @@ namespace Instagram_Reels_Bot.Services
                         foreach (var igAccount in await dbfeed.ReadNextAsync())
                         {
                             Console.WriteLine("Checking " + igAccount.InstagramID);
-
-                            //Check to see if their is any subscribed accounts:
-                            if (igAccount.SubscribedChannels.Count == 0)
+                            try
                             {
-                                //If not, delete.
-                                await this.FollowedAccountsContainer.DeleteItemAsync<FollowedIGUser>(igAccount.InstagramID, new PartitionKey(igAccount.InstagramID));
-                            }
-                            else //Otherwise proceed:
-                            {
-
-                                //Set last check as now:
-                                igAccount.LastCheckTime = DateTime.Now;
-                                var newIGPosts = await InstagramProcessor.PostsSinceDate(long.Parse(igAccount.InstagramID), igAccount.LastPostDate);
-                                if (newIGPosts.Length > 0 && newIGPosts[newIGPosts.Length - 1].success)
+                                //Check to see if their is any subscribed accounts:
+                                if (igAccount.SubscribedChannels.Count == 0)
                                 {
-                                    //Set the most recent posts date:
-                                    igAccount.LastPostDate = newIGPosts[newIGPosts.Length - 1].postDate;
+                                    //If not, delete.
+                                    await this.FollowedAccountsContainer.DeleteItemAsync<FollowedIGUser>(igAccount.InstagramID, new PartitionKey(igAccount.InstagramID));
                                 }
-                                foreach (InstagramProcessorResponse response in newIGPosts)
+                                else //Otherwise proceed:
                                 {
-                                    List<RespondChannel> invalidChannels = new List<RespondChannel>();
-                                    foreach (RespondChannel subbedGuild in igAccount.SubscribedChannels)
+                                    //Set last check as now:
+                                    igAccount.LastCheckTime = DateTime.Now;
+                                    var newIGPosts = await InstagramProcessor.PostsSinceDate(long.Parse(igAccount.InstagramID), igAccount.LastPostDate);
+                                    if (newIGPosts.Length > 0 && newIGPosts[newIGPosts.Length - 1].success)
                                     {
-                                        if (response.success)
+                                        //Set the most recent posts date:
+                                        igAccount.LastPostDate = newIGPosts[newIGPosts.Length - 1].postDate;
+                                    }
+                                    foreach (InstagramProcessorResponse response in newIGPosts)
+                                    {
+                                        List<RespondChannel> invalidChannels = new List<RespondChannel>();
+                                        foreach (RespondChannel subbedGuild in igAccount.SubscribedChannels)
                                         {
-                                            //Account Name:
-                                            var account = new EmbedAuthorBuilder();
-                                            account.IconUrl = response.iconURL.ToString();
-                                            account.Name = response.accountName;
-                                            account.Url = response.accountUrl.ToString();
-
-                                            //Instagram Footer:
-                                            EmbedFooterBuilder footer = new EmbedFooterBuilder();
-                                            footer.IconUrl = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png";
-                                            footer.Text = "Instagram";
-
-                                            var embed = new EmbedBuilder();
-                                            embed.Author = account;
-                                            embed.Footer = footer;
-                                            embed.Timestamp = new DateTimeOffset(response.postDate);
-                                            embed.Url = response.postURL.ToString();
-                                            embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption)) : ("");
-                                            embed.WithColor(new Color(131, 58, 180));
-
-                                            if (!response.success)
+                                            if (response.success)
                                             {
-                                                //Failed to process post:
-                                                Console.WriteLine("Failed to process post.");
-                                                return;
-                                            }
-                                            else if (response.isVideo)
-                                            {
-                                                if (response.stream != null)
+                                                //Account Name:
+                                                var account = new EmbedAuthorBuilder();
+                                                account.IconUrl = response.iconURL.ToString();
+                                                account.Name = response.accountName;
+                                                account.Url = response.accountUrl.ToString();
+
+                                                //Instagram Footer:
+                                                EmbedFooterBuilder footer = new EmbedFooterBuilder();
+                                                footer.IconUrl = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png";
+                                                footer.Text = "Instagram";
+
+                                                var embed = new EmbedBuilder();
+                                                embed.Author = account;
+                                                embed.Footer = footer;
+                                                embed.Timestamp = new DateTimeOffset(response.postDate);
+                                                embed.Url = response.postURL.ToString();
+                                                embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption)) : ("");
+                                                embed.WithColor(new Color(131, 58, 180));
+
+                                                if (!response.success)
                                                 {
-                                                    //Response with stream:
-                                                    using (Stream stream = new MemoryStream(response.stream))
+                                                    //Failed to process post:
+                                                    Console.WriteLine("Failed to process post.");
+                                                    return;
+                                                }
+                                                else if (response.isVideo)
+                                                {
+                                                    if (response.stream != null)
                                                     {
-                                                        FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.");
+                                                        //Response with stream:
+                                                        using (Stream stream = new MemoryStream(response.stream))
+                                                        {
+                                                            FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.");
+                                                            // get channel:
+                                                            IMessageChannel chan = null;
+                                                            try
+                                                            {
+                                                                chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
+                                                            }
+                                                            catch (Exception e)
+                                                            {
+                                                                Console.WriteLine("Cannot find channel. Removing from DB.");
+                                                                invalidChannels.Add(subbedGuild);
+                                                            }
+                                                            if (chan != null)
+                                                            {
+                                                                //send message
+                                                                await chan.SendFileAsync(attachment, embed: embed.Build());
+                                                            }
+                                                            else
+                                                            {
+                                                                Console.WriteLine("Cannot find channel. Removing from DB.");
+                                                                invalidChannels.Add(subbedGuild);
+                                                            }
+
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        //Response without stream:
                                                         // get channel:
                                                         IMessageChannel chan = null;
                                                         try
@@ -305,7 +332,75 @@ namespace Instagram_Reels_Bot.Services
                                                         if (chan != null)
                                                         {
                                                             //send message
-                                                            await chan.SendFileAsync(attachment, embed: embed.Build());
+                                                            await chan.SendMessageAsync(response.contentURL.ToString(), embed: embed.Build());
+                                                        }
+                                                        else
+                                                        {
+                                                            Console.WriteLine("Cannot find channel. Removing from DB.");
+                                                            invalidChannels.Add(subbedGuild);
+                                                        }
+
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    embed.ImageUrl = "attachment://IGMedia.jpg";
+                                                    if (response.stream != null)
+                                                    {
+                                                        using (Stream stream = new MemoryStream(response.stream))
+                                                        {
+                                                            FileAttachment attachment = new FileAttachment(stream, "IGMedia.jpg", "An Instagram Image.");
+
+                                                            // get channel:
+                                                            IMessageChannel chan = null;
+                                                            try
+                                                            {
+                                                                chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
+                                                            }
+                                                            catch (Exception e)
+                                                            {
+                                                                Console.WriteLine("Cannot find channel. Removing from DB.");
+                                                                invalidChannels.Add(subbedGuild);
+                                                            }
+                                                            if (chan != null)
+                                                            {
+                                                                //send message
+                                                                await chan.SendFileAsync(attachment, embed: embed.Build());
+                                                            }
+                                                            else
+                                                            {
+                                                                Console.WriteLine("Cannot find channel. Removing from DB.");
+                                                                invalidChannels.Add(subbedGuild);
+                                                            }
+
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        embed.ImageUrl = response.contentURL.ToString();
+                                                        // get channel:
+                                                        IMessageChannel chan = null;
+                                                        try
+                                                        {
+                                                            chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
+                                                        }
+                                                        catch (Exception e)
+                                                        {
+                                                            Console.WriteLine("Cannot find channel. Removing from DB.");
+                                                            invalidChannels.Add(subbedGuild);
+                                                        }
+                                                        if (chan != null)
+                                                        {
+                                                            //send message
+                                                            try
+                                                            {
+                                                                await chan.SendMessageAsync(embed: embed.Build());
+                                                            }catch(Exception e)
+                                                            {
+                                                                Console.WriteLine("Error sending subscription message. Error: " + e);
+                                                                invalidChannels.Add(subbedGuild);
+                                                            }
                                                         }
                                                         else
                                                         {
@@ -315,111 +410,27 @@ namespace Instagram_Reels_Bot.Services
 
                                                     }
                                                 }
-                                                else
-                                                {
-                                                    //Response without stream:
-                                                    // get channel:
-                                                    IMessageChannel chan = null;
-                                                    try
-                                                    {
-                                                        chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
-                                                    }
-                                                    catch (Exception e)
-                                                    {
-                                                        Console.WriteLine("Cannot find channel. Removing from DB.");
-                                                        invalidChannels.Add(subbedGuild);
-                                                    }
-                                                    if (chan != null)
-                                                    {
-                                                        //send message
-                                                        await chan.SendMessageAsync(response.contentURL.ToString(), embed: embed.Build());
-                                                    }
-                                                    else
-                                                    {
-                                                        Console.WriteLine("Cannot find channel. Removing from DB.");
-                                                        invalidChannels.Add(subbedGuild);
-                                                    }
-
-                                                }
-
                                             }
                                             else
                                             {
-                                                embed.ImageUrl = "attachment://IGMedia.jpg";
-                                                if (response.stream != null)
-                                                {
-                                                    using (Stream stream = new MemoryStream(response.stream))
-                                                    {
-                                                        FileAttachment attachment = new FileAttachment(stream, "IGMedia.jpg", "An Instagram Image.");
-
-                                                        // get channel:
-                                                        IMessageChannel chan = null;
-                                                        try
-                                                        {
-                                                            chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
-                                                        }
-                                                        catch (Exception e)
-                                                        {
-                                                            Console.WriteLine("Cannot find channel. Removing from DB.");
-                                                            invalidChannels.Add(subbedGuild);
-                                                        }
-                                                        if (chan != null)
-                                                        {
-                                                            //send message
-                                                            await chan.SendFileAsync(attachment, embed: embed.Build());
-                                                        }
-                                                        else
-                                                        {
-                                                            Console.WriteLine("Cannot find channel. Removing from DB.");
-                                                            invalidChannels.Add(subbedGuild);
-                                                        }
-
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    embed.ImageUrl = response.contentURL.ToString();
-                                                    // get channel:
-                                                    IMessageChannel chan = null;
-                                                    try
-                                                    {
-                                                        chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
-                                                    }
-                                                    catch (Exception e)
-                                                    {
-                                                        Console.WriteLine("Cannot find channel. Removing from DB.");
-                                                        invalidChannels.Add(subbedGuild);
-                                                    }
-                                                    if (chan != null)
-                                                    {
-                                                        //send message
-                                                        await chan.SendMessageAsync(embed: embed.Build());
-                                                    }
-                                                    else
-                                                    {
-                                                        Console.WriteLine("Cannot find channel. Removing from DB.");
-                                                        invalidChannels.Add(subbedGuild);
-                                                    }
-
-                                                }
+                                                //TODO: Decide if the user should be informed or not. May create spam.
+                                                Console.WriteLine("Failed auto post. ID: " + igAccount.InstagramID);
+                                                var chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
+                                                string igUsername = await InstagramProcessor.GetIGUsername(igAccount.InstagramID);
+                                                await chan.SendMessageAsync("Failed to get latest posts for " + igUsername + ". Use `/unsubscribe " + igUsername + "` to remove the inaccessible account.");
                                             }
                                         }
-                                        else
-                                        {
-                                            //TODO: Decide if the user should be informed or not. May create spam.
-                                            Console.WriteLine("Failed auto post. ID: " + igAccount.InstagramID);
-                                            var chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
-                                            string igUsername = await InstagramProcessor.GetIGUsername(igAccount.InstagramID);
-                                            await chan.SendMessageAsync("Failed to get latest posts for " + igUsername + ". Use `/unsubscribe " + igUsername + "` to remove the inaccessible account.");
-                                        }
+                                        //Remove all invalid channels:
+                                        invalidChannels.ForEach(item => igAccount.SubscribedChannels.RemoveAll(c => c.ChannelID.Equals(item.ChannelID)));
                                     }
-                                    //Remove all invalid channels:
-                                    invalidChannels.ForEach(item => igAccount.SubscribedChannels.RemoveAll(c => c.ChannelID.Equals(item.ChannelID)));
+                                    //Update database:
+                                    await this.FollowedAccountsContainer.UpsertItemAsync<FollowedIGUser>(igAccount, new PartitionKey(igAccount.InstagramID));
+                                    //Wait to prevent spamming IG api:
+                                    Thread.Sleep(4000);
                                 }
-                                //Update database:
-                                await this.FollowedAccountsContainer.UpsertItemAsync<FollowedIGUser>(igAccount, new PartitionKey(igAccount.InstagramID));
-                                //Wait to prevent spamming IG api:
-                                Thread.Sleep(4000);
+                            }catch(Exception e)
+                            {
+                                Console.WriteLine("Failed to get updates for IG account. Error: "+e);
                             }
                         }
                     }

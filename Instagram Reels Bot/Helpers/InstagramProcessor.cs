@@ -18,6 +18,7 @@ namespace Instagram_Reels_Bot.Helpers
 	public class InstagramProcessor
 	{
 		public static InstagramApiSharp.API.IInstaApi instaApi;
+		private static bool AttemptingLogin = false;
 
 		/// <summary>
 		/// Routes the url to the desired method.
@@ -411,116 +412,183 @@ namespace Instagram_Reels_Bot.Helpers
 		/// </summary>
 		public static void InstagramLogin(bool clearStateFile = false, bool logOutFirst = false)
 		{
-			if (instaApi.IsUserAuthenticated && !logOutFirst)
-			{
-				//Skip. Already Authenticated.
-				return;
-			}
-			else if (logOutFirst)
+            if (AttemptingLogin)
             {
-				// Log out of account:
-				Console.WriteLine("Logging out.");
-				//Logout:
-				instaApi.LogoutAsync().GetAwaiter().GetResult();
-				//Re-initialize instaApi object:
-				instaApi = InstaApiBuilder.CreateBuilder()
-					.UseLogger(new DebugLogger(LogLevel.Exceptions))
-					.Build();
-			}
-			// Set the Android Device:
-			instaApi.SetDevice(device);
-
-			// create the configuration
-			var _builder = new ConfigurationBuilder()
-				.SetBasePath(AppContext.BaseDirectory)
-				.AddJsonFile(path: "config.json");
-
-			// build the configuration and assign to _config          
-			var config = _builder.Build();
-			//set user session
-			var userSession = new UserSessionData
-			{
-				UserName = config["IGUserName"],
-				Password = config["IGPassword"]
-			};
-			instaApi.SetUser(userSession);
-			string stateFile;
-			if (config["StateFile"] != null && config["StateFile"] != "")
-			{
-				stateFile = config["StateFile"];
-			}
-			else
-			{
-				stateFile = "state.bin";
-			}
+				//Already working on it:
+				return;
+            }
+			AttemptingLogin = true;
 			try
 			{
-				// load session file if exists
-				if (File.Exists(stateFile)&&!clearStateFile)
+				if (instaApi.IsUserAuthenticated && !logOutFirst)
 				{
-					Console.WriteLine("Loading state from file");
-					using (var fs = File.OpenRead(stateFile))
-					{
-						// Load state data from file:
-						instaApi.LoadStateDataFromStream(fs);
-					}
-				}else if (clearStateFile)
-                {
-					File.Delete(stateFile);
-                }
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e);
-			}
+					//Skip. Already Authenticated.
+					return;
+				}
+				else if (logOutFirst)
+				{
+					// Log out of account:
+					Console.WriteLine("Logging out.");
+					//Logout:
+					instaApi.LogoutAsync().GetAwaiter().GetResult();
+					//Re-initialize instaApi object:
+					instaApi = InstaApiBuilder.CreateBuilder()
+						.UseLogger(new DebugLogger(LogLevel.Exceptions))
+						.Build();
+				}
+				// Set the Android Device:
+				instaApi.SetDevice(device);
 
-			// login
-			Console.WriteLine($"Logging in as {userSession.UserName}");
-			var logInResult = instaApi.LoginAsync().GetAwaiter().GetResult();
-			if (!logInResult.Succeeded)
-			{
-				if (logInResult.Value == InstaLoginResult.TwoFactorRequired)
+				// create the configuration
+				var _builder = new ConfigurationBuilder()
+					.SetBasePath(AppContext.BaseDirectory)
+					.AddJsonFile(path: "config.json");
+
+				// build the configuration and assign to _config          
+				var config = _builder.Build();
+				//set user session
+				var userSession = new UserSessionData
 				{
-					Console.WriteLine("Logging in with 2FA...");
-					//Sleep to make it more human like:
-					Random rnd = new Random();
-					Thread.Sleep(rnd.Next(1, 3));
-					//Try to log in:
-					string code = GetTwoFactorAuthCode();
-					Console.WriteLine(code);
-					var twoFAlogInResult = instaApi.TwoFactorLoginAsync(code, 0).GetAwaiter().GetResult();
-					if (!twoFAlogInResult.Succeeded)
-					{
-						Console.WriteLine("Failed to log in with 2FA.");
-						Console.WriteLine(twoFAlogInResult.Info.Message);
-					}
-					else
-					{
-						Console.WriteLine("Logged in with 2FA.");
-					}
+					UserName = config["IGUserName"],
+					Password = config["IGPassword"]
+				};
+				instaApi.SetUser(userSession);
+				string stateFile;
+				if (config["StateFile"] != null && config["StateFile"] != "")
+				{
+					stateFile = config["StateFile"];
 				}
 				else
 				{
-					Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
-					return;
+					stateFile = "state.bin";
 				}
-			}
-			var state = instaApi.GetStateDataAsStream();
-			// in .net core or uwp apps don't use GetStateDataAsStream.
-			// use this one:
-			// var state = _instaApi.GetStateDataAsString ();
-			// this returns you session as json string.
-			try
-			{
-				using (var fileStream = File.Create(stateFile))
+				try
 				{
-					state.Seek(0, SeekOrigin.Begin);
-					state.CopyTo(fileStream);
+					// load session file if exists
+					if (File.Exists(stateFile) && !clearStateFile)
+					{
+						Console.WriteLine("Loading state from file");
+						using (var fs = File.OpenRead(stateFile))
+						{
+							// Load state data from file:
+							instaApi.LoadStateDataFromStream(fs);
+						}
+					}
+					else if (clearStateFile)
+					{
+						File.Delete(stateFile);
+					}
 				}
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine("Error writing state file. Error: " + e);
+				catch (Exception e)
+				{
+					Console.WriteLine(e);
+				}
+
+				// login
+				Console.WriteLine($"Logging in as {userSession.UserName}");
+				var logInResult = instaApi.LoginAsync().GetAwaiter().GetResult();
+				if (!logInResult.Succeeded)
+				{
+					switch (logInResult.Value)
+					{
+						case InstaLoginResult.TwoFactorRequired:
+							Console.WriteLine("Logging in with 2FA...");
+							//Sleep to make it more human like:
+							Random rnd = new Random();
+							Thread.Sleep(rnd.Next(1, 3));
+							//Try to log in:
+							string code = GetTwoFactorAuthCode();
+							Console.WriteLine(code);
+							var twoFAlogInResult = instaApi.TwoFactorLoginAsync(code, 0).GetAwaiter().GetResult();
+							if (!twoFAlogInResult.Succeeded && twoFAlogInResult.Value != InstaLoginTwoFactorResult.ChallengeRequired)
+							{
+								Console.WriteLine("Failed to log in with 2FA.");
+								Console.WriteLine(twoFAlogInResult.Info.Message);
+								break;
+							}
+							else if (twoFAlogInResult.Value != InstaLoginTwoFactorResult.ChallengeRequired)
+							{
+								//TODO: implement.
+								break;
+							}
+							else
+							{
+								Console.WriteLine("Logged in with 2FA.");
+								break;
+							}
+						case InstaLoginResult.ChallengeRequired:
+							Console.WriteLine("Challange required.");
+							var challange = instaApi.GetChallengeRequireVerifyMethodAsync().GetAwaiter().GetResult();
+							if (challange.Succeeded)
+							{
+								if (!string.IsNullOrEmpty(challange.Value.StepData.PhoneNumber))
+								{
+									var phoneVerify = instaApi.SubmitPhoneNumberForChallengeRequireAsync(config["phoneNumber"]).GetAwaiter().GetResult();
+									if (!phoneVerify.Succeeded)
+									{
+										throw new Exception("Failed to phoneVerify.");
+									}
+								}
+								else if (!string.IsNullOrEmpty(challange.Value.StepData.Email))
+								{
+									var emailVerify = instaApi.RequestVerifyCodeToEmailForChallengeRequireAsync().GetAwaiter().GetResult();
+									if (!emailVerify.Succeeded)
+									{
+										throw new Exception("Failed to emailVerify.");
+									}
+								}
+								else
+								{
+									throw new Exception("Failed to find verification type.");
+								}
+
+								string verifyCode = Console.ReadLine();
+								var verifyLogin = instaApi.VerifyCodeForChallengeRequireAsync(verifyCode).GetAwaiter().GetResult();
+								if (!verifyLogin.Succeeded)
+								{
+									Console.WriteLine("code: " + verifyCode);
+									throw new Exception("Failed to use verification code.");
+								}
+								else
+								{
+									Console.WriteLine("Handled challange!");
+								}
+							}
+							else
+							{
+								throw new Exception("Failed to get challange.");
+							}
+							break;
+						default:
+							Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
+							break;
+					}
+				}
+				var state = instaApi.GetStateDataAsStream();
+				// in .net core or uwp apps don't use GetStateDataAsStream.
+				// use this one:
+				// var state = _instaApi.GetStateDataAsString ();
+				// this returns you session as json string.
+				try
+				{
+					using (var fileStream = File.Create(stateFile))
+					{
+						state.Seek(0, SeekOrigin.Begin);
+						state.CopyTo(fileStream);
+					}
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine("Error writing state file. Error: " + e);
+				}
+			}catch(Exception e)
+            {
+				Console.WriteLine("Error logging in. Error: " + e);
+            }
+            finally
+            {
+				//unlock:
+				AttemptingLogin = false;
 			}
 		}
 		/// <summary>
@@ -606,28 +674,38 @@ namespace Instagram_Reels_Bot.Helpers
 			// Dpi
 			Dpi = "480dpi",
 		};
-		/// <summary>
-		/// Handles conditions where a IResult is unsuccessful.
-		/// </summary>
-		/// <param name="result"></param>
-		/// <returns></returns>
-		/// <exception cref="Exception"></exception>
-		private static InstagramProcessorResponse HandleFailure(IResult<object> result)
+        /// <summary>
+        /// Handles conditions where a IResult is unsuccessful.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private static InstagramProcessorResponse HandleFailure(IResult<object> result)
         {
-			switch (result.Info.ResponseType)
-			{
-				case ResponseType.ChallengeRequired:
-					throw new Exception("Challanged by Instagram.");
-				case ResponseType.MediaNotFound:
-					return new InstagramProcessorResponse("Could not find that post. Is the account private?");
-				case ResponseType.DeletedPost:
-					return new InstagramProcessorResponse("The post was deleted from Instagram.");
-				case ResponseType.NetworkProblem:
-					return new InstagramProcessorResponse("Could not connect to Instagram. Is Instagram down? https://discord.gg/6K3tdsYd6J");
-				default:
-					Console.WriteLine("Error: "+result.Info);
-					return new InstagramProcessorResponse("Error retrieving the post. The account may be private. Please report this on our support server if the account is public or if this is unexpected. https://discord.gg/6K3tdsYd6J");
-			}
-		}
-	}
+            switch (result.Info.ResponseType)
+            {
+                case ResponseType.ChallengeRequired:
+                case ResponseType.LoginRequired:
+                    Console.WriteLine("Likely challanged by Instagram.");
+                    try
+                    {
+                        InstagramLogin(true, true);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception("Error handling challange. Error: " + e);
+                    }
+                    return new InstagramProcessorResponse("Challanged by Instagram. Please try again later. https://discord.gg/6K3tdsYd6J");
+                case ResponseType.MediaNotFound:
+                    return new InstagramProcessorResponse("Could not find that post. Is the account private?");
+                case ResponseType.DeletedPost:
+                    return new InstagramProcessorResponse("The post was deleted from Instagram.");
+                case ResponseType.NetworkProblem:
+                    return new InstagramProcessorResponse("Could not connect to Instagram. Is Instagram down? https://discord.gg/6K3tdsYd6J");
+                default:
+                    Console.WriteLine("Error: " + result.Info);
+                    return new InstagramProcessorResponse("Error retrieving the post. The account may be private. Please report this on our support server if the account is public or if this is unexpected. https://discord.gg/6K3tdsYd6J");
+            }
+        }
+    }
 }

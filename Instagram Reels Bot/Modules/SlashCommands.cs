@@ -150,6 +150,8 @@ namespace Instagram_Reels_Bot.Modules
 			await RespondAsync(embed: embed.Build(), ephemeral: true);
 		}
 		[SlashCommand("subscribe", "Get updates when a user posts a new post on Instagram.", runMode: RunMode.Async)]
+		[RequireBotPermission(ChannelPermission.SendMessages)]
+		[RequireBotPermission(ChannelPermission.AttachFiles)]
 		[RequireContext(ContextType.Guild)]
 		public async Task Subscribe([Summary("username", "The username of the Instagram user.")]string username)
 		{

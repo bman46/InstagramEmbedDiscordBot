@@ -335,11 +335,14 @@ namespace Instagram_Reels_Bot.Modules
 			// buy time:
 			await DeferAsync(false);
 
+			List<Embed> embeds = new List<Embed>();
+
 			var embed = new Discord.EmbedBuilder();
 			embed.Title = "Guild Subscriptions";
 			embed.WithColor(new Color(131, 58, 180));
 
 			var subs = _subscriptions.GuildSubscriptions(Context.Guild.Id);
+			embed.Description = subs.Count() + " of " + _subscriptions.MaxSubscriptionsCountForGuild(Context.Guild.Id) + " subscribes used.\n**Instagram Accounts:**";
 
 			string accountOutput = "";
 			string channelOutput = "";
@@ -349,20 +352,35 @@ namespace Instagram_Reels_Bot.Modules
                 {
                     if (chan.GuildID.Equals(Context.Guild.Id.ToString()))
                     {
-						string chanMention = "Missing channel.";
+						string chanMention = "Missing channel.\n";
                         try
                         {
-							chanMention = "<#"+Context.Guild.GetChannel(ulong.Parse(chan.ChannelID)).Id+">";
+							chanMention = "<#"+Context.Guild.GetChannel(ulong.Parse(chan.ChannelID)).Id+">\n";
 						}catch(Exception e)
                         {
 							Console.WriteLine(e);
                         }
-						accountOutput += "- [" + await InstagramProcessor.GetIGUsername(user.InstagramID) + "](https://www.instagram.com/" + await InstagramProcessor.GetIGUsername(user.InstagramID) + ")\n";
-						channelOutput += chanMention + "\n";
+						string accountMention = "- [" + await InstagramProcessor.GetIGUsername(user.InstagramID) + "](https://www.instagram.com/" + await InstagramProcessor.GetIGUsername(user.InstagramID) + ")\n";
+						if((accountOutput+ accountMention).Length<=1024 && (channelOutput + chanMention).Length <= 1024)
+                        {
+							accountOutput += accountMention;
+							channelOutput += chanMention;
+                        }
+                        else
+                        {
+							embed.AddField("Account", accountOutput, true);
+							embed.AddField("Channel", channelOutput, true);
+							embeds.Add(embed.Build());
+
+							//Restart new embed:
+							embed = new EmbedBuilder();
+							embed.WithColor(new Color(131, 58, 180));
+							accountOutput = accountMention;
+							accountOutput = chanMention;
+						}
 					}
                 }
 			}
-			embed.Description = subs.Count()+" of "+_subscriptions.MaxSubscriptionsCountForGuild(Context.Guild.Id)+" subscribes used.\n**Instagram Accounts:**";
 			if (subs.Length == 0)
             {
 				embed.Description = "No accounts followed. Get started by using `/subscribe`";
@@ -372,7 +390,8 @@ namespace Instagram_Reels_Bot.Modules
 				embed.AddField("Account", accountOutput, true);
 				embed.AddField("Channel", channelOutput, true);
 			}
-			await FollowupAsync(embed: embed.Build());
+			embeds.Add(embed.Build());
+			await FollowupAsync(embeds: embeds.ToArray());
 		}
 	}
 }

@@ -454,7 +454,15 @@ namespace Instagram_Reels_Bot.Services
         /// <returns></returns>
         public int GuildSubscriptionCount(ulong guildID)
         {
-            return GuildSubscriptions(guildID).Length;
+            try
+            {
+                IQueryable<FollowedIGUser> queryable = FollowedAccountsContainer.GetItemLinqQueryable<FollowedIGUser>(true);
+                return queryable.Count<FollowedIGUser>(item => item.SubscribedChannels.Any<RespondChannel>(n => n.GuildID.Equals(guildID.ToString())));
+            }
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                throw new Exception("Cannot find user.");
+            }
         }
         /// <summary>
         /// The accounts that a guild is subscribed to.

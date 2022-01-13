@@ -42,7 +42,17 @@ namespace Instagram_Reels_Bot
             //proxy config:
             if (!string.IsNullOrEmpty(_config["ProxyURL"]))
             {
-                var proxyObject = new WebProxy(_config["ProxyURL"]);
+                WebProxy proxyObject;
+                if (!string.IsNullOrEmpty(_config["ProxyUsername"]))
+                {
+                    NetworkCredential nc = new NetworkCredential();
+                    proxyObject = new WebProxy(_config["ProxyURL"]);
+                    proxyObject.Credentials = new NetworkCredential(_config["ProxyUsername"], _config["ProxyPassword"]);
+                }
+                else
+                {
+                    proxyObject = new WebProxy(_config["ProxyURL"]);
+                }
                 WebRequest.DefaultWebProxy = proxyObject;
             }
 

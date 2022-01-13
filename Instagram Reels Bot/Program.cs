@@ -14,6 +14,7 @@ using System.IO;
 using System.Collections.Generic;
 using Discord.Interactions;
 using Instagram_Reels_Bot.Helpers;
+using System.Net.Http;
 
 namespace Instagram_Reels_Bot
 {
@@ -39,9 +40,15 @@ namespace Instagram_Reels_Bot
             // build the configuration and assign to _config          
             _config = _builder.Build();
 
+            //Create instagram API
+            InstagramProcessor.instaApi = InstaApiBuilder.CreateBuilder()
+                .UseLogger(new DebugLogger(LogLevel.Exceptions))
+                .Build();
+
             //proxy config:
             if (!string.IsNullOrEmpty(_config["ProxyURL"]))
             {
+                Console.WriteLine("Using proxy.");
                 WebProxy proxyObject;
                 if (!string.IsNullOrEmpty(_config["ProxyUsername"]))
                 {
@@ -53,13 +60,22 @@ namespace Instagram_Reels_Bot
                 {
                     proxyObject = new WebProxy(_config["ProxyURL"]);
                 }
+
+                var httpClientHandler = new HttpClientHandler()
+                {
+                    Proxy = proxyObject
+                };
+
                 WebRequest.DefaultWebProxy = proxyObject;
+
+                //Login to Instagram:
+                InstagramProcessor.instaApi = InstaApiBuilder.CreateBuilder()
+                    .UseLogger(new DebugLogger(LogLevel.Exceptions))
+                    .UseHttpClientHandler(httpClientHandler)
+                    .Build();
             }
 
-            //Login to Instagram:
-            InstagramProcessor.instaApi = InstaApiBuilder.CreateBuilder()
-                .UseLogger(new DebugLogger(LogLevel.Exceptions))
-                .Build();
+            //Login:
             InstagramProcessor.InstagramLogin();
         }
 

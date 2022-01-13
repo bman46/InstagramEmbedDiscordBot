@@ -339,8 +339,9 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
-# ignore config file
+# ignore config files
 config.json
+configCommunications.json
 
 # ignore .DS_Store
 *.DS_Store

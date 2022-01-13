@@ -329,7 +329,7 @@ namespace Instagram_Reels_Bot.Services
                 {
                     case InteractionCommandError.UnmetPrecondition:
                         // implement
-                        arg2.Interaction.RespondAsync("You are not able to perform this action (UnmetPrecondition). Discord support server: https://top.gg/servers/921830686439124993", ephemeral: true);
+                        arg2.Interaction.RespondAsync(arg3.ErrorReason+"\nDiscord support server: https://top.gg/servers/921830686439124993", ephemeral: true);
                         break;
                     case InteractionCommandError.UnknownCommand:
                         arg2.Interaction.RespondAsync("Unknown command.", ephemeral: true);

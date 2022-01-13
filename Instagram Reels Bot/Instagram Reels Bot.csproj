@@ -19,6 +19,7 @@
     <PackageReference Include="Otp.NET" Version="1.2.2" />
     <PackageReference Include="Bman46InstagramApiSharpLabs" Version="1.7.3" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.23.0" />
+    <PackageReference Include="AE.Net.Mail" Version="1.7.10" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,6 +30,7 @@
     <None Remove="Microsoft.Azure.Cosmos" />
     <None Remove="DataTables\" />
     <None Remove="Helpers\Communications\" />
+    <None Remove="AE.Net.Mail" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helpers\" />

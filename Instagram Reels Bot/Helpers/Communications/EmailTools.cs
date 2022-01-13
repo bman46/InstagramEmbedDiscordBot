@@ -27,12 +27,6 @@ namespace Instagram_Reels_Bot.Helpers
                   ).Or(SearchCondition.To("andy"))
                 );
 
-                Assert.AreEqual(msgs[0].Value.Subject, "This is cool!");
-
-                imap.NewMessage += (sender, e) => {
-                    var msg = imap.GetMessage(e.MessageCount - 1);
-                    Assert.AreEqual(msg.Subject, "IDLE support?  Yes, please!");
-                };
             }
         }
 	}

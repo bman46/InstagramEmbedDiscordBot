@@ -273,8 +273,8 @@ namespace Instagram_Reels_Bot.Services
                                                 embed.Author = account;
                                                 embed.Footer = footer;
                                                 embed.Timestamp = new DateTimeOffset(response.postDate);
-                                                embed.Url = response.postURL.ToString();
                                                 embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption)) : ("");
+                                                embed.Description += "\n[View on Instagram](" + response.postURL + ")";
                                                 embed.WithColor(new Color(131, 58, 180));
 
                                                 if (!response.success)

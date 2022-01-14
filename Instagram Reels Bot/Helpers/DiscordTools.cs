@@ -19,7 +19,7 @@ namespace Instagram_Reels_Bot.Helpers
         /// <param name="atWord">Try to cutoff at the end or start of a word instead of the middle.</param>
         /// <param name="addEllipsis">Add ... to the end of a truncated string.</param>
         /// <returns></returns>
-        public static string Truncate(string s, int length = 100, bool atWord = true, bool addEllipsis = true)
+        public static string Truncate(string s, int length = 200, bool atWord = true, bool addEllipsis = true)
         {
             // Dont process null values:
             if (s == null)

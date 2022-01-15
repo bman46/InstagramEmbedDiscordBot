@@ -249,6 +249,11 @@ namespace Instagram_Reels_Bot.Helpers
 
 				media = mediaSource.Value;
 			}
+			//Create URL if it isnt already sent.
+			if (string.IsNullOrEmpty(url))
+			{
+				url = "https://www.instagram.com/p/" + media.Code;
+			}
 
 			string caption = "";
 			//check caption value (ensure not null)
@@ -386,7 +391,7 @@ namespace Instagram_Reels_Bot.Helpers
                 if (media.TakenAt.ToUniversalTime() > startDate.ToUniversalTime())
                 {
 					//Add post to array:
-					responses.Insert(0, await PostProcessorAsync("https://www.instagram.com/" + media.User.UserName, 1, 0, media));
+					responses.Insert(0, await PostProcessorAsync(null, 1, 0, media));
 				}
             }
 			return responses.ToArray();

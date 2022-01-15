@@ -695,8 +695,7 @@ namespace Instagram_Reels_Bot.Helpers
                     }
                     else
                     {
-						Console.WriteLine("Error: " + result.Info);
-						return new InstagramProcessorResponse("Error retrieving the content. The account may be private. Please report this on our support server if the account is public or if this is unexpected. https://discord.gg/6K3tdsYd6J");
+						goto default;
 					}
 				default:
 					Console.WriteLine("Error: "+result.Info);

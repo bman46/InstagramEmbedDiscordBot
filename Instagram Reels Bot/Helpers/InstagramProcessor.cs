@@ -49,6 +49,7 @@ namespace Instagram_Reels_Bot.Helpers
 				throw new ArgumentNullException("URL is null.");
             }
 			Uri link;
+			//Check for valid link:
 			try
 			{
 				link = new Uri(url);
@@ -67,6 +68,12 @@ namespace Instagram_Reels_Bot.Helpers
 				return new InstagramProcessorResponse("Link must be served over http or https.");
 			}
 
+			//Process the link:
+			//process account
+			if (isProfileLink(link))
+			{
+				return await ProcessAccountAsync(url, tier);
+			}
 			//Process story
 			if (isStory(link))
 			{
@@ -95,10 +102,21 @@ namespace Instagram_Reels_Bot.Helpers
 			return url.Segments[1].Equals("stories/");
         }
 		/// <summary>
-        /// 
+        /// Decides if the link is a profile link or not.
         /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
+        /// <param name="url">Link to the content</param>
+        /// <returns>True if it is a profile link</returns>
+		private static bool isProfileLink(Uri url)
+        {
+			// a profile link should have two segments / and profile/
+			// Ex: https://instagram.com/google
+			return url.Segments.Length == 2;
+		}
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="url"></param>
+		/// <returns></returns>
 		private static bool isHighlight(Uri url)
 		{
 			//Highlights URL Starts with an s
@@ -121,7 +139,8 @@ namespace Instagram_Reels_Bot.Helpers
 			string storyID = link.Segments[3].Replace("/", "");
 
 			//get user:
-			var user = await instaApi.UserProcessor.GetUserAsync(userName);
+			var user = await instaApi.UserProcessor.GetUserAsync(userName);			
+
             // On failed to get user:
             if (!user.Succeeded)
             {
@@ -130,7 +149,28 @@ namespace Instagram_Reels_Bot.Helpers
             {
 				return new InstagramProcessorResponse("The account is private.");
 			}
+
+			//Get user data:
 			long userId = user.Value.Pk;
+			long followers = -1, following = -1, posts = -1;
+			string bio = "";
+			try
+			{
+				var userData = await instaApi.UserProcessor.GetUserInfoByIdAsync(userId);
+
+				followers = userData.Value.FollowerCount;
+				following = userData.Value.FollowingCount;
+				posts = userData.Value.MediaCount;
+				bio = (string.IsNullOrEmpty(userData.Value.Biography)) ? ("") : (userData.Value.Biography);
+            }
+            catch (Exception e)
+            {
+				//Not too important, but log anyway.
+				Console.WriteLine("Error loading profile info. Error: " + e);
+				bio = "Error loading profile information.";
+            }
+
+			//Get the story:
 			var stories = await instaApi.StoryProcessor.GetUserStoryAsync(userId);
             if (!stories.Succeeded)
             {
@@ -175,7 +215,7 @@ namespace Instagram_Reels_Bot.Helpers
 							//If statement to double check size.
 							if (data.Length < maxUploadSize)
 							{
-								return new InstagramProcessorResponse(isVideo, "", story.User.FullName, story.User.UserName, new Uri(story.User.ProfilePicture), downloadUrl, url, story.TakenAt, data);
+								return new InstagramProcessorResponse(isVideo, "", story.User.FullName, story.User.UserName, new Uri(story.User.ProfilePicture), followers, following, posts, bio, downloadUrl, url, story.TakenAt, data);
 							}
 
 						}
@@ -198,7 +238,7 @@ namespace Instagram_Reels_Bot.Helpers
 						Console.WriteLine(e);
 					}
 					//Fallback to URL:
-					return new InstagramProcessorResponse(true, "", story.User.FullName, story.User.UserName, new Uri(story.User.ProfilePicture), downloadUrl, url, story.TakenAt, null);
+					return new InstagramProcessorResponse(true, "", story.User.FullName, story.User.UserName, new Uri(story.User.ProfilePicture), followers, following, posts, bio, downloadUrl, url, story.TakenAt, null);
 				}
 			}
 			return new InstagramProcessorResponse("Could not find story.");
@@ -308,7 +348,8 @@ namespace Instagram_Reels_Bot.Helpers
 					//If statement to double check size.
 					if (data.Length < maxUploadSize)
 					{
-						return new InstagramProcessorResponse(isVideo, caption, media.User.FullName, media.User.UserName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, data);
+						//No account information avaliable:
+						return new InstagramProcessorResponse(isVideo, caption, media.User.FullName, media.User.UserName, new Uri(media.User.ProfilePicture), -1, -1, -1, "", downloadUrl, url, media.TakenAt, data);
 					}
 
 				}
@@ -331,7 +372,25 @@ namespace Instagram_Reels_Bot.Helpers
 				Console.WriteLine(e);
 			}
 			//Fallback to URL:
-			return new InstagramProcessorResponse(true, caption, media.User.FullName, media.User.UserName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, null);
+			//No account information avaliable:
+			return new InstagramProcessorResponse(true, caption, media.User.FullName, media.User.UserName, new Uri(media.User.ProfilePicture), -1, -1, -1, "", downloadUrl, url, media.TakenAt, null);
+		}
+		/// <summary>
+        /// Gets information about the account.
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="premiumTier"></param>
+        /// <returns>An InstagramProcessorResponse with just profile data.</returns>
+		public static async Task<InstagramProcessorResponse> ProcessAccountAsync(Uri url, int premiumTier)
+        {
+			string username = url.Segments[1].TrimEnd("/");
+			var user = await instaApi.UserProcessor.GetUserInfoByUsernameAsync(username);
+            if (!user.Succeeded)
+            {
+				//Handle the failed case:
+				return HandleFailure(user);
+            }
+			return new InstagramProcessorResponse(user.Value.FullName, username, user.Value.ProfilePicUrl, user.Value.FollowersCount, user.Value.FollowingCount, user.Value.MediaCount, (string.IsNullOrEmpty(user.Value.Biography)) ? ("") : user.Value.Biography, user.Value.ExternalUrl);
 		}
 		public static async Task<long> GetUserIDFromUsername(string username)
         {

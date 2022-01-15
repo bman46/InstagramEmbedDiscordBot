@@ -62,6 +62,7 @@ namespace Instagram_Reels_Bot.Modules
             string url = "https://www.instagram.com/stories/" + args.Replace(" ", "/");
             await Responder(url, Context);
         }
+        [Command("", RunMode = RunMode.Async)]
         /// <summary>
         /// Centralized method to handle all Instagram links and respond to text based messages (No slash commands).
         /// </summary>

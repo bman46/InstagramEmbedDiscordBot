@@ -79,7 +79,7 @@ namespace Instagram_Reels_Bot.Modules
             // If not a profile for some reason, treat otherwise:
             if (!response.onlyAccountData)
             {
-                Responder(url, Context);
+                await Responder(url, Context);
                 return;
             }
             
@@ -205,7 +205,7 @@ namespace Instagram_Reels_Bot.Modules
             {
                 await context.Message.ModifyAsync(item => { item.Flags = MessageFlags.SuppressEmbeds; });
             }
-            catch(Exception e)
+            catch
             {
                 //Doesnt really matter if it fails.
                 //Console.WriteLine(e);

@@ -21,7 +21,6 @@ namespace Instagram_Reels_Bot.Services
 	public class Subscriptions
     {
         private readonly IConfiguration _config;
-        private readonly IServiceProvider services;
         private System.Timers.Timer UpdateTimer;
         private readonly DiscordShardedClient _client;
         //CosmosDB:
@@ -297,7 +296,7 @@ namespace Instagram_Reels_Bot.Services
                                                             {
                                                                 chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
                                                             }
-                                                            catch (Exception e)
+                                                            catch
                                                             {
                                                                 Console.WriteLine("Cannot find channel. Removing from DB.");
                                                                 invalidChannels.Add(subbedGuild);
@@ -324,7 +323,7 @@ namespace Instagram_Reels_Bot.Services
                                                         {
                                                             chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
                                                         }
-                                                        catch (Exception e)
+                                                        catch
                                                         {
                                                             Console.WriteLine("Cannot find channel. Removing from DB.");
                                                             invalidChannels.Add(subbedGuild);
@@ -358,7 +357,7 @@ namespace Instagram_Reels_Bot.Services
                                                             {
                                                                 chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
                                                             }
-                                                            catch (Exception e)
+                                                            catch
                                                             {
                                                                 Console.WriteLine("Cannot find channel. Removing from DB.");
                                                                 invalidChannels.Add(subbedGuild);
@@ -385,7 +384,7 @@ namespace Instagram_Reels_Bot.Services
                                                         {
                                                             chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
                                                         }
-                                                        catch (Exception e)
+                                                        catch
                                                         {
                                                             Console.WriteLine("Cannot find channel. Removing from DB.");
                                                             invalidChannels.Add(subbedGuild);

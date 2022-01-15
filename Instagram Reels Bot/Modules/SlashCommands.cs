@@ -43,6 +43,46 @@ namespace Instagram_Reels_Bot.Modules
 				return;
             }
 
+			//Instagram Footer:
+			EmbedFooterBuilder footer = new EmbedFooterBuilder();
+			footer.IconUrl = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png";
+			footer.Text = "Instagram";
+
+			var embed = new EmbedBuilder();
+
+			if (response.onlyAccountData)
+			{
+				//custom embed for profiles:
+				embed.ThumbnailUrl = response.iconURL.ToString();
+				embed.Title = response.accountName + "'s Instagram Account";
+				embed.Url = url;
+				embed.Footer = footer;
+				embed.WithColor(new Color(131, 58, 180));
+				embed.Description = "**Biography:**\n" + response.bio + "\n\n" + "[Link in bio](" + response.externalURL.ToString() + ")" + "\nRequested by: " + Context.User.Username;
+
+				//Info about account:
+				EmbedFieldBuilder posts = new EmbedFieldBuilder();
+				posts.Name = "Posts:";
+				posts.Value = String.Format("{0:n0}", response.posts);
+				posts.IsInline = true;
+				embed.Fields.Add(posts);
+
+				EmbedFieldBuilder followers = new EmbedFieldBuilder();
+				followers.Name = "Followers:";
+				followers.Value = String.Format("{0:n0}", response.followers);
+				followers.IsInline = true;
+				embed.Fields.Add(followers);
+
+				EmbedFieldBuilder following = new EmbedFieldBuilder();
+				following.Name = "Following:";
+				following.Value = String.Format("{0:n0}", response.following);
+				following.IsInline = true;
+				embed.Fields.Add(following);
+
+				await Context.Interaction.FollowupAsync(embed: embed.Build());
+				return;
+			}
+
 			//Embeds:
 			//Account Name:
 			var account = new EmbedAuthorBuilder();
@@ -50,12 +90,6 @@ namespace Instagram_Reels_Bot.Modules
 			account.Name = response.accountName;
 			account.Url = response.accountUrl.ToString();
 
-			//Instagram Footer:
-			EmbedFooterBuilder footer = new EmbedFooterBuilder();
-			footer.IconUrl = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png";
-			footer.Text = "Instagram";
-
-			var embed = new EmbedBuilder();
 			embed.Author = account;
 			embed.Title = "Content from " + Context.User.Username + "'s linked post.";
 			embed.Footer = footer;

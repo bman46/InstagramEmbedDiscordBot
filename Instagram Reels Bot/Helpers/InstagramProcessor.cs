@@ -688,9 +688,18 @@ namespace Instagram_Reels_Bot.Helpers
 					return new InstagramProcessorResponse("The post was deleted from Instagram.");
 				case ResponseType.NetworkProblem:
 					return new InstagramProcessorResponse("Could not connect to Instagram. Is Instagram down? https://discord.gg/6K3tdsYd6J");
+				case ResponseType.UnExpectedResponse:
+					if(result.Info.Message.Contains("User not found"))
+                    {
+						return new InstagramProcessorResponse("User not found.");
+                    }
+                    else
+                    {
+						return new InstagramProcessorResponse("Error retrieving the content. The account may be private. Please report this on our support server if the account is public or if this is unexpected. https://discord.gg/6K3tdsYd6J");
+					}
 				default:
 					Console.WriteLine("Error: "+result.Info);
-					return new InstagramProcessorResponse("Error retrieving the post. The account may be private. Please report this on our support server if the account is public or if this is unexpected. https://discord.gg/6K3tdsYd6J");
+					return new InstagramProcessorResponse("Error retrieving the content. The account may be private. Please report this on our support server if the account is public or if this is unexpected. https://discord.gg/6K3tdsYd6J");
 			}
 		}
 	}

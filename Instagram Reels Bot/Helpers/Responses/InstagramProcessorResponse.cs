@@ -11,6 +11,12 @@ namespace Instagram_Reels_Bot.Helpers
         /// <param name="isVideo">Set to true if the response is a video</param>
         /// <param name="caption">Post caption</param>
         /// <param name="accountName">The name of the IG account.</param>
+        /// <param name="username">The instagram username of the account</param>
+        /// <param name="accountImage">Link to the account's image</param>
+        /// <param name="followers">Amount of followers the user has</param>
+        /// <param name="following">Amount of accounts the user follows</param>
+        /// <param name="posts">Amount of posts the user has</param>
+        /// <param name="bio">The users bio.</param>
         /// <param name="contentURL">URL to the content (image of video)</param>
         /// <param name="postURL">URL to the post.</param>
         /// <param name="date">Time of the post.</param>
@@ -37,6 +43,31 @@ namespace Instagram_Reels_Bot.Helpers
             }
 		}
 		/// <summary>
+		/// Creates a new successful Instagram response with only profile information.
+		/// </summary>
+		/// <param name="accountName"></param>
+		/// <param name="username"></param>
+		/// <param name="accountImage"></param>
+		/// <param name="followers"></param>
+		/// <param name="following"></param>
+		/// <param name="posts"></param>
+		/// <param name="bio"></param>
+		public InstagramProcessorResponse(string accountName, string username, Uri accountImage, long followers, long following, long posts, string bio, string externalURL)
+        {
+			this.accountName = accountName;
+			this.iconURL = accountImage;
+			this.accountUrl = new Uri("https://www.instagram.com/" + username);
+			this.followers = followers;
+			this.following = following;
+			this.posts = posts;
+			this.bio = bio;
+			this.onlyAccountData = true;
+            if (!string.IsNullOrEmpty(externalURL))
+            {
+				this.externalURL = new Uri(externalURL);
+            }
+		}
+		/// <summary>
 		/// Creates a new failed Instagram response.
 		/// </summary>
 		/// <param name="error">The error reason or message string.</param>
@@ -46,17 +77,37 @@ namespace Instagram_Reels_Bot.Helpers
 			this.success = success;
 			this.error = error;
 		}
-		public Boolean success = true;
+        #region error handling
+        public Boolean success = true;
 		public string error = "";
-		public Boolean isVideo = false;
+        #endregion
+
+        #region data
+        public Boolean isVideo = false;
 		public string caption = "";
 		public Uri contentURL = null;
 		public Uri postURL = null;
-		public Uri accountUrl = null;
-		public long sizeByte = 0;
 		public byte[] stream = null;
+		public long sizeByte
+		{
+			get
+			{
+				return stream.Length;
+			}
+		}
 		public DateTime postDate = DateTime.Now;
-		public string accountName = "";
+		#endregion
+
+		#region IG Account data
+		public bool onlyAccountData = false;
+        public Uri accountUrl = null;
 		public Uri iconURL = null;
-	}
+		public long followers = 0;
+		public long following = 0;
+		public long posts = 0;
+		public string bio = "";
+		public string accountName = "";
+		public Uri externalURL = null;
+        #endregion
+    }
 }

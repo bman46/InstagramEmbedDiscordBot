@@ -238,8 +238,13 @@ namespace Instagram_Reels_Bot.Services
             {
                 commandText = message.Content.Substring(argPos, endUrlLength).Replace("/", " ");
             }
+            //Check for profile link:
+            if (InstagramProcessor.isProfileLink(new Uri("https://instagram.com/"+commandText.Replace(" ", "/"))))
+            {
+                //Little hack to add command to url (profile is also reserved by ig so no conflicts):
+                commandText = "profile " + commandText;
+            }
 
-            
 
             //Split url down to params:
             String[] userInput = commandText.Split(" ");

@@ -80,6 +80,7 @@ namespace Instagram_Reels_Bot.Modules
             if (!response.onlyAccountData)
             {
                 Responder(url, Context);
+                return;
             }
             
             //Instagram Footer:
@@ -94,7 +95,12 @@ namespace Instagram_Reels_Bot.Modules
             embed.Url = url;
             embed.Footer = footer;
             embed.WithColor(new Color(131, 58, 180));
-            embed.Description = "**Biography:**\n" + response.bio + "\n\n" + "[Link in bio](" + response.externalURL.ToString() + ")" + "\nRequested by: " + Context.User.Username;
+            embed.Description = "**Biography:**\n" + response.bio + "\n\n";
+            if (response.externalURL != null)
+            {
+                embed.Description += "[Link in bio](" + response.externalURL.ToString() + ")\n";
+            }
+            embed.Description+= "Requested by: " + Context.User.Username;
 
             //Info about account:
             EmbedFieldBuilder posts = new EmbedFieldBuilder();

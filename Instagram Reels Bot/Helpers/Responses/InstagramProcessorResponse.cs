@@ -62,7 +62,7 @@ namespace Instagram_Reels_Bot.Helpers
 			this.posts = posts;
 			this.bio = bio;
 			this.onlyAccountData = true;
-            if (externalURL != null)
+            if (!string.IsNullOrEmpty(externalURL))
             {
 				this.externalURL = new Uri(externalURL);
             }

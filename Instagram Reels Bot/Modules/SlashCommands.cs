@@ -58,7 +58,12 @@ namespace Instagram_Reels_Bot.Modules
 				embed.Url = url;
 				embed.Footer = footer;
 				embed.WithColor(new Color(131, 58, 180));
-				embed.Description = "**Biography:**\n" + response.bio + "\n\n" + "[Link in bio](" + response.externalURL.ToString() + ")" + "\nRequested by: " + Context.User.Username;
+				embed.Description = "**Biography:**\n" + response.bio + "\n\n";
+				if (response.externalURL != null)
+				{
+					embed.Description += "[Link in bio](" + response.externalURL.ToString() + ")\n";
+				}
+				embed.Description += "Requested by: " + Context.User.Username;
 
 				//Info about account:
 				EmbedFieldBuilder posts = new EmbedFieldBuilder();
@@ -135,6 +140,73 @@ namespace Instagram_Reels_Bot.Modules
 				}
 			}
 			
+		}
+		[SlashCommand("profile", "Gets information about an Instagram profile.", runMode: RunMode.Async)]
+		public async Task Link([Summary("username", "The username of the Instagram account.")] string username)
+        {
+			//Buy more time to process posts:
+			await DeferAsync(false);
+
+			//Create url:
+			string url = username;
+			if (!Uri.IsWellFormedUriString(username, UriKind.Absolute))
+				url = "https://instagram.com/" + username;
+
+			// Process profile:
+			InstagramProcessorResponse response = await InstagramProcessor.PostRouter(url, (int)Context.Guild.PremiumTier, 1);
+
+			// Check for failed post:
+			if (!response.success)
+			{
+				await FollowupAsync(response.error);
+				return;
+			}
+			// If not a profile for some reason, treat otherwise:
+			if (!response.onlyAccountData)
+			{
+				await FollowupAsync("This doesnt appear to be a profile. Try using `/link` for posts.");
+				return;
+			}
+
+			//Instagram Footer:
+			EmbedFooterBuilder footer = new EmbedFooterBuilder();
+			footer.IconUrl = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png";
+			footer.Text = "Instagram";
+
+			//custom embed for profiles:
+			var embed = new EmbedBuilder();
+			embed.ThumbnailUrl = response.iconURL.ToString();
+			embed.Title = response.accountName + "'s Instagram Account";
+			embed.Url = url;
+			embed.Footer = footer;
+			embed.WithColor(new Color(131, 58, 180));
+			embed.Description = "**Biography:**\n" + response.bio + "\n\n";
+			if (response.externalURL != null)
+			{
+				embed.Description += "[Link in bio](" + response.externalURL.ToString() + ")\n";
+			}
+			embed.Description += "Requested by: " + Context.User.Username;
+
+			//Info about account:
+			EmbedFieldBuilder posts = new EmbedFieldBuilder();
+			posts.Name = "Posts:";
+			posts.Value = String.Format("{0:n0}", response.posts);
+			posts.IsInline = true;
+			embed.Fields.Add(posts);
+
+			EmbedFieldBuilder followers = new EmbedFieldBuilder();
+			followers.Name = "Followers:";
+			followers.Value = String.Format("{0:n0}", response.followers);
+			followers.IsInline = true;
+			embed.Fields.Add(followers);
+
+			EmbedFieldBuilder following = new EmbedFieldBuilder();
+			following.Name = "Following:";
+			following.Value = String.Format("{0:n0}", response.following);
+			following.IsInline = true;
+			embed.Fields.Add(following);
+
+			await FollowupAsync(embed: embed.Build(), allowedMentions: AllowedMentions.None);
 		}
 		[SlashCommand("help", "For help with the bot.", runMode: RunMode.Async)]
 		public async Task Help()

@@ -120,6 +120,7 @@ namespace Instagram_Reels_Bot.Helpers
         /// </summary>
         /// <param name="channelId"></param>
         /// <param name="messageId"></param>
+		[Obsolete("This function should no longer be used.", true)]
         public static void SuppressEmbeds(ulong channelId, ulong messageId)
         {
             // create the configuration

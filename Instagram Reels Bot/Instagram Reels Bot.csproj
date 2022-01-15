@@ -17,7 +17,7 @@
     <PackageReference Include="OpenGraph-Net" Version="3.2.8" />
     <PackageReference Include="Discord.Net.Interactions" Version="3.1.0" />
     <PackageReference Include="Otp.NET" Version="1.2.2" />
-    <PackageReference Include="Bman46InstagramApiSharpLabs" Version="1.7.3" />
+    <PackageReference Include="Bman46InstagramApiSharpLabs" Version="1.7.4" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.23.0" />
   </ItemGroup>
 

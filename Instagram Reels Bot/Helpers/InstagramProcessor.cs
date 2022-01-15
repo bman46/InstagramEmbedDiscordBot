@@ -106,7 +106,7 @@ namespace Instagram_Reels_Bot.Helpers
         /// </summary>
         /// <param name="url">Link to the content</param>
         /// <returns>True if it is a profile link</returns>
-		private static bool isProfileLink(Uri url)
+		public static bool isProfileLink(Uri url)
         {
 			// a profile link should have two segments / and profile/
 			// Ex: https://instagram.com/google
@@ -390,7 +390,7 @@ namespace Instagram_Reels_Bot.Helpers
 				//Handle the failed case:
 				return HandleFailure(user);
             }
-			return new InstagramProcessorResponse(user.Value.FullName, username, new Uri(user.Value.ProfilePicUrl), user.Value.FollowerCount, user.Value.FollowingCount, user.Value.MediaCount, (string.IsNullOrEmpty(user.Value.Biography)) ? ("") : user.Value.Biography, new Uri(user.Value.ExternalUrl));
+			return new InstagramProcessorResponse(user.Value.FullName, username, new Uri(user.Value.ProfilePicUrl), user.Value.FollowerCount, user.Value.FollowingCount, user.Value.MediaCount, (string.IsNullOrEmpty(user.Value.Biography)) ? ("No bio") : DiscordTools.Truncate(user.Value.Biography, 4000, cutAtNewLine: false), user.Value.ExternalUrl);
 		}
 		public static async Task<long> GetUserIDFromUsername(string username)
         {

@@ -62,6 +62,61 @@ namespace Instagram_Reels_Bot.Modules
             string url = "https://www.instagram.com/stories/" + args.Replace(" ", "/");
             await Responder(url, Context);
         }
+        [Command("profile", RunMode = RunMode.Async)]
+        public async Task ProfileParser([Remainder] string args = null)
+        {
+            string url = "https://instagram.com/" + args.Replace(" ", "/");
+
+            // Process profile:
+            InstagramProcessorResponse response = await InstagramProcessor.PostRouter(url, (int)Context.Guild.PremiumTier, 1);
+
+            // Check for failed post:
+            if (!response.success)
+            {
+                await Context.Message.ReplyAsync(response.error);
+                return;
+            }
+            // If not a profile for some reason, treat otherwise:
+            if (!response.onlyAccountData)
+            {
+                Responder(url, Context);
+            }
+            
+            //Instagram Footer:
+            EmbedFooterBuilder footer = new EmbedFooterBuilder();
+            footer.IconUrl = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png";
+            footer.Text = "Instagram";
+
+            //custom embed for profiles:
+            var embed = new EmbedBuilder();
+            embed.ThumbnailUrl = response.iconURL.ToString();
+            embed.Title = response.accountName + "'s Instagram Account";
+            embed.Url = url;
+            embed.Footer = footer;
+            embed.WithColor(new Color(131, 58, 180));
+            embed.Description = "**Biography:**\n" + response.bio + "\n\n" + "[Link in bio](" + response.externalURL.ToString() + ")" + "\nRequested by: " + Context.User.Username;
+
+            //Info about account:
+            EmbedFieldBuilder posts = new EmbedFieldBuilder();
+            posts.Name = "Posts:";
+            posts.Value = String.Format("{0:n0}", response.posts);
+            posts.IsInline = true;
+            embed.Fields.Add(posts);
+
+            EmbedFieldBuilder followers = new EmbedFieldBuilder();
+            followers.Name = "Followers:";
+            followers.Value = String.Format("{0:n0}", response.followers);
+            followers.IsInline = true;
+            embed.Fields.Add(followers);
+
+            EmbedFieldBuilder following = new EmbedFieldBuilder();
+            following.Name = "Following:";
+            following.Value = String.Format("{0:n0}", response.following);
+            following.IsInline = true;
+            embed.Fields.Add(following);
+
+            await Context.Message.ReplyAsync(embed: embed.Build(), allowedMentions: AllowedMentions.None);
+        }
         /// <summary>
         /// Centralized method to handle all Instagram links and respond to text based messages (No slash commands).
         /// </summary>

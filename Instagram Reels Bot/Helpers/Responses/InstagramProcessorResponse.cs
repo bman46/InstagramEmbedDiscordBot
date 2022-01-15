@@ -52,7 +52,7 @@ namespace Instagram_Reels_Bot.Helpers
 		/// <param name="following"></param>
 		/// <param name="posts"></param>
 		/// <param name="bio"></param>
-		public InstagramProcessorResponse(string accountName, string username, Uri accountImage, long followers, long following, long posts, string bio, Uri externalURL)
+		public InstagramProcessorResponse(string accountName, string username, Uri accountImage, long followers, long following, long posts, string bio, string externalURL)
         {
 			this.accountName = accountName;
 			this.iconURL = accountImage;
@@ -64,7 +64,7 @@ namespace Instagram_Reels_Bot.Helpers
 			this.onlyAccountData = true;
             if (externalURL != null)
             {
-				this.externalURL = externalURL;
+				this.externalURL = new Uri(externalURL);
             }
 		}
 		/// <summary>

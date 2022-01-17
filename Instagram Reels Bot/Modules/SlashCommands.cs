@@ -64,6 +64,7 @@ namespace Instagram_Reels_Bot.Modules
 					embed.Description += "[Link in bio](" + response.externalURL.ToString() + ")\n";
 				}
 				embed.Description += "Requested by: " + Context.User.Username;
+				embed.Description += "\nUse the `/subscribe` command to subscribe to accounts.";
 
 				//Info about account:
 				EmbedFieldBuilder posts = new EmbedFieldBuilder();
@@ -186,6 +187,7 @@ namespace Instagram_Reels_Bot.Modules
 				embed.Description += "[Link in bio](" + response.externalURL.ToString() + ")\n";
 			}
 			embed.Description += "Requested by: " + Context.User.Username;
+			embed.Description += "\nUse the `/subscribe` command to subscribe to accounts.";
 
 			//Info about account:
 			EmbedFieldBuilder posts = new EmbedFieldBuilder();
@@ -216,8 +218,8 @@ namespace Instagram_Reels_Bot.Modules
 			embed.Title = "Help With Instagram Embed";
 			embed.Url = "https://discord.gg/6K3tdsYd6J";
 			embed.Description = "This bot uploads videos and images from an Instagram post provided via a link. The bot also allows for subscribing to new posts from accounts using the `/subscribe` command.  For more help and to view the status of the bot, please join our support server: https://discord.gg/6K3tdsYd6J";
-			embed.AddField("Embedding Posts", "To embed the contents of an Instagram url, simply paste the link into the chat and the bot will do the rest (as long as it has permission to).\nYou can also use the `/link` along with a URL.\nFor posts with multiple slides, use the `/link` command along with the optional `Index:` parameter to select the specific slide.");
-			embed.AddField("Subscriptions", "Note: The subscriptions module is currently under beta testing.\nTo subscribe to an account, use `/subscribe` and the users Instagram account to get new posts from that account delivered to the channel where the command is executed.\nTo unsubscribe from an account, use `/unsubscribe` and the username of the Instagram account in the channel that is subscribed to the account. You can also use `/unsubscribeall` to unsubscribe from all Instagram accounts.\nUse `/subscribed` to list all of the Instagram accounts that the guild is subscribed to.");
+			embed.AddField("Embedding Individual Posts", "To embed the contents of an Instagram url, simply paste the link into the chat and the bot will do the rest (as long as it has permission to).\nYou can also use the `/link` along with a URL.\nFor posts with multiple slides, use the `/link` command along with the optional `Index:` parameter to select the specific slide.\nTo get information about an Instagram account, use `/profile [username]` or `/link` with a link to the profile. These commands will NOT subscribe you to an account or get reoccuring updates from that account. Use `/subscribe` for that.");
+			embed.AddField("Subscriptions", "Note: The subscriptions module is currently under beta testing to limited guilds.\nTo subscribe to an account, use `/subscribe` and the users Instagram account to get new posts from that account delivered to the channel where the command is executed.\nTo unsubscribe from an account, use `/unsubscribe` and the username of the Instagram account in the channel that is subscribed to the account. You can also use `/unsubscribeall` to unsubscribe from all Instagram accounts.\nUse `/subscribed` to list all of the Instagram accounts that the guild is subscribed to.");
 			embed.AddField("Roles", "Only users with the role `InstagramBotSubscribe` (case sensitive) or guild administrator permission are allowed to unsubscribe and subscribe to accounts.");
 			embed.AddField("Permissions", "The following channel permissions are required for the bot's operation:\n" +
 				"- `Send Messages`\n" +

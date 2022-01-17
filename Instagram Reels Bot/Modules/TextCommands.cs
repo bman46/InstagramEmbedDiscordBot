@@ -101,6 +101,7 @@ namespace Instagram_Reels_Bot.Modules
                 embed.Description += "[Link in bio](" + response.externalURL.ToString() + ")\n";
             }
             embed.Description+= "Requested by: " + Context.User.Username;
+            embed.Description += "\nUse the `/subscribe` command to subscribe to accounts.";
 
             //Info about account:
             EmbedFieldBuilder posts = new EmbedFieldBuilder();

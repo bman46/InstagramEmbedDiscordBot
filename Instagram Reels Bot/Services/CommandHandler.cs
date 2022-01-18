@@ -393,6 +393,13 @@ namespace Instagram_Reels_Bot.Services
 
             return Task.CompletedTask;
         }
+        /// <summary>
+        /// Not currently used
+        /// </summary>
+        /// <param name="arg1"></param>
+        /// <param name="arg2"></param>
+        /// <param name="arg3"></param>
+        /// <returns></returns>
         private Task ComponentCommandExecuted(ComponentCommandInfo arg1, Discord.IInteractionContext arg2, Discord.Interactions.IResult arg3)
         {
             if (!arg3.IsSuccess)
@@ -421,7 +428,13 @@ namespace Instagram_Reels_Bot.Services
 
             return Task.CompletedTask;
         }
-
+        /// <summary>
+        /// Not currently used
+        /// </summary>
+        /// <param name="arg1"></param>
+        /// <param name="arg2"></param>
+        /// <param name="arg3"></param>
+        /// <returns></returns>
         private Task ContextCommandExecuted(ContextCommandInfo arg1, Discord.IInteractionContext arg2, Discord.Interactions.IResult arg3)
         {
             if (!arg3.IsSuccess)

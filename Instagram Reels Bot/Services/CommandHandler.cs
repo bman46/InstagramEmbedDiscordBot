@@ -346,6 +346,11 @@ namespace Instagram_Reels_Bot.Services
                         break;
                     case InteractionCommandError.Exception:
                         //notify owner if desired:
+                        if(arg3.ErrorReason.Contains("Invalid Form Body"))
+                        {
+                            arg2.Interaction.FollowupAsync("Invalid form body. Please check to ensure that all of your parameters are correct.");
+                            break;
+                        }
                         if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
                         {
                             string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + DiscordTools.SlashParamToString(arg2));

@@ -564,7 +564,7 @@ namespace Instagram_Reels_Bot.Helpers
 							}
 							else
 							{
-								throw new Exception("Failed to get challange.");
+								throw new Exception("Failed to get challange. "+challange.Info.Message);
 							}
 							break;
 						default:

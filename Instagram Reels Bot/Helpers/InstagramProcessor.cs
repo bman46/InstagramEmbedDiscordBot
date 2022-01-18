@@ -513,7 +513,8 @@ namespace Instagram_Reels_Bot.Helpers
 							}
 							else if (twoFAlogInResult.Value != InstaLoginTwoFactorResult.ChallengeRequired)
 							{
-								throw new NotImplementedException("Error. Challange and 2FA not supported.");
+								//Make better eventually:
+								goto challange;
 							}
 							else
 							{
@@ -521,6 +522,9 @@ namespace Instagram_Reels_Bot.Helpers
 								break;
 							}
 						case InstaLoginResult.ChallengeRequired:
+							//Jump from 2FA:
+							challange:
+
 							Console.WriteLine("Challange required.");
 							var challange = instaApi.GetChallengeRequireVerifyMethodAsync().GetAwaiter().GetResult();
 							if (challange.Succeeded)

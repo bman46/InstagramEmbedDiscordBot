@@ -513,8 +513,7 @@ namespace Instagram_Reels_Bot.Helpers
 							}
 							else if (twoFAlogInResult.Value != InstaLoginTwoFactorResult.ChallengeRequired)
 							{
-								//TODO: implement.
-								break;
+								throw new NotImplementedException("Error. Challange and 2FA not supported.");
 							}
 							else
 							{
@@ -526,28 +525,28 @@ namespace Instagram_Reels_Bot.Helpers
 							var challange = instaApi.GetChallengeRequireVerifyMethodAsync().GetAwaiter().GetResult();
 							if (challange.Succeeded)
 							{
+								string verifyCode;
 								if (!string.IsNullOrEmpty(challange.Value.StepData.PhoneNumber))
 								{
-									var phoneVerify = instaApi.SubmitPhoneNumberForChallengeRequireAsync(config["phoneNumber"]).GetAwaiter().GetResult();
-									if (!phoneVerify.Succeeded)
-									{
-										throw new Exception("Failed to phoneVerify.");
-									}
+									//TODO: Add phone verification
+									throw new NotImplementedException("Phone verify is not supported.");
 								}
 								else if (!string.IsNullOrEmpty(challange.Value.StepData.Email))
 								{
+									DateTime requestTime = DateTime.Now;
 									var emailVerify = instaApi.RequestVerifyCodeToEmailForChallengeRequireAsync().GetAwaiter().GetResult();
 									if (!emailVerify.Succeeded)
 									{
 										throw new Exception("Failed to emailVerify.");
 									}
+									EmailTools email = new EmailTools();
+									verifyCode = email.GetVerificationCode(requestTime);
 								}
 								else
 								{
 									throw new Exception("Failed to find verification type.");
 								}
 
-								string verifyCode = Console.ReadLine();
 								var verifyLogin = instaApi.VerifyCodeForChallengeRequireAsync(verifyCode).GetAwaiter().GetResult();
 								if (!verifyLogin.Succeeded)
 								{

@@ -6,18 +6,18 @@ namespace Instagram_Reels_Bot.Helpers
 	public class IGEmbedBuilder
 	{
 		/// <summary>
-        /// The response from the Instagram processor.
+        /// The Response from the Instagram processor.
         /// </summary>
-		private InstagramProcessorResponse response;
-		private string requester;
+		private InstagramProcessorResponse Response;
+		private string Requester;
 		/// <summary>
         /// Create an instance of the embed builder.
         /// </summary>
-        /// <param name="response"></param>
+        /// <param name="Response"></param>
 		public IGEmbedBuilder(InstagramProcessorResponse response, string requester)
 		{
-			this.response = response;
-			this.requester = requester;
+			this.Response = response;
+			this.Requester = requester;
 		}
 		public Embed PostEmbed()
         {
@@ -26,18 +26,18 @@ namespace Instagram_Reels_Bot.Helpers
 			//Embeds:
 			//Account Name:
 			var account = new EmbedAuthorBuilder();
-			account.IconUrl = response.iconURL.ToString();
-			account.Name = (string.IsNullOrEmpty(response.accountName)) ? response.username : response.accountName;
-			account.Url = response.accountUrl.ToString();
+			account.IconUrl = Response.iconURL.ToString();
+			account.Name = (string.IsNullOrEmpty(Response.accountName)) ? Response.username : Response.accountName;
+			account.Url = Response.accountUrl.ToString();
 
 			embed.Author = account;
-			embed.Title = "Content from " + requester + "'s linked post.";
-			embed.Timestamp = new DateTimeOffset(response.postDate);
-			embed.Url = response.postURL.ToString();
-			embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption)) : ("");
+			embed.Title = "Content from " + Requester + "'s linked post.";
+			embed.Timestamp = new DateTimeOffset(Response.postDate);
+			embed.Url = Response.postURL.ToString();
+			embed.Description = (Response.caption != null) ? (DiscordTools.Truncate(Response.caption)) : ("");
 
 
-            if (!response.isVideo)
+            if (!Response.isVideo)
             {
 				embed.ImageUrl = "attachment://IGMedia.jpg";
 			}
@@ -53,35 +53,35 @@ namespace Instagram_Reels_Bot.Helpers
 			var embed = BaseEmbed();
 
 			//custom embed for profiles:
-			embed.ThumbnailUrl = response.iconURL.ToString();
-			embed.Title = (string.IsNullOrEmpty(response.accountName)) ? response.username : response.accountName + "'s Instagram Account";
-			embed.Url = response.accountUrl.ToString();
-			embed.Description = "**Biography:**\n" + response.bio + "\n\n";
-			if (response.externalURL != null)
+			embed.ThumbnailUrl = Response.iconURL.ToString();
+			embed.Title = (string.IsNullOrEmpty(Response.accountName)) ? Response.username : Response.accountName + "'s Instagram Account";
+			embed.Url = Response.accountUrl.ToString();
+			embed.Description = "**Biography:**\n" + Response.bio + "\n\n";
+			if (Response.externalURL != null)
 			{
-				embed.Description += "[Link in bio](" + response.externalURL.ToString() + ")\n";
+				embed.Description += "[Link in bio](" + Response.externalURL.ToString() + ")\n";
 			}
-			embed.Description += "Requested by: " + requester;
+			embed.Description += "Requested by: " + Requester;
 			embed.Description += "\nUse the `/subscribe` command to subscribe to accounts.";
 
 			//Post count:
 			EmbedFieldBuilder posts = new EmbedFieldBuilder();
 			posts.Name = "Posts:";
-			posts.Value = String.Format("{0:n0}", response.posts);
+			posts.Value = String.Format("{0:n0}", Response.posts);
 			posts.IsInline = true;
 			embed.Fields.Add(posts);
 
 			//Follower count:
 			EmbedFieldBuilder followers = new EmbedFieldBuilder();
 			followers.Name = "Followers:";
-			followers.Value = String.Format("{0:n0}", response.followers);
+			followers.Value = String.Format("{0:n0}", Response.followers);
 			followers.IsInline = true;
 			embed.Fields.Add(followers);
 
 			//Following count
 			EmbedFieldBuilder following = new EmbedFieldBuilder();
 			following.Name = "Following:";
-			following.Value = String.Format("{0:n0}", response.following);
+			following.Value = String.Format("{0:n0}", Response.following);
 			following.IsInline = true;
 			embed.Fields.Add(following);
 

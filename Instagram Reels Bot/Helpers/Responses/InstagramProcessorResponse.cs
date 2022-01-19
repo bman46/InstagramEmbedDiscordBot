@@ -5,7 +5,8 @@ namespace Instagram_Reels_Bot.Helpers
 {
 	public class InstagramProcessorResponse
 	{
-		/// <summary>
+        #region constructors
+        /// <summary>
         /// Creates a new successful Instagram response.
         /// </summary>
         /// <param name="isVideo">Set to true if the response is a video</param>
@@ -13,15 +14,11 @@ namespace Instagram_Reels_Bot.Helpers
         /// <param name="accountName">The name of the IG account.</param>
         /// <param name="username">The instagram username of the account</param>
         /// <param name="accountImage">Link to the account's image</param>
-        /// <param name="followers">Amount of followers the user has</param>
-        /// <param name="following">Amount of accounts the user follows</param>
-        /// <param name="posts">Amount of posts the user has</param>
-        /// <param name="bio">The users bio.</param>
         /// <param name="contentURL">URL to the content (image of video)</param>
         /// <param name="postURL">URL to the post.</param>
         /// <param name="date">Time of the post.</param>
         /// <param name="stream">Byte array of the downloaded video or image.</param>
-		public InstagramProcessorResponse(bool isVideo, string caption, string accountName, string username, Uri accountImage, string contentURL, string postURL, DateTime date, byte[] stream)
+        public InstagramProcessorResponse(bool isVideo, string caption, string accountName, string username, Uri accountImage, string contentURL, string postURL, DateTime date, byte[] stream)
 		{
 			this.isVideo = isVideo;
 			this.caption = caption;
@@ -80,7 +77,7 @@ namespace Instagram_Reels_Bot.Helpers
 			this.success = success;
 			this.error = error;
 		}
-
+        #endregion
 
         #region error handling
         public Boolean success = true;

@@ -209,7 +209,6 @@ namespace Instagram_Reels_Bot.Modules
             catch
             {
                 //Doesnt really matter if it fails.
-                //Console.WriteLine(e);
             }
         }
     }

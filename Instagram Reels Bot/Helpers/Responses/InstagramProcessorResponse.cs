@@ -31,6 +31,7 @@ namespace Instagram_Reels_Bot.Helpers
 			this.accountName = accountName;
 			this.iconURL = accountImage;
 			this.accountUrl = new Uri("https://www.instagram.com/"+username);
+			this.username = username;
 
 			if (stream != null)
             {
@@ -62,7 +63,9 @@ namespace Instagram_Reels_Bot.Helpers
 			this.posts = posts;
 			this.bio = bio;
 			this.onlyAccountData = true;
-            if (!string.IsNullOrEmpty(externalURL))
+			this.username = username;
+
+			if (!string.IsNullOrEmpty(externalURL))
             {
 				this.externalURL = new Uri(externalURL);
             }
@@ -77,6 +80,8 @@ namespace Instagram_Reels_Bot.Helpers
 			this.success = success;
 			this.error = error;
 		}
+
+
         #region error handling
         public Boolean success = true;
 		public string error = "";
@@ -107,6 +112,7 @@ namespace Instagram_Reels_Bot.Helpers
 		public long posts = 0;
 		public string bio = "";
 		public string accountName = "";
+		public string username = "";
 		public Uri externalURL = null;
         #endregion
     }

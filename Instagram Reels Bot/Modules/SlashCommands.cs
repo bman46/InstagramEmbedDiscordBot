@@ -54,7 +54,7 @@ namespace Instagram_Reels_Bot.Modules
 			{
 				//custom embed for profiles:
 				embed.ThumbnailUrl = response.iconURL.ToString();
-				embed.Title = response.accountName + "'s Instagram Account";
+				embed.Title = (string.IsNullOrEmpty(response.accountName)) ? response.username : response.accountName + "'s Instagram Account";
 				embed.Url = url;
 				embed.Footer = footer;
 				embed.WithColor(new Color(131, 58, 180));
@@ -93,7 +93,7 @@ namespace Instagram_Reels_Bot.Modules
 			//Account Name:
 			var account = new EmbedAuthorBuilder();
 			account.IconUrl = response.iconURL.ToString();
-			account.Name = response.accountName;
+			account.Name = (string.IsNullOrEmpty(response.accountName)) ? response.username : response.accountName;
 			account.Url = response.accountUrl.ToString();
 
 			embed.Author = account;
@@ -177,7 +177,7 @@ namespace Instagram_Reels_Bot.Modules
 			//custom embed for profiles:
 			var embed = new EmbedBuilder();
 			embed.ThumbnailUrl = response.iconURL.ToString();
-			embed.Title = response.accountName + "'s Instagram Account";
+			embed.Title = ((string.IsNullOrEmpty(response.accountName)) ? response.username : response.accountName) + "'s Instagram Account";
 			embed.Url = url;
 			embed.Footer = footer;
 			embed.WithColor(new Color(131, 58, 180));

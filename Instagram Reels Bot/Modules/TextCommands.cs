@@ -146,7 +146,7 @@ namespace Instagram_Reels_Bot.Modules
             //Account Name:
             var account = new EmbedAuthorBuilder();
             account.IconUrl = response.iconURL.ToString();
-            account.Name = response.accountName;
+            account.Name = (string.IsNullOrEmpty(response.accountName))?response.username : response.accountName;
             account.Url = response.accountUrl.ToString();
 
             //Instagram Footer:

@@ -10,6 +10,13 @@ namespace Instagram_Reels_Bot.Helpers
         /// </summary>
 		private InstagramProcessorResponse Response;
 		private string Requester;
+		private bool RequesterIsKnown
+		{
+			get
+            {
+				return string.IsNullOrWhiteSpace(Requester);
+            }
+		}
 		/// <summary>
         /// Create an instance of the embed builder.
         /// </summary>
@@ -18,6 +25,23 @@ namespace Instagram_Reels_Bot.Helpers
 		{
 			this.Response = response;
 			this.Requester = requester;
+		}
+		/// <summary>
+        /// For use when requester is not needed or unknown.
+        /// </summary>
+        /// <param name="response"></param>
+		public IGEmbedBuilder(InstagramProcessorResponse response)
+        {
+			this.Response = response;
+        }
+		public Embed AutoSelector()
+        {
+			if (Response.onlyAccountData)
+            {
+				return AccountEmbed();
+            }
+			return PostEmbed();
+
 		}
 		public Embed PostEmbed()
         {
@@ -31,13 +55,21 @@ namespace Instagram_Reels_Bot.Helpers
 			account.Url = Response.accountUrl.ToString();
 
 			embed.Author = account;
-			embed.Title = "Content from " + Requester + "'s linked post.";
 			embed.Timestamp = new DateTimeOffset(Response.postDate);
-			embed.Url = Response.postURL.ToString();
 			embed.Description = (Response.caption != null) ? (DiscordTools.Truncate(Response.caption)) : ("");
+			// Check to see if requester is known:
+			if (RequesterIsKnown)
+			{
+				embed.Title = "Content from " + Requester + "'s linked post.";
+				embed.Url = Response.postURL.ToString();
+            }
+            else
+            {
+				// embed.Url wont show up without title
+				embed.Description += "\n[View on Instagram](" + Response.postURL + ")";
+			}
 
-
-            if (!Response.isVideo)
+			if (!Response.isVideo)
             {
 				embed.ImageUrl = "attachment://IGMedia.jpg";
 			}
@@ -61,7 +93,10 @@ namespace Instagram_Reels_Bot.Helpers
 			{
 				embed.Description += "[Link in bio](" + Response.externalURL.ToString() + ")\n";
 			}
-			embed.Description += "Requested by: " + Requester;
+
+			if (RequesterIsKnown)
+				embed.Description += "Requested by: " + Requester;
+
 			embed.Description += "\nUse the `/subscribe` command to subscribe to accounts.";
 
 			//Post count:

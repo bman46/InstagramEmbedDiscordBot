@@ -60,13 +60,13 @@ namespace Instagram_Reels_Bot.Helpers
                 if (lastSpace != -1 && (s.Length >= length + 1 && !alternativeCutOffs.Contains(s.ToCharArray()[length])))
                     s2 = s2.Remove(lastSpace);
             }
-
             // Add Ellipsis if desired
             if (addEllipsis)
                 s2 += "...";
-
             return s2;
         }
+
+        #region Nitro
         /// <summary>
         /// Calculates the max upload size of a given server.
         /// </summary>
@@ -114,13 +114,15 @@ namespace Instagram_Reels_Bot.Helpers
                     return 8000000;
             }
         }
+        #endregion
+
         /// <summary>
         /// Manually suppress embeds. Preferably use discord.net for this.
         /// TODO: Remove this when Discord.Net is fixed.
         /// </summary>
         /// <param name="channelId"></param>
         /// <param name="messageId"></param>
-		[Obsolete("This function should no longer be used.", true)]
+        [Obsolete("This function should no longer be used.", true)]
         public static void SuppressEmbeds(ulong channelId, ulong messageId)
         {
             // create the configuration
@@ -147,6 +149,7 @@ namespace Instagram_Reels_Bot.Helpers
         }
         /// <summary>
         /// Converts a slash param array to a string.
+        /// Used for error handling and reporting.
         /// </summary>
         /// <returns></returns>
         public static string SlashParamToString(IInteractionContext arg2)

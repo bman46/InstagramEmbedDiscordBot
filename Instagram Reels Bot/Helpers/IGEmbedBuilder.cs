@@ -14,7 +14,7 @@ namespace Instagram_Reels_Bot.Helpers
 		{
 			get
             {
-				return string.IsNullOrWhiteSpace(Requester);
+				return !string.IsNullOrWhiteSpace(Requester);
             }
 		}
 		/// <summary>
@@ -34,6 +34,10 @@ namespace Instagram_Reels_Bot.Helpers
         {
 			this.Response = response;
         }
+		/// <summary>
+        /// Automatically determines what embed type to use
+        /// </summary>
+        /// <returns>An embed</returns>
 		public Embed AutoSelector()
         {
 			if (Response.onlyAccountData)
@@ -43,6 +47,10 @@ namespace Instagram_Reels_Bot.Helpers
 			return PostEmbed();
 
 		}
+		/// <summary>
+        /// Builds an embed for IG posts
+        /// </summary>
+        /// <returns></returns>
 		public Embed PostEmbed()
         {
 			var embed = BaseEmbed();
@@ -71,7 +79,14 @@ namespace Instagram_Reels_Bot.Helpers
 
 			if (!Response.isVideo)
             {
-				embed.ImageUrl = "attachment://IGMedia.jpg";
+				if (Response.stream != null)
+				{
+					embed.ImageUrl = "attachment://IGMedia.jpg";
+                }
+                else
+                {
+					embed.ImageUrl = Response.contentURL.ToString();
+				}
 			}
 
 			return embed.Build();

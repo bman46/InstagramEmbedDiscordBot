@@ -43,66 +43,8 @@ namespace Instagram_Reels_Bot.Modules
 				return;
             }
 
-			//Instagram Footer:
-			EmbedFooterBuilder footer = new EmbedFooterBuilder();
-			footer.IconUrl = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png";
-			footer.Text = "Instagram";
-
-			var embed = new EmbedBuilder();
-
-			if (response.onlyAccountData)
-			{
-				//custom embed for profiles:
-				embed.ThumbnailUrl = response.iconURL.ToString();
-				embed.Title = (string.IsNullOrEmpty(response.accountName)) ? response.username : response.accountName + "'s Instagram Account";
-				embed.Url = url;
-				embed.Footer = footer;
-				embed.WithColor(new Color(131, 58, 180));
-				embed.Description = "**Biography:**\n" + response.bio + "\n\n";
-				if (response.externalURL != null)
-				{
-					embed.Description += "[Link in bio](" + response.externalURL.ToString() + ")\n";
-				}
-				embed.Description += "Requested by: " + Context.User.Username;
-				embed.Description += "\nUse the `/subscribe` command to subscribe to accounts.";
-
-				//Info about account:
-				EmbedFieldBuilder posts = new EmbedFieldBuilder();
-				posts.Name = "Posts:";
-				posts.Value = String.Format("{0:n0}", response.posts);
-				posts.IsInline = true;
-				embed.Fields.Add(posts);
-
-				EmbedFieldBuilder followers = new EmbedFieldBuilder();
-				followers.Name = "Followers:";
-				followers.Value = String.Format("{0:n0}", response.followers);
-				followers.IsInline = true;
-				embed.Fields.Add(followers);
-
-				EmbedFieldBuilder following = new EmbedFieldBuilder();
-				following.Name = "Following:";
-				following.Value = String.Format("{0:n0}", response.following);
-				following.IsInline = true;
-				embed.Fields.Add(following);
-
-				await Context.Interaction.FollowupAsync(embed: embed.Build());
-				return;
-			}
-
-			//Embeds:
-			//Account Name:
-			var account = new EmbedAuthorBuilder();
-			account.IconUrl = response.iconURL.ToString();
-			account.Name = (string.IsNullOrEmpty(response.accountName)) ? response.username : response.accountName;
-			account.Url = response.accountUrl.ToString();
-
-			embed.Author = account;
-			embed.Title = "Content from " + Context.User.Username + "'s linked post.";
-			embed.Footer = footer;
-			embed.Timestamp = new DateTimeOffset(response.postDate);
-			embed.Url = response.postURL.ToString();
-			embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption)) : ("");
-			embed.WithColor(new Color(131, 58, 180));
+			//Create embed builder:
+			IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username);
 
 			if (response.isVideo)
 			{
@@ -113,31 +55,29 @@ namespace Instagram_Reels_Bot.Modules
 					{
 						FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.");
 
-						await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.Build());
+						await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.AutoSelector());
 					}
 				}
                 else
                 {
 					//Response without stream:
-					await FollowupAsync(response.contentURL.ToString(), embed: embed.Build());
+					await FollowupAsync(response.contentURL.ToString(), embed: embed.AutoSelector());
                 }
 
 			}
             else
             {
-				embed.ImageUrl = "attachment://IGMedia.jpg";
 				if (response.stream != null)
 				{
 					using (Stream stream = new MemoryStream(response.stream))
 					{
 						FileAttachment attachment = new FileAttachment(stream, "IGMedia.jpg", "An Instagram Image.");
-						await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.Build(), allowedMentions: AllowedMentions.None);
+						await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None);
 					}
 				}
 				else
 				{
-					embed.ImageUrl = response.contentURL.ToString();
-					await FollowupAsync(embed: embed.Build());
+					await FollowupAsync(embed: embed.AutoSelector());
 				}
 			}
 			
@@ -169,46 +109,9 @@ namespace Instagram_Reels_Bot.Modules
 				return;
 			}
 
-			//Instagram Footer:
-			EmbedFooterBuilder footer = new EmbedFooterBuilder();
-			footer.IconUrl = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png";
-			footer.Text = "Instagram";
+			IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username);
 
-			//custom embed for profiles:
-			var embed = new EmbedBuilder();
-			embed.ThumbnailUrl = response.iconURL.ToString();
-			embed.Title = ((string.IsNullOrEmpty(response.accountName)) ? response.username : response.accountName) + "'s Instagram Account";
-			embed.Url = url;
-			embed.Footer = footer;
-			embed.WithColor(new Color(131, 58, 180));
-			embed.Description = "**Biography:**\n" + response.bio + "\n\n";
-			if (response.externalURL != null)
-			{
-				embed.Description += "[Link in bio](" + response.externalURL.ToString() + ")\n";
-			}
-			embed.Description += "Requested by: " + Context.User.Username;
-			embed.Description += "\nUse the `/subscribe` command to subscribe to accounts.";
-
-			//Info about account:
-			EmbedFieldBuilder posts = new EmbedFieldBuilder();
-			posts.Name = "Posts:";
-			posts.Value = String.Format("{0:n0}", response.posts);
-			posts.IsInline = true;
-			embed.Fields.Add(posts);
-
-			EmbedFieldBuilder followers = new EmbedFieldBuilder();
-			followers.Name = "Followers:";
-			followers.Value = String.Format("{0:n0}", response.followers);
-			followers.IsInline = true;
-			embed.Fields.Add(followers);
-
-			EmbedFieldBuilder following = new EmbedFieldBuilder();
-			following.Name = "Following:";
-			following.Value = String.Format("{0:n0}", response.following);
-			following.IsInline = true;
-			embed.Fields.Add(following);
-
-			await FollowupAsync(embed: embed.Build(), allowedMentions: AllowedMentions.None);
+			await FollowupAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None);
 		}
 		[SlashCommand("help", "For help with the bot.", runMode: RunMode.Async)]
 		public async Task Help()

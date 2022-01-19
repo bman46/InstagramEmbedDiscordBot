@@ -82,47 +82,8 @@ namespace Instagram_Reels_Bot.Modules
                 await Responder(url, Context);
                 return;
             }
-            
-            //Instagram Footer:
-            EmbedFooterBuilder footer = new EmbedFooterBuilder();
-            footer.IconUrl = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png";
-            footer.Text = "Instagram";
-
-            //custom embed for profiles:
-            var embed = new EmbedBuilder();
-            embed.ThumbnailUrl = response.iconURL.ToString();
-            embed.Title = response.accountName + "'s Instagram Account";
-            embed.Url = url;
-            embed.Footer = footer;
-            embed.WithColor(new Color(131, 58, 180));
-            embed.Description = "**Biography:**\n" + response.bio + "\n\n";
-            if (response.externalURL != null)
-            {
-                embed.Description += "[Link in bio](" + response.externalURL.ToString() + ")\n";
-            }
-            embed.Description+= "Requested by: " + Context.User.Username;
-            embed.Description += "\nUse the `/subscribe` command to subscribe to accounts.";
-
-            //Info about account:
-            EmbedFieldBuilder posts = new EmbedFieldBuilder();
-            posts.Name = "Posts:";
-            posts.Value = String.Format("{0:n0}", response.posts);
-            posts.IsInline = true;
-            embed.Fields.Add(posts);
-
-            EmbedFieldBuilder followers = new EmbedFieldBuilder();
-            followers.Name = "Followers:";
-            followers.Value = String.Format("{0:n0}", response.followers);
-            followers.IsInline = true;
-            embed.Fields.Add(followers);
-
-            EmbedFieldBuilder following = new EmbedFieldBuilder();
-            following.Name = "Following:";
-            following.Value = String.Format("{0:n0}", response.following);
-            following.IsInline = true;
-            embed.Fields.Add(following);
-
-            await Context.Message.ReplyAsync(embed: embed.Build(), allowedMentions: AllowedMentions.None);
+            IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username);
+            await Context.Message.ReplyAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None);
         }
         /// <summary>
         /// Centralized method to handle all Instagram links and respond to text based messages (No slash commands).
@@ -142,26 +103,8 @@ namespace Instagram_Reels_Bot.Modules
                 return;
             }
 
-            //Embeds:
-            //Account Name:
-            var account = new EmbedAuthorBuilder();
-            account.IconUrl = response.iconURL.ToString();
-            account.Name = (string.IsNullOrEmpty(response.accountName))?response.username : response.accountName;
-            account.Url = response.accountUrl.ToString();
-
-            //Instagram Footer:
-            EmbedFooterBuilder footer = new EmbedFooterBuilder();
-            footer.IconUrl = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png";
-            footer.Text = "Instagram";
-
-            var embed = new EmbedBuilder();
-            embed.Author = account;
-            embed.Title = "Content from " + context.Message.Author.Username + "'s linked post.";
-            embed.Footer = footer;
-            embed.Timestamp = new DateTimeOffset(response.postDate);
-            embed.Url = response.postURL.ToString();
-            embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption)) : ("");
-            embed.WithColor(new Color(131, 58, 180));
+            // Embed builder:
+            IGEmbedBuilder embed = new IGEmbedBuilder(response, context.User.Username);
 
             if (response.isVideo)
             {
@@ -171,33 +114,31 @@ namespace Instagram_Reels_Bot.Modules
                     using (Stream stream = new MemoryStream(response.stream))
                     {
                         FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.");
-                        await context.Message.Channel.SendFileAsync(attachment, embed: embed.Build());
+                        await context.Message.Channel.SendFileAsync(attachment, embed: embed.AutoSelector());
                     }
                     return;
                 }
                 else
                 {
                     //Response without stream:
-                    await context.Message.ReplyAsync(response.contentURL.ToString(), embed: embed.Build(), allowedMentions: AllowedMentions.None);
+                    await context.Message.ReplyAsync(response.contentURL.ToString(), embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None);
                     return;
                 }
 
             }
             else
             {
-                embed.ImageUrl = "attachment://IGMedia.jpg";
                 if (response.stream != null)
                 {
                     using (Stream stream = new MemoryStream(response.stream))
                     {
                         FileAttachment attachment = new FileAttachment(stream, "IGMedia.jpg", "An Instagram Image.");
-                        await context.Channel.SendFileAsync(attachment, embed: embed.Build());
+                        await context.Channel.SendFileAsync(attachment, embed: embed.AutoSelector());
                     }
                 }
                 else
                 {
-                    embed.ImageUrl = response.contentURL.ToString();
-                    await context.Message.ReplyAsync(embed: embed.Build(), allowedMentions: AllowedMentions.None);
+                    await context.Message.ReplyAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None);
                 }
             }
 

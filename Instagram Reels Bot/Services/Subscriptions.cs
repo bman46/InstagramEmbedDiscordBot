@@ -257,24 +257,7 @@ namespace Instagram_Reels_Bot.Services
                                         {
                                             if (response.success)
                                             {
-                                                //Account Name:
-                                                var account = new EmbedAuthorBuilder();
-                                                account.IconUrl = response.iconURL.ToString();
-                                                account.Name = response.accountName;
-                                                account.Url = response.accountUrl.ToString();
-
-                                                //Instagram Footer:
-                                                EmbedFooterBuilder footer = new EmbedFooterBuilder();
-                                                footer.IconUrl = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png";
-                                                footer.Text = "Instagram";
-
-                                                var embed = new EmbedBuilder();
-                                                embed.Author = account;
-                                                embed.Footer = footer;
-                                                embed.Timestamp = new DateTimeOffset(response.postDate);
-                                                embed.Description = (response.caption != null) ? (DiscordTools.Truncate(response.caption)) : ("");
-                                                embed.Description += "\n[View on Instagram](" + response.postURL + ")";
-                                                embed.WithColor(new Color(131, 58, 180));
+                                                IGEmbedBuilder embed = new IGEmbedBuilder(response);
 
                                                 if (!response.success)
                                                 {
@@ -304,7 +287,7 @@ namespace Instagram_Reels_Bot.Services
                                                             if (chan != null)
                                                             {
                                                                 //send message
-                                                                await chan.SendFileAsync(attachment, embed: embed.Build());
+                                                                await chan.SendFileAsync(attachment, embed: embed.AutoSelector());
                                                             }
                                                             else
                                                             {
@@ -331,7 +314,7 @@ namespace Instagram_Reels_Bot.Services
                                                         if (chan != null)
                                                         {
                                                             //send message
-                                                            await chan.SendMessageAsync(response.contentURL.ToString(), embed: embed.Build());
+                                                            await chan.SendMessageAsync(response.contentURL.ToString(), embed: embed.AutoSelector());
                                                         }
                                                         else
                                                         {
@@ -344,7 +327,6 @@ namespace Instagram_Reels_Bot.Services
                                                 }
                                                 else
                                                 {
-                                                    embed.ImageUrl = "attachment://IGMedia.jpg";
                                                     if (response.stream != null)
                                                     {
                                                         using (Stream stream = new MemoryStream(response.stream))
@@ -365,7 +347,7 @@ namespace Instagram_Reels_Bot.Services
                                                             if (chan != null)
                                                             {
                                                                 //send message
-                                                                await chan.SendFileAsync(attachment, embed: embed.Build());
+                                                                await chan.SendFileAsync(attachment, embed: embed.AutoSelector());
                                                             }
                                                             else
                                                             {
@@ -377,7 +359,6 @@ namespace Instagram_Reels_Bot.Services
                                                     }
                                                     else
                                                     {
-                                                        embed.ImageUrl = response.contentURL.ToString();
                                                         // get channel:
                                                         IMessageChannel chan = null;
                                                         try
@@ -394,7 +375,7 @@ namespace Instagram_Reels_Bot.Services
                                                             //send message
                                                             try
                                                             {
-                                                                await chan.SendMessageAsync(embed: embed.Build());
+                                                                await chan.SendMessageAsync(embed: embed.AutoSelector());
                                                             }catch(Exception e)
                                                             {
                                                                 Console.WriteLine("Error sending subscription message. Error: " + e);

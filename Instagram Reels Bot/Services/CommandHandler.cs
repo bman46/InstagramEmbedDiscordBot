@@ -177,7 +177,7 @@ namespace Instagram_Reels_Bot.Services
                             try
                             {
                                 var code = InstagramProcessor.BotAccountManager.GetTwoFactorAuthCode(user.OTPSecret);
-                                await message.ReplyAsync("Username: " + user.UserName + "\n2FA Code: " + code + "\nChallanged: " + user.ChallangeLocked);
+                                await message.ReplyAsync("Username: " + user.UserName + "\n2FA Code: " + code + "\nChallanged: " + user.ChallangeLocked+"\nLast Failed: "+user.FailedLogin);
                             }
                             catch (Exception e)
                             {

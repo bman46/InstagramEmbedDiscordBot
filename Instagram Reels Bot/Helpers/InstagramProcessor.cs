@@ -489,14 +489,13 @@ namespace Instagram_Reels_Bot.Helpers
 		{
 			switch (result.Info.ResponseType)
 			{
-				case ResponseType.ChallengeRequired:
 				case ResponseType.LoginRequired:
 					//Try to relogin:
 					Console.WriteLine("Login required.");
 					BotAccountManager.InstagramLogin(true, true);
 
-					//Return try again message:
-					return new InstagramProcessorResponse("Please try again later. Challanged by Instagram.");
+					//Throw to notify owner:
+					throw new Exception("Relogin required");
 				case ResponseType.MediaNotFound:
 					return new InstagramProcessorResponse("Could not find that post. Is the account private?");
 				case ResponseType.DeletedPost:
@@ -562,6 +561,11 @@ namespace Instagram_Reels_Bot.Helpers
                 /// Defaults to false
                 /// </summary>
 				public bool ChallangeLocked = false;
+				/// <summary>
+				/// Set to true if login failed.
+				/// Defaults to false.
+				/// </summary>
+				public bool FailedLogin = false;
 			}
 			/// <summary>
             /// List of all IG accounts that the bot can use.
@@ -593,7 +597,7 @@ namespace Instagram_Reels_Bot.Helpers
             {
 				foreach (IGAccountCredentials cred in Accounts)
                 {
-                    if (!cred.ChallangeLocked)
+                    if (!cred.ChallangeLocked && !cred.FailedLogin)
                     {
 						return cred;
                     }
@@ -604,10 +608,10 @@ namespace Instagram_Reels_Bot.Helpers
 			/// Logs the bot into Instagram if logged out.
 			/// Also allows for logging out and back in again.
 			/// </summary>
-			public static void InstagramLogin(bool clearStateFile = false, bool logOutFirst = false, bool lastWasLocked = false)
+			public static void InstagramLogin(bool clearStateFile = false, bool logOutFirst = false, bool lastFailed = false, bool bypassBlock = false)
 			{
 				//Wait until other thread is done logging in:
-                if (LoginMethodRunning)
+                if (LoginMethodRunning&&!bypassBlock)
                 {
 					while (LoginMethodRunning)
                     {
@@ -697,6 +701,20 @@ namespace Instagram_Reels_Bot.Helpers
 							{
 								Console.WriteLine("Failed to log in with 2FA.");
 								Console.WriteLine(twoFAlogInResult.Info.Message);
+
+								//Set failed login:
+								var user = Accounts.FirstOrDefault(acc => acc.UserName == userSession.UserName);
+								user.FailedLogin = true;
+
+								//Retry:
+								if (!lastFailed)
+								{
+									InstagramLogin(true, true, true, true);
+								}
+								else
+								{
+									Console.WriteLine("Multiple failures, not retrying.");
+								}
 							}
 							else
 							{
@@ -706,24 +724,37 @@ namespace Instagram_Reels_Bot.Helpers
 						else if (logInResult.Value == InstaLoginResult.ChallengeRequired)
 						{
 							Console.WriteLine("Challange required for " + userSession.UserName);
-							// Set to locked:
+							// Set to blocked:
 							var user = Accounts.FirstOrDefault(acc => acc.UserName == userSession.UserName);
 							user.ChallangeLocked = true;
 							//Try logging in again: (but dont cause a stack overflow)
-							if (!lastWasLocked)
+							if (!lastFailed)
 							{
-								InstagramLogin(true, true, true);
+								InstagramLogin(true, true, true, true);
 							}
 							else
 							{
-								throw new Exception("Blocked on multiple challanges.");
+								Console.WriteLine("Multiple failures, not retrying.");
 							}
-
 							return;
 						}
 						else
 						{
 							Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
+
+							//Set failed login:
+							var user = Accounts.FirstOrDefault(acc => acc.UserName == userSession.UserName);
+							user.FailedLogin = true;
+
+							//Retry:
+							if (!lastFailed)
+							{
+								InstagramLogin(true, true, true, true);
+							}
+							else
+							{
+								Console.WriteLine("Multiple failures, not retrying.");
+							}
 							return;
 						}
 					}

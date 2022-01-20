@@ -31,7 +31,6 @@
     <None Remove="Helpers\Responses\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Helpers\" />
     <Folder Include="DataTables\" />
     <Folder Include="Helpers\Responses\" />
   </ItemGroup>

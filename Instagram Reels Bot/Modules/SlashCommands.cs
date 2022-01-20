@@ -46,6 +46,9 @@ namespace Instagram_Reels_Bot.Modules
 			//Create embed builder:
 			IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username);
 
+			//Create component builder:
+			IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Username);
+
 			if (response.isVideo)
 			{
 				if (response.stream != null)
@@ -55,13 +58,13 @@ namespace Instagram_Reels_Bot.Modules
 					{
 						FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.");
 
-						await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.AutoSelector());
+						await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.AutoSelector(), components: component.AutoSelector());
 					}
 				}
                 else
                 {
 					//Response without stream:
-					await FollowupAsync(response.contentURL.ToString(), embed: embed.AutoSelector());
+					await FollowupAsync(response.contentURL.ToString(), embed: embed.AutoSelector(), components: component.AutoSelector());
                 }
 
 			}
@@ -72,12 +75,12 @@ namespace Instagram_Reels_Bot.Modules
 					using (Stream stream = new MemoryStream(response.stream))
 					{
 						FileAttachment attachment = new FileAttachment(stream, "IGMedia.jpg", "An Instagram Image.");
-						await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None);
+						await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());
 					}
 				}
 				else
 				{
-					await FollowupAsync(embed: embed.AutoSelector());
+					await FollowupAsync(embed: embed.AutoSelector(), components: component.AutoSelector());
 				}
 			}
 			
@@ -110,14 +113,15 @@ namespace Instagram_Reels_Bot.Modules
 			}
 
 			IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username);
+			IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Username);
 
-			await FollowupAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None);
+			await FollowupAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());
 		}
 		[SlashCommand("help", "For help with the bot.", runMode: RunMode.Async)]
 		public async Task Help()
 		{
 			//response embed:
-			var embed = new Discord.EmbedBuilder();
+			var embed = new EmbedBuilder();
 			embed.Title = "Help With Instagram Embed";
 			embed.Url = "https://discord.gg/6K3tdsYd6J";
 			embed.Description = "This bot uploads videos and images from an Instagram post provided via a link. The bot also allows for subscribing to new posts from accounts using the `/subscribe` command.  For more help and to view the status of the bot, please join our support server: https://discord.gg/6K3tdsYd6J";
@@ -130,7 +134,14 @@ namespace Instagram_Reels_Bot.Modules
                 "- `Attach Files`\n" +
                 "- `Manage Messages` (optional-used to remove duplicate embeds)");
 			embed.WithColor(new Color(131, 58, 180));
-			await RespondAsync(embed: embed.Build(), ephemeral: false);
+
+			ButtonBuilder button = new ButtonBuilder();
+			button.Label = "Support Server";
+			button.Style = ButtonStyle.Link;
+			button.Url = "https://discord.gg/6K3tdsYd6J";
+			ComponentBuilder component = new ComponentBuilder().WithButton(button);
+
+			await RespondAsync(embed: embed.Build(), ephemeral: false, components: component.Build());
 		}
 		[SlashCommand("invite", "Invite the bot to your server!", runMode: RunMode.Async)]
 		public async Task Invite()
@@ -139,20 +150,45 @@ namespace Instagram_Reels_Bot.Modules
 			var embed = new Discord.EmbedBuilder();
 			embed.Title = "Invite Instagram Embed To Your Server!";
 			embed.Url = "https://top.gg/bot/815695225678463017";
-			embed.Description = "Please visit our top.gg page to invite the bot to your server. https://top.gg/bot/815695225678463017";
+			embed.Description = "Please visit our [top.gg page](https://top.gg/bot/815695225678463017) to invite the bot to your server. https://top.gg/bot/815695225678463017";
 			embed.WithColor(new Color(131, 58, 180));
-			await RespondAsync(embed: embed.Build(), ephemeral: true);
+
+			ButtonBuilder buttonTopgg = new ButtonBuilder();
+			buttonTopgg.Label = "Top.gg";
+			buttonTopgg.Style = ButtonStyle.Link;
+			buttonTopgg.Url = "https://top.gg/bot/815695225678463017";
+			// https://discord.com/oauth2/authorize?client_id=815695225678463017&permissions=60480&scope=applications.commands%20bot
+			ButtonBuilder buttonInvite = new ButtonBuilder();
+			buttonInvite.Label = "Invite";
+			buttonInvite.Style = ButtonStyle.Link;
+			buttonInvite.Url = "https://discord.com/oauth2/authorize?client_id=815695225678463017&permissions=60480&scope=applications.commands%20bot";
+			ComponentBuilder component = new ComponentBuilder().WithButton(buttonTopgg).WithButton(buttonInvite);
+
+			await RespondAsync(embed: embed.Build(), ephemeral: true, components: component.Build());
 		}
-		[SlashCommand("topgg", "Visit our top.gg page.", runMode: RunMode.Async)]
-		public async Task Topgg()
+		[SlashCommand("vote", "Vote our bot on Top.gg and DiscordBotList.com", runMode: RunMode.Async)]
+		public async Task Vote()
 		{
 			//response embed:
 			var embed = new Discord.EmbedBuilder();
-			embed.Title = "Instagram Embed Top.gg Page";
+			embed.Title = "Instagram Embed Top.gg and DiscordBotList.com Page";
 			embed.Url = "https://top.gg/bot/815695225678463017";
-			embed.Description = "Please vote for us and leave a rating on Top.gg. https://top.gg/bot/815695225678463017";
+			embed.Description = "Please vote for us and leave a rating on [Top.gg](https://top.gg/bot/815695225678463017/vote) and [DiscordBotList.com](https://discordbotlist.com/bots/instagram-embed/upvote).";
 			embed.WithColor(new Color(131, 58, 180));
-			await RespondAsync(embed: embed.Build(), ephemeral: true);
+
+			// top.gg
+			ButtonBuilder buttonTopgg = new ButtonBuilder();
+			buttonTopgg.Label = "Top.gg";
+			buttonTopgg.Style = ButtonStyle.Link;
+			buttonTopgg.Url = "https://top.gg/bot/815695225678463017/vote";
+			// dbl
+			ButtonBuilder buttonDBL = new ButtonBuilder();
+			buttonDBL.Label = "DBL";
+			buttonDBL.Style = ButtonStyle.Link;
+			buttonDBL.Url = "https://discordbotlist.com/bots/instagram-embed/upvote";
+			ComponentBuilder component = new ComponentBuilder().WithButton(buttonTopgg).WithButton(buttonDBL);
+
+			await RespondAsync(embed: embed.Build(), ephemeral: true, components: component.Build());
 		}
 		[SlashCommand("github", "Visit our github page", runMode: RunMode.Async)]
 		public async Task Github()
@@ -161,9 +197,16 @@ namespace Instagram_Reels_Bot.Modules
 			var embed = new Discord.EmbedBuilder();
 			embed.Title = "GitHub";
 			embed.Url = "https://github.com/bman46/InstagramEmbedDiscordBot";
-			embed.Description = "View the source code, contribute to the bot, and file issues for improvements or bugs. https://github.com/bman46/InstagramEmbedDiscordBot";
+			embed.Description = "View the source code, contribute to the bot, and file issues for improvements or bugs. [Github](https://github.com/bman46/InstagramEmbedDiscordBot)";
 			embed.WithColor(new Color(131, 58, 180));
-			await RespondAsync(embed: embed.Build(), ephemeral: true);
+
+			ButtonBuilder buttonGithub = new ButtonBuilder();
+			buttonGithub.Label = "GitHub";
+			buttonGithub.Style = ButtonStyle.Link;
+			buttonGithub.Url = "https://github.com/bman46/InstagramEmbedDiscordBot";
+			ComponentBuilder component = new ComponentBuilder().WithButton(buttonGithub);
+
+			await RespondAsync(embed: embed.Build(), ephemeral: true, components: component.Build());
 		}
 		[SlashCommand("subscribe", "Get updates when a user posts a new post on Instagram.", runMode: RunMode.Async)]
 		[RequireBotPermission(ChannelPermission.SendMessages)]

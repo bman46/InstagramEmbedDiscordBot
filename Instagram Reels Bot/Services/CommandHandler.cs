@@ -25,8 +25,7 @@ namespace Instagram_Reels_Bot.Services
         private readonly Subscriptions _subscriptions;
         /// <summary>
         /// Notifies the owner of an error
-        /// false by default. Toggled by user DM command.
-        /// Reverts to false when bot is restarted.
+        /// false by default. Toggled by user DM command or config setting.
         /// </summary>
         public static bool notifyOwnerOnError;
 

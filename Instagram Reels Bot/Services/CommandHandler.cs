@@ -163,7 +163,7 @@ namespace Instagram_Reels_Bot.Services
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
                         //Clear login information and relogin:
-                        InstagramProcessor.InstagramLogin(true, true);
+                        InstagramProcessor.BotAccountManager.InstagramLogin(true, true);
                         await message.ReplyAsync("Success");
                     }
                 }
@@ -174,8 +174,8 @@ namespace Instagram_Reels_Bot.Services
                         //Clear login information and relogin:
                         try
                         {
-                            var code = InstagramProcessor.GetTwoFactorAuthCode();
-                            await message.ReplyAsync("Username: " + InstagramProcessor.GetIGUsername() + "\n2FA Code: " + code);
+                            var code = InstagramProcessor.BotAccountManager.GetTwoFactorAuthCode();
+                            await message.ReplyAsync("Username: " + InstagramProcessor.BotAccountManager.GetIGUsername() + "\n2FA Code: " + code);
                         }
                         catch (Exception e)
                         {

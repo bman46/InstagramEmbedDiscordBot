@@ -76,7 +76,7 @@ namespace Instagram_Reels_Bot
             }
 
             //Login:
-            InstagramProcessor.InstagramLogin();
+            InstagramProcessor.BotAccountManager.InstagramLogin();
         }
 
         public async Task MainAsync()

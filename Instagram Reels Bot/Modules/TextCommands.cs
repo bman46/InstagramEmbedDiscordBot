@@ -82,8 +82,11 @@ namespace Instagram_Reels_Bot.Modules
                 await Responder(url, Context);
                 return;
             }
+
             IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username);
-            await Context.Message.ReplyAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None);
+            IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Username);
+
+            await Context.Message.ReplyAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());
         }
         /// <summary>
         /// Centralized method to handle all Instagram links and respond to text based messages (No slash commands).
@@ -105,6 +108,7 @@ namespace Instagram_Reels_Bot.Modules
 
             // Embed builder:
             IGEmbedBuilder embed = new IGEmbedBuilder(response, context.User.Username);
+            IGComponentBuilder component = new IGComponentBuilder(response, context.User.Username);
 
             if (response.isVideo)
             {
@@ -114,14 +118,14 @@ namespace Instagram_Reels_Bot.Modules
                     using (Stream stream = new MemoryStream(response.stream))
                     {
                         FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.");
-                        await context.Message.Channel.SendFileAsync(attachment, embed: embed.AutoSelector());
+                        await context.Message.Channel.SendFileAsync(attachment, embed: embed.AutoSelector(), components: component.AutoSelector());
                     }
                     return;
                 }
                 else
                 {
                     //Response without stream:
-                    await context.Message.ReplyAsync(response.contentURL.ToString(), embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None);
+                    await context.Message.ReplyAsync(response.contentURL.ToString(), embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());
                     return;
                 }
 
@@ -133,12 +137,12 @@ namespace Instagram_Reels_Bot.Modules
                     using (Stream stream = new MemoryStream(response.stream))
                     {
                         FileAttachment attachment = new FileAttachment(stream, "IGMedia.jpg", "An Instagram Image.");
-                        await context.Channel.SendFileAsync(attachment, embed: embed.AutoSelector());
+                        await context.Channel.SendFileAsync(attachment, embed: embed.AutoSelector(), components: component.AutoSelector());
                     }
                 }
                 else
                 {
-                    await context.Message.ReplyAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None);
+                    await context.Message.ReplyAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());
                 }
             }
 

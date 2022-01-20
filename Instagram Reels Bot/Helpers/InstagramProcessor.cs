@@ -543,12 +543,10 @@ namespace Instagram_Reels_Bot.Helpers
 			var logInResult = instaApi.LoginAsync().GetAwaiter().GetResult();
 			if (!logInResult.Succeeded)
 			{
+				// 2FA
 				if (logInResult.Value == InstaLoginResult.TwoFactorRequired)
 				{
 					Console.WriteLine("Logging in with 2FA...");
-					//Sleep to make it more human like:
-					Random rnd = new Random();
-					Thread.Sleep(rnd.Next(1, 3));
 					//Try to log in:
 					string code = GetTwoFactorAuthCode();
 					Console.WriteLine(code);
@@ -563,6 +561,11 @@ namespace Instagram_Reels_Bot.Helpers
 						Console.WriteLine("Logged in with 2FA.");
 					}
 				}
+				else if (logInResult.Value == InstaLoginResult.ChallengeRequired)
+                {
+					Console.WriteLine("Challange Required.");
+					return;
+                }
 				else
 				{
 					Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
@@ -682,7 +685,12 @@ namespace Instagram_Reels_Bot.Helpers
 			{
 				case ResponseType.ChallengeRequired:
 				case ResponseType.LoginRequired:
-					throw new Exception("Challanged by Instagram or Login Required.");
+					//Try to relogin:
+					Console.WriteLine("Login required.");
+					InstagramLogin(true, true);
+
+					//Return try again message:
+					return new InstagramProcessorResponse("Please try again later. Challanged by Instagram.");
 				case ResponseType.MediaNotFound:
 					return new InstagramProcessorResponse("Could not find that post. Is the account private?");
 				case ResponseType.DeletedPost:

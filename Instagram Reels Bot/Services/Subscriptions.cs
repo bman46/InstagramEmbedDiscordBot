@@ -257,6 +257,9 @@ namespace Instagram_Reels_Bot.Services
                                         {
                                             if (response.success)
                                             {
+                                                //Create component builder:
+                                                IGComponentBuilder component = new IGComponentBuilder(response);
+                                                //Create embed response:
                                                 IGEmbedBuilder embed = new IGEmbedBuilder(response);
 
                                                 if (!response.success)
@@ -287,7 +290,7 @@ namespace Instagram_Reels_Bot.Services
                                                             if (chan != null)
                                                             {
                                                                 //send message
-                                                                await chan.SendFileAsync(attachment, embed: embed.AutoSelector());
+                                                                await chan.SendFileAsync(attachment, embed: embed.AutoSelector(), components: component.AutoSelector());
                                                             }
                                                             else
                                                             {
@@ -314,7 +317,7 @@ namespace Instagram_Reels_Bot.Services
                                                         if (chan != null)
                                                         {
                                                             //send message
-                                                            await chan.SendMessageAsync(response.contentURL.ToString(), embed: embed.AutoSelector());
+                                                            await chan.SendMessageAsync(response.contentURL.ToString(), embed: embed.AutoSelector(), components: component.AutoSelector());
                                                         }
                                                         else
                                                         {
@@ -347,7 +350,7 @@ namespace Instagram_Reels_Bot.Services
                                                             if (chan != null)
                                                             {
                                                                 //send message
-                                                                await chan.SendFileAsync(attachment, embed: embed.AutoSelector());
+                                                                await chan.SendFileAsync(attachment, embed: embed.AutoSelector(), components: component.AutoSelector());
                                                             }
                                                             else
                                                             {
@@ -375,7 +378,7 @@ namespace Instagram_Reels_Bot.Services
                                                             //send message
                                                             try
                                                             {
-                                                                await chan.SendMessageAsync(embed: embed.AutoSelector());
+                                                                await chan.SendMessageAsync(embed: embed.AutoSelector(), components: component.AutoSelector());
                                                             }catch(Exception e)
                                                             {
                                                                 Console.WriteLine("Error sending subscription message. Error: " + e);

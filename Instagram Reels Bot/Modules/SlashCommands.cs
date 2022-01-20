@@ -47,7 +47,7 @@ namespace Instagram_Reels_Bot.Modules
 			IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username);
 
 			//Create component builder:
-			IGComponentBuilder component = new IGComponentBuilder(response);
+			IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id);
 
 			if (response.isVideo)
 			{
@@ -113,7 +113,7 @@ namespace Instagram_Reels_Bot.Modules
 			}
 
 			IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username);
-			IGComponentBuilder component = new IGComponentBuilder(response);
+			IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id);
 
 			await FollowupAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());
 		}

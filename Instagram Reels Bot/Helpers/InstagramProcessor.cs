@@ -522,6 +522,43 @@ namespace Instagram_Reels_Bot.Helpers
 		public class BotAccountManager
 		{
 			/// <summary>
+            /// User account information
+            /// </summary>
+			public class IGAccountCredentials : UserSessionData 
+			{
+				/// <summary>
+                /// Account information without 2FA code.
+                /// </summary>
+                /// <param name="username">The account username</param>
+                /// <param name="password">The account password</param>
+				public IGAccountCredentials(string username, string password)
+                {
+					this.UserName = username;
+					this.Password = password;
+                }
+				/// <summary>
+				///  Account information with 2FA code.
+				/// </summary>
+				/// <param name="username">The account username</param>
+				/// <param name="password">The account password</param>
+				/// <param name="OTPCode">The 2FA OTP secret code</param>
+				public IGAccountCredentials(string username, string password, string OTPCode)
+                {
+					this.UserName = username;
+					this.Password = password;
+					this.SecondFactorAuthenticationSecret = OTPCode;
+				}
+				/// <summary>
+                /// The 2FA secret code for generating OTPs
+                /// </summary>
+				public string SecondFactorAuthenticationSecret { get; set; }
+				/// <summary>
+                /// Set to true if the account is locked and requires challange verification.
+                /// Do not use challange locked accounts until resolved.
+                /// </summary>
+				public bool ChallangeLocked = false;
+			}
+			/// <summary>
 			/// Logs the bot into Instagram if logged out.
 			/// Also allows for logging out and back in again.
 			/// </summary>
@@ -557,7 +594,7 @@ namespace Instagram_Reels_Bot.Helpers
 				var userSession = new UserSessionData
 				{
 					UserName = config["IGUserName"],
-					Password = config["IGPassword"]
+					Password = config["IGPassword"],
 				};
 				instaApi.SetUser(userSession);
 				string stateFile;

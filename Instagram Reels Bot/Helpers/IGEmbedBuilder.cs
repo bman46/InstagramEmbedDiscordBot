@@ -71,11 +71,6 @@ namespace Instagram_Reels_Bot.Helpers
 				embed.Title = "Content from " + Requester + "'s linked post.";
 				embed.Url = Response.postURL.ToString();
             }
-            else
-            {
-				// embed.Url wont show up without title
-				embed.Description += "\n[View on Instagram](" + Response.postURL + ")";
-			}
 
 			if (!Response.isVideo)
             {
@@ -104,10 +99,6 @@ namespace Instagram_Reels_Bot.Helpers
 			embed.Title = (string.IsNullOrEmpty(Response.accountName)) ? Response.username : Response.accountName + "'s Instagram Account";
 			embed.Url = Response.accountUrl.ToString();
 			embed.Description = "**Biography:**\n" + Response.bio + "\n\n";
-			if (Response.externalURL != null)
-			{
-				embed.Description += "[Link in bio](" + Response.externalURL.ToString() + ")\n";
-			}
 
 			if (RequesterIsKnown)
 				embed.Description += "Requested by: " + Requester;

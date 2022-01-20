@@ -338,7 +338,7 @@ namespace Instagram_Reels_Bot.Services
                         arg2.Interaction.RespondAsync(arg3.ErrorReason+"\nDiscord support server: https://top.gg/servers/921830686439124993", ephemeral: true);
                         break;
                     case InteractionCommandError.UnknownCommand:
-                        arg2.Interaction.RespondAsync("Unknown command.", ephemeral: true);
+                        arg2.Interaction.RespondAsync("Unknown command. It may have been recently removed or changed.", ephemeral: true);
                         break;
                     case InteractionCommandError.BadArgs:
                         // implement

@@ -29,10 +29,12 @@
     <None Remove="Microsoft.Azure.Cosmos" />
     <None Remove="DataTables\" />
     <None Remove="Helpers\Responses\" />
+    <None Remove="Helpers\Builders\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DataTables\" />
     <Folder Include="Helpers\Responses\" />
+    <Folder Include="Helpers\Builders\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="config.json">

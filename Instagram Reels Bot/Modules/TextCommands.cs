@@ -84,7 +84,7 @@ namespace Instagram_Reels_Bot.Modules
             }
 
             IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username);
-            IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Username);
+            IGComponentBuilder component = new IGComponentBuilder(response);
 
             await Context.Message.ReplyAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());
         }
@@ -108,7 +108,7 @@ namespace Instagram_Reels_Bot.Modules
 
             // Embed builder:
             IGEmbedBuilder embed = new IGEmbedBuilder(response, context.User.Username);
-            IGComponentBuilder component = new IGComponentBuilder(response, context.User.Username);
+            IGComponentBuilder component = new IGComponentBuilder(response);
 
             if (response.isVideo)
             {

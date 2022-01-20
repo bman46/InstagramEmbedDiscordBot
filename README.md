@@ -16,6 +16,7 @@ Embeds linked videos and images from users linked Instagram posts, videos, and r
 - Adjusted upload sizes for Nitro Boosted servers
 - Supports Discord slash commands
 - Supports subscribing to new posts from Instagram users
+- Multiple IG accounts for failover
 
 ## Example: 
 ![Example of reels bot on discord](https://github.com/bman46/Instagram-Reels-Bot/raw/master/Example.png)
@@ -23,18 +24,33 @@ Embeds linked videos and images from users linked Instagram posts, videos, and r
 ### Config.json format:
 ```
 {
-  "Token": "TokenHere",
+  "Token": "Token",
   "Prefix": [ "https://www.instagram.com/", "https://instagram.com/", "http://www.instagram.com/", "http://instagram.com/" ],
-  "OwnerID": "OwnerID",
+  "OwnerID": "ID",
+  "TestGuildID": "ID",
+  "DMErrors": true/false,
+
+    "IGAccounts": [
+        {
+            "username": "username",
+            "password": "password",
+            "OTPSecret": "2fa code (optional)"
+        },
+        {
+            "username": "username",
+            "password": "password",
+            "OTPSecret": "2fa code (optional)"
+        }
+    ],
+
   "ProxyURL": "",
-  "IGUserName": "IGUsername",
-  "IGPassword": "IGPassword",
-  "2FASecret": "2FA OTP secret (optional)",
+  "ProxyUsername": "username (optional)",
+  "ProxyPassword": "password (optional)",
 
   "AllowSubscriptions": true/false,
-  "EndpointUrl": "CosmosDB Endpoint (optional if AllowSubscriptions is false)",
-  "PrimaryKey": "CosmosDB key (optional if AllowSubscriptions is false)",
-  "DefaultSubscriptionsPerGuildMax": 0,
+  "EndpointUrl": "CosmosDB URL",
+  "PrimaryKey": "CosmosDB Key",
+  "DefaultSubscriptionsPerGuildMax": 1,
   "HoursToCheckForNewContent": 3
 }
 ```

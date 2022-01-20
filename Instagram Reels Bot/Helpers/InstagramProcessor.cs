@@ -12,10 +12,11 @@ using InstagramApiSharp.Classes.Android.DeviceInfo;
 using InstagramApiSharp.Logger;
 using Microsoft.Extensions.Configuration;
 using OtpNet;
+using System.Linq;
 
 namespace Instagram_Reels_Bot.Helpers
 {
-	public class InstagramProcessor
+    public class InstagramProcessor
 	{
 		public static InstagramApiSharp.API.IInstaApi instaApi;
 
@@ -516,16 +517,19 @@ namespace Instagram_Reels_Bot.Helpers
 					return new InstagramProcessorResponse("Error retrieving the content. The account may be private. Please report this on our support server if the account is public or if this is unexpected. https://discord.gg/6K3tdsYd6J");
 			}
 		}
-		/// <summary>
-		/// Used to manage the account that the bot is run on.
-		/// </summary>
-		public class BotAccountManager
+        #region Account Management
+        /// <summary>
+        /// Used to manage the account that the bot is run on.
+        /// </summary>
+        public class BotAccountManager
 		{
+			private static bool LoginMethodRunning = false;
 			/// <summary>
             /// User account information
             /// </summary>
 			public class IGAccountCredentials : UserSessionData 
 			{
+				public IGAccountCredentials() { }
 				/// <summary>
                 /// Account information without 2FA code.
                 /// </summary>
@@ -541,48 +545,33 @@ namespace Instagram_Reels_Bot.Helpers
 				/// </summary>
 				/// <param name="username">The account username</param>
 				/// <param name="password">The account password</param>
-				/// <param name="OTPCode">The 2FA OTP secret code</param>
-				public IGAccountCredentials(string username, string password, string OTPCode)
+				/// <param name="OTPSecret">The 2FA OTP secret code</param>
+				public IGAccountCredentials(string username, string password, string OTPSecret)
                 {
 					this.UserName = username;
 					this.Password = password;
-					this.SecondFactorAuthenticationSecret = OTPCode;
+					this.OTPSecret = OTPSecret;
 				}
 				/// <summary>
                 /// The 2FA secret code for generating OTPs
                 /// </summary>
-				public string SecondFactorAuthenticationSecret { get; set; }
+				public string OTPSecret { get; set; }
 				/// <summary>
                 /// Set to true if the account is locked and requires challange verification.
                 /// Do not use challange locked accounts until resolved.
+                /// Defaults to false
                 /// </summary>
 				public bool ChallangeLocked = false;
 			}
 			/// <summary>
-			/// Logs the bot into Instagram if logged out.
-			/// Also allows for logging out and back in again.
-			/// </summary>
-			public static void InstagramLogin(bool clearStateFile = false, bool logOutFirst = false)
-			{
-				if (instaApi.IsUserAuthenticated && !logOutFirst)
-				{
-					//Skip. Already Authenticated.
-					return;
-				}
-				else if (logOutFirst)
-				{
-					// Log out of account:
-					Console.WriteLine("Logging out.");
-					//Logout:
-					instaApi.LogoutAsync().GetAwaiter().GetResult();
-					//Re-initialize instaApi object:
-					instaApi = InstaApiBuilder.CreateBuilder()
-						.UseLogger(new DebugLogger(LogLevel.Exceptions))
-						.Build();
-				}
-				// Set the Android Device:
-				instaApi.SetDevice(device);
-
+            /// List of all IG accounts that the bot can use.
+            /// </summary>
+			public static List<IGAccountCredentials> Accounts;
+			/// <summary>
+            /// Loads the accounts from the config.json file and adds them to the Accounts array.
+            /// </summary>
+			public static void LoadAccounts()
+            {
 				// create the configuration
 				var _builder = new ConfigurationBuilder()
 					.SetBasePath(AppContext.BaseDirectory)
@@ -590,119 +579,188 @@ namespace Instagram_Reels_Bot.Helpers
 
 				// build the configuration and assign to _config          
 				var config = _builder.Build();
-				//set user session
-				var userSession = new UserSessionData
-				{
-					UserName = config["IGUserName"],
-					Password = config["IGPassword"],
-				};
-				instaApi.SetUser(userSession);
-				string stateFile;
-				if (config["StateFile"] != null && config["StateFile"] != "")
-				{
-					stateFile = config["StateFile"];
-				}
-				else
-				{
-					stateFile = "state.bin";
-				}
+
+				//Add accounts to the array:
+				List<IGAccountCredentials> creds = config.GetSection("IGAccounts").Get<List<IGAccountCredentials>>();
+				Accounts = creds;
+			}
+			/// <summary>
+            /// Gets an unblocked account for use.
+            /// </summary>
+            /// <returns>An unblocked account.</returns>
+            /// <exception cref="InvalidDataException">Thrown when no accounts are avaliable.</exception>
+			public static IGAccountCredentials GetUnchallangedAccount()
+            {
+				foreach (IGAccountCredentials cred in Accounts)
+                {
+                    if (!cred.ChallangeLocked)
+                    {
+						return cred;
+                    }
+                }
+				throw new InvalidDataException("No unblocked accounts.");
+            }
+			/// <summary>
+			/// Logs the bot into Instagram if logged out.
+			/// Also allows for logging out and back in again.
+			/// </summary>
+			public static void InstagramLogin(bool clearStateFile = false, bool logOutFirst = false, bool lastWasLocked = false)
+			{
+				//Wait until other thread is done logging in:
+                if (LoginMethodRunning)
+                {
+					while (LoginMethodRunning)
+                    {
+						//Sleep until done:
+						Thread.Sleep(100);
+                    }
+                }
 				try
 				{
-					// load session file if exists
-					if (File.Exists(stateFile) && !clearStateFile)
+					LoginMethodRunning = true;
+					if (instaApi.IsUserAuthenticated && !logOutFirst)
 					{
-						Console.WriteLine("Loading state from file");
-						using (var fs = File.OpenRead(stateFile))
-						{
-							// Load state data from file:
-							instaApi.LoadStateDataFromStream(fs);
-						}
-					}
-					else if (clearStateFile)
-					{
-						File.Delete(stateFile);
-					}
-				}
-				catch (Exception e)
-				{
-					Console.WriteLine(e);
-				}
-
-				// login
-				Console.WriteLine($"Logging in as {userSession.UserName}");
-				var logInResult = instaApi.LoginAsync().GetAwaiter().GetResult();
-				if (!logInResult.Succeeded)
-				{
-					// 2FA
-					if (logInResult.Value == InstaLoginResult.TwoFactorRequired)
-					{
-						Console.WriteLine("Logging in with 2FA...");
-						//Try to log in:
-						string code = GetTwoFactorAuthCode();
-						Console.WriteLine(code);
-						var twoFAlogInResult = instaApi.TwoFactorLoginAsync(code, 0).GetAwaiter().GetResult();
-						if (!twoFAlogInResult.Succeeded)
-						{
-							Console.WriteLine("Failed to log in with 2FA.");
-							Console.WriteLine(twoFAlogInResult.Info.Message);
-						}
-						else
-						{
-							Console.WriteLine("Logged in with 2FA.");
-						}
-					}
-					else if (logInResult.Value == InstaLoginResult.ChallengeRequired)
-					{
-						Console.WriteLine("Challange Required.");
+						//Skip. Already Authenticated.
 						return;
+					}
+					else if (logOutFirst)
+					{
+						// Log out of account:
+						Console.WriteLine("Logging out.");
+						//Logout:
+						instaApi.LogoutAsync().GetAwaiter().GetResult();
+						//Re-initialize instaApi object:
+						instaApi = InstaApiBuilder.CreateBuilder()
+							.UseLogger(new DebugLogger(LogLevel.Exceptions))
+							.Build();
+					}
+					// Set the Android Device:
+					instaApi.SetDevice(device);
+
+					// create the configuration
+					var _builder = new ConfigurationBuilder()
+						.SetBasePath(AppContext.BaseDirectory)
+						.AddJsonFile(path: "config.json");
+
+					// build the configuration and assign to _config          
+					var config = _builder.Build();
+
+					//Get user session:
+					IGAccountCredentials userSession = GetUnchallangedAccount();
+
+					instaApi.SetUser(userSession);
+					string stateFile;
+					if (config["StateFile"] != null && config["StateFile"] != "")
+					{
+						stateFile = config["StateFile"];
 					}
 					else
 					{
-						Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
-						return;
+						stateFile = "state.bin";
 					}
-				}
-				var state = instaApi.GetStateDataAsStream();
-				// in .net core or uwp apps don't use GetStateDataAsStream.
-				// use this one:
-				// var state = _instaApi.GetStateDataAsString ();
-				// this returns you session as json string.
-				try
-				{
-					using (var fileStream = File.Create(stateFile))
+					try
 					{
-						state.Seek(0, SeekOrigin.Begin);
-						state.CopyTo(fileStream);
+						// load session file if exists
+						if (File.Exists(stateFile) && !clearStateFile)
+						{
+							Console.WriteLine("Loading state from file");
+							using (var fs = File.OpenRead(stateFile))
+							{
+								// Load state data from file:
+								instaApi.LoadStateDataFromStream(fs);
+							}
+						}
+						else if (clearStateFile)
+						{
+							File.Delete(stateFile);
+						}
 					}
-				}
-				catch (Exception e)
-				{
-					Console.WriteLine("Error writing state file. Error: " + e);
-				}
+					catch (Exception e)
+					{
+						Console.WriteLine(e);
+					}
+
+					// login
+					Console.WriteLine($"Logging in as {userSession.UserName}");
+					var logInResult = instaApi.LoginAsync().GetAwaiter().GetResult();
+					if (!logInResult.Succeeded)
+					{
+						// 2FA
+						if (logInResult.Value == InstaLoginResult.TwoFactorRequired)
+						{
+							Console.WriteLine("Logging in with 2FA...");
+							//Try to log in:
+							string code = GetTwoFactorAuthCode(userSession.OTPSecret);
+							Console.WriteLine(code);
+							var twoFAlogInResult = instaApi.TwoFactorLoginAsync(code, 0).GetAwaiter().GetResult();
+							if (!twoFAlogInResult.Succeeded)
+							{
+								Console.WriteLine("Failed to log in with 2FA.");
+								Console.WriteLine(twoFAlogInResult.Info.Message);
+							}
+							else
+							{
+								Console.WriteLine("Logged in with 2FA.");
+							}
+						}
+						else if (logInResult.Value == InstaLoginResult.ChallengeRequired)
+						{
+							Console.WriteLine("Challange required for " + userSession.UserName);
+							// Set to locked:
+							var user = Accounts.FirstOrDefault(acc => acc.UserName == userSession.UserName);
+							user.ChallangeLocked = true;
+							//Try logging in again: (but dont cause a stack overflow)
+							if (!lastWasLocked)
+							{
+								InstagramLogin(true, true, true);
+							}
+							else
+							{
+								throw new Exception("Blocked on multiple challanges.");
+							}
+
+							return;
+						}
+						else
+						{
+							Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
+							return;
+						}
+					}
+					var state = instaApi.GetStateDataAsStream();
+					// in .net core or uwp apps don't use GetStateDataAsStream.
+					// use this one:
+					// var state = _instaApi.GetStateDataAsString ();
+					// this returns you session as json string.
+					try
+					{
+						using (var fileStream = File.Create(stateFile))
+						{
+							state.Seek(0, SeekOrigin.Begin);
+							state.CopyTo(fileStream);
+						}
+					}
+					catch (Exception e)
+					{
+						Console.WriteLine("Error writing state file. Error: " + e);
+					}
+                }
+                finally
+                {
+					// Always unlock when done
+					LoginMethodRunning = false;
+                }
+
 			}
 			/// <summary>
 			/// Gets the 2FA OTP.
 			/// </summary>
 			/// <returns>A 2FA Auth code</returns>
 			/// <exception cref="ArgumentException">Thrown if 2FASecret is not set in the config.</exception>
-			public static string GetTwoFactorAuthCode()
+			public static string GetTwoFactorAuthCode(string secret)
 			{
-				// create the configuration
-				var _builder = new ConfigurationBuilder()
-					.SetBasePath(AppContext.BaseDirectory)
-					.AddJsonFile(path: "config.json");
-
-				// build the configuration and assign to _config          
-				var config = _builder.Build();
-
-				// Check to ensure that 2FASecret is set:
-				if (string.IsNullOrEmpty(config["2FASecret"]))
-				{
-					throw new ArgumentException("2FASecret config not set.");
-				}
-
 				//Convert secret:
-				var bytes = Base32Encoding.ToBytes(config["2FASecret"]);
+				var bytes = Base32Encoding.ToBytes(secret);
 				var totp = new Totp(bytes);
 
 				if (totp.RemainingSeconds() > 1)
@@ -755,5 +813,6 @@ namespace Instagram_Reels_Bot.Helpers
 				Dpi = "480dpi",
 			};
 		}
-	}
+        #endregion
+    }
 }

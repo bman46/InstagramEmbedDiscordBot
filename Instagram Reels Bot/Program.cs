@@ -74,9 +74,10 @@ namespace Instagram_Reels_Bot
                     .UseHttpClientHandler(httpClientHandler)
                     .Build();
             }
-
+            //Get accounts:
+            InstagramProcessor.BotAccountManager.LoadAccounts();
             //Login:
-            InstagramProcessor.InstagramLogin();
+            InstagramProcessor.BotAccountManager.InstagramLogin();
         }
 
         public async Task MainAsync()

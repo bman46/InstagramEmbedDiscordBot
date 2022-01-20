@@ -12,10 +12,11 @@ using InstagramApiSharp.Classes.Android.DeviceInfo;
 using InstagramApiSharp.Logger;
 using Microsoft.Extensions.Configuration;
 using OtpNet;
+using System.Linq;
 
 namespace Instagram_Reels_Bot.Helpers
 {
-	public class InstagramProcessor
+    public class InstagramProcessor
 	{
 		public static InstagramApiSharp.API.IInstaApi instaApi;
 
@@ -133,7 +134,7 @@ namespace Instagram_Reels_Bot.Helpers
 		public static async Task<InstagramProcessorResponse> StoryProcessorAsync(string url, int premiumTier)
 		{
 			//ensure login:
-			InstagramLogin();
+			BotAccountManager.InstagramLogin();
 			Uri link = new Uri(url);
 			string userName = link.Segments[2].Replace("/", "");
 			string storyID = link.Segments[3].Replace("/", "");
@@ -253,7 +254,7 @@ namespace Instagram_Reels_Bot.Helpers
 		public static async Task<InstagramProcessorResponse> PostProcessorAsync(string url, int index, int premiumTier, InstagramApiSharp.Classes.Models.InstaMedia media = null)
         {
 			//ensure login:
-			InstagramLogin();
+			BotAccountManager.InstagramLogin();
 
 			//Arrays start at zero:
 			index--;
@@ -404,7 +405,7 @@ namespace Instagram_Reels_Bot.Helpers
 		public static async Task<DateTime> GetLatestPostDate(long userID)
         {
 			//Check for login:
-			InstagramLogin();
+			BotAccountManager.InstagramLogin();
 
 			//get the IG user:
 			var user = (await instaApi.UserProcessor.GetUserInfoByIdAsync(userID)).Value;
@@ -427,7 +428,7 @@ namespace Instagram_Reels_Bot.Helpers
 		public static async Task<InstagramProcessorResponse[]> PostsSinceDate(long userID, DateTime startDate)
         {
 			//Check for login:
-			InstagramLogin();
+			BotAccountManager.InstagramLogin();
 
 			//get the IG user:
 			var user = (await instaApi.UserProcessor.GetUserInfoByIdAsync(userID)).Value;
@@ -470,206 +471,14 @@ namespace Instagram_Reels_Bot.Helpers
 			return !userInfo.Value.IsPrivate;
 		}
 		/// <summary>
-		/// Logs the bot into Instagram if logged out.
-		/// Also allows for logging out and back in again.
+		/// The Instagram username of the user.
 		/// </summary>
-		public static void InstagramLogin(bool clearStateFile = false, bool logOutFirst = false)
-		{
-			if (instaApi.IsUserAuthenticated && !logOutFirst)
-			{
-				//Skip. Already Authenticated.
-				return;
-			}
-			else if (logOutFirst)
-            {
-				// Log out of account:
-				Console.WriteLine("Logging out.");
-				//Logout:
-				instaApi.LogoutAsync().GetAwaiter().GetResult();
-				//Re-initialize instaApi object:
-				instaApi = InstaApiBuilder.CreateBuilder()
-					.UseLogger(new DebugLogger(LogLevel.Exceptions))
-					.Build();
-			}
-			// Set the Android Device:
-			instaApi.SetDevice(device);
-
-			// create the configuration
-			var _builder = new ConfigurationBuilder()
-				.SetBasePath(AppContext.BaseDirectory)
-				.AddJsonFile(path: "config.json");
-
-			// build the configuration and assign to _config          
-			var config = _builder.Build();
-			//set user session
-			var userSession = new UserSessionData
-			{
-				UserName = config["IGUserName"],
-				Password = config["IGPassword"]
-			};
-			instaApi.SetUser(userSession);
-			string stateFile;
-			if (config["StateFile"] != null && config["StateFile"] != "")
-			{
-				stateFile = config["StateFile"];
-			}
-			else
-			{
-				stateFile = "state.bin";
-			}
-			try
-			{
-				// load session file if exists
-				if (File.Exists(stateFile)&&!clearStateFile)
-				{
-					Console.WriteLine("Loading state from file");
-					using (var fs = File.OpenRead(stateFile))
-					{
-						// Load state data from file:
-						instaApi.LoadStateDataFromStream(fs);
-					}
-				}else if (clearStateFile)
-                {
-					File.Delete(stateFile);
-                }
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e);
-			}
-
-			// login
-			Console.WriteLine($"Logging in as {userSession.UserName}");
-			var logInResult = instaApi.LoginAsync().GetAwaiter().GetResult();
-			if (!logInResult.Succeeded)
-			{
-				if (logInResult.Value == InstaLoginResult.TwoFactorRequired)
-				{
-					Console.WriteLine("Logging in with 2FA...");
-					//Sleep to make it more human like:
-					Random rnd = new Random();
-					Thread.Sleep(rnd.Next(1, 3));
-					//Try to log in:
-					string code = GetTwoFactorAuthCode();
-					Console.WriteLine(code);
-					var twoFAlogInResult = instaApi.TwoFactorLoginAsync(code, 0).GetAwaiter().GetResult();
-					if (!twoFAlogInResult.Succeeded)
-					{
-						Console.WriteLine("Failed to log in with 2FA.");
-						Console.WriteLine(twoFAlogInResult.Info.Message);
-					}
-					else
-					{
-						Console.WriteLine("Logged in with 2FA.");
-					}
-				}
-				else
-				{
-					Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
-					return;
-				}
-			}
-			var state = instaApi.GetStateDataAsStream();
-			// in .net core or uwp apps don't use GetStateDataAsStream.
-			// use this one:
-			// var state = _instaApi.GetStateDataAsString ();
-			// this returns you session as json string.
-			try
-			{
-				using (var fileStream = File.Create(stateFile))
-				{
-					state.Seek(0, SeekOrigin.Begin);
-					state.CopyTo(fileStream);
-				}
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine("Error writing state file. Error: " + e);
-			}
-		}
-		/// <summary>
-        /// Gets the 2FA OTP.
-        /// </summary>
-        /// <returns>A 2FA Auth code</returns>
-        /// <exception cref="ArgumentException">Thrown if 2FASecret is not set in the config.</exception>
-		public static string GetTwoFactorAuthCode()
-        {
-			// create the configuration
-			var _builder = new ConfigurationBuilder()
-				.SetBasePath(AppContext.BaseDirectory)
-				.AddJsonFile(path: "config.json");
-
-			// build the configuration and assign to _config          
-			var config = _builder.Build();
-
-            // Check to ensure that 2FASecret is set:
-            if (string.IsNullOrEmpty(config["2FASecret"]))
-            {
-				throw new ArgumentException("2FASecret config not set.");
-			}
-
-			//Convert secret:
-			var bytes = Base32Encoding.ToBytes(config["2FASecret"]);
-			var totp = new Totp(bytes);
-
-            if (totp.RemainingSeconds() > 1)
-            {
-				return totp.ComputeTotp();
-			}
-            else
-            {
-				//Wait for next code if the current code is about to expire:
-				Thread.Sleep(totp.RemainingSeconds() * 1000 + 100);
-				return totp.ComputeTotp();
-			}
-		}
-		/// <summary>
-        /// Returns the username of the logged in Instagram account.
-        /// </summary>
-        /// <returns></returns>
-		public static string GetIGUsername()
-        {
-			return instaApi.GetLoggedUser().UserName;
-        }
-		/// <summary>
-        /// The Instagram username of the user.
-        /// </summary>
-        /// <param name="igid"></param>
-        /// <returns></returns>
+		/// <param name="igid"></param>
+		/// <returns></returns>
 		public static async Task<string> GetIGUsername(string igid)
-        {
-			return (await instaApi.UserProcessor.GetUserInfoByIdAsync(long.Parse(igid))).Value.Username;
-        }
-		/// <summary>
-		/// An android device to use for login with instagram to keep one consistant device.
-		/// </summary>
-		public static AndroidDevice device = new AndroidDevice
 		{
-			// Device name
-			AndroidBoardName = "HONOR",
-			// Device brand
-			DeviceBrand = "HUAWEI",
-			// Hardware manufacturer
-			HardwareManufacturer = "HUAWEI",
-			// Device model
-			DeviceModel = "PRA-LA1",
-			// Device model identifier
-			DeviceModelIdentifier = "PRA-LA1",
-			// Firmware brand
-			FirmwareBrand = "HWPRA-H",
-			// Hardware model
-			HardwareModel = "hi6250",
-			// Device guid
-			DeviceGuid = new Guid("be897499-c663-492e-a125-f4c8d3786ebf"),
-			// Phone guid
-			PhoneGuid = new Guid("7b72321f-dd9a-425e-b3ee-d4aaf476ec53"),
-			// Device id based on Device guid
-			DeviceId = ApiRequestMessage.GenerateDeviceIdFromGuid(new Guid("be897499-c663-492e-a125-f4c8d3786ebf")),
-			// Resolution
-			Resolution = "1080x1812",
-			// Dpi
-			Dpi = "480dpi",
-		};
+			return (await instaApi.UserProcessor.GetUserInfoByIdAsync(long.Parse(igid))).Value.Username;
+		}
 		/// <summary>
 		/// Handles conditions where a IResult is unsuccessful.
 		/// </summary>
@@ -677,11 +486,16 @@ namespace Instagram_Reels_Bot.Helpers
 		/// <returns></returns>
 		/// <exception cref="Exception"></exception>
 		private static InstagramProcessorResponse HandleFailure(IResult<object> result)
-        {
+		{
 			switch (result.Info.ResponseType)
 			{
-				case ResponseType.ChallengeRequired:
-					throw new Exception("Challanged by Instagram.");
+				case ResponseType.LoginRequired:
+					//Try to relogin:
+					Console.WriteLine("Login required.");
+					BotAccountManager.InstagramLogin(true, true);
+
+					//Throw to notify owner:
+					throw new Exception("Relogin required");
 				case ResponseType.MediaNotFound:
 					return new InstagramProcessorResponse("Could not find that post. Is the account private?");
 				case ResponseType.DeletedPost:
@@ -689,18 +503,347 @@ namespace Instagram_Reels_Bot.Helpers
 				case ResponseType.NetworkProblem:
 					return new InstagramProcessorResponse("Could not connect to Instagram. Is Instagram down? https://discord.gg/6K3tdsYd6J");
 				case ResponseType.UnExpectedResponse:
-					if(result.Info.Message.Contains("User not found"))
-                    {
+					if (result.Info.Message.Contains("User not found"))
+					{
 						return new InstagramProcessorResponse("User not found.");
-                    }
-                    else
-                    {
+					}
+					else
+					{
 						goto default;
 					}
 				default:
-					Console.WriteLine("Error: "+result.Info);
+					Console.WriteLine("Error: " + result.Info);
 					return new InstagramProcessorResponse("Error retrieving the content. The account may be private. Please report this on our support server if the account is public or if this is unexpected. https://discord.gg/6K3tdsYd6J");
 			}
 		}
-	}
+        #region Account Management
+        /// <summary>
+        /// Used to manage the account that the bot is run on.
+        /// </summary>
+        public class BotAccountManager
+		{
+			private static bool LoginMethodRunning = false;
+			/// <summary>
+            /// User account information
+            /// </summary>
+			public class IGAccountCredentials : UserSessionData 
+			{
+				public IGAccountCredentials() { }
+				/// <summary>
+                /// Account information without 2FA code.
+                /// </summary>
+                /// <param name="username">The account username</param>
+                /// <param name="password">The account password</param>
+				public IGAccountCredentials(string username, string password)
+                {
+					this.UserName = username;
+					this.Password = password;
+                }
+				/// <summary>
+				///  Account information with 2FA code.
+				/// </summary>
+				/// <param name="username">The account username</param>
+				/// <param name="password">The account password</param>
+				/// <param name="OTPSecret">The 2FA OTP secret code</param>
+				public IGAccountCredentials(string username, string password, string OTPSecret)
+                {
+					this.UserName = username;
+					this.Password = password;
+					this.OTPSecret = OTPSecret;
+				}
+				/// <summary>
+                /// The 2FA secret code for generating OTPs
+                /// </summary>
+				public string OTPSecret { get; set; }
+				/// <summary>
+                /// Set to true if the account is locked and requires challange verification.
+                /// Do not use challange locked accounts until resolved.
+                /// Defaults to false
+                /// </summary>
+				public bool ChallangeLocked = false;
+				/// <summary>
+				/// Set to true if login failed.
+				/// Defaults to false.
+				/// </summary>
+				public bool FailedLogin = false;
+			}
+			/// <summary>
+            /// List of all IG accounts that the bot can use.
+            /// </summary>
+			public static List<IGAccountCredentials> Accounts;
+			/// <summary>
+            /// Loads the accounts from the config.json file and adds them to the Accounts array.
+            /// </summary>
+			public static void LoadAccounts()
+            {
+				// create the configuration
+				var _builder = new ConfigurationBuilder()
+					.SetBasePath(AppContext.BaseDirectory)
+					.AddJsonFile(path: "config.json");
+
+				// build the configuration and assign to _config          
+				var config = _builder.Build();
+
+				//Add accounts to the array:
+				List<IGAccountCredentials> creds = config.GetSection("IGAccounts").Get<List<IGAccountCredentials>>();
+				Accounts = creds;
+			}
+			/// <summary>
+            /// Gets an unblocked account for use.
+            /// </summary>
+            /// <returns>An unblocked account.</returns>
+            /// <exception cref="InvalidDataException">Thrown when no accounts are avaliable.</exception>
+			public static IGAccountCredentials GetUnchallangedAccount()
+            {
+				foreach (IGAccountCredentials cred in Accounts)
+                {
+                    if (!cred.ChallangeLocked && !cred.FailedLogin)
+                    {
+						return cred;
+                    }
+                }
+				throw new InvalidDataException("No unblocked accounts.");
+            }
+			/// <summary>
+			/// Logs the bot into Instagram if logged out.
+			/// Also allows for logging out and back in again.
+			/// </summary>
+			public static void InstagramLogin(bool clearStateFile = false, bool logOutFirst = false, bool lastFailed = false, bool bypassBlock = false)
+			{
+				//Wait until other thread is done logging in:
+                if (LoginMethodRunning&&!bypassBlock)
+                {
+					while (LoginMethodRunning)
+                    {
+						//Sleep until done:
+						Thread.Sleep(100);
+                    }
+                }
+				try
+				{
+					LoginMethodRunning = true;
+					if (instaApi.IsUserAuthenticated && !logOutFirst)
+					{
+						//Skip. Already Authenticated.
+						return;
+					}
+					else if (logOutFirst)
+					{
+						// Log out of account:
+						Console.WriteLine("Logging out.");
+						//Logout:
+						instaApi.LogoutAsync().GetAwaiter().GetResult();
+						//Re-initialize instaApi object:
+						instaApi = InstaApiBuilder.CreateBuilder()
+							.UseLogger(new DebugLogger(LogLevel.Exceptions))
+							.Build();
+					}
+					// Set the Android Device:
+					instaApi.SetDevice(device);
+
+					// create the configuration
+					var _builder = new ConfigurationBuilder()
+						.SetBasePath(AppContext.BaseDirectory)
+						.AddJsonFile(path: "config.json");
+
+					// build the configuration and assign to _config          
+					var config = _builder.Build();
+
+					//Get user session:
+					IGAccountCredentials userSession = GetUnchallangedAccount();
+
+					instaApi.SetUser(userSession);
+					string stateFile;
+					if (config["StateFile"] != null && config["StateFile"] != "")
+					{
+						stateFile = config["StateFile"];
+					}
+					else
+					{
+						stateFile = "state.bin";
+					}
+					try
+					{
+						// load session file if exists
+						if (File.Exists(stateFile) && !clearStateFile)
+						{
+							Console.WriteLine("Loading state from file");
+							using (var fs = File.OpenRead(stateFile))
+							{
+								// Load state data from file:
+								instaApi.LoadStateDataFromStream(fs);
+							}
+						}
+						else if (clearStateFile)
+						{
+							File.Delete(stateFile);
+						}
+					}
+					catch (Exception e)
+					{
+						Console.WriteLine(e);
+					}
+
+					// login
+					Console.WriteLine($"Logging in as {userSession.UserName}");
+					var logInResult = instaApi.LoginAsync().GetAwaiter().GetResult();
+					if (!logInResult.Succeeded)
+					{
+						// 2FA
+						if (logInResult.Value == InstaLoginResult.TwoFactorRequired)
+						{
+							Console.WriteLine("Logging in with 2FA...");
+							//Try to log in:
+							string code = GetTwoFactorAuthCode(userSession.OTPSecret);
+							Console.WriteLine(code);
+							var twoFAlogInResult = instaApi.TwoFactorLoginAsync(code, 0).GetAwaiter().GetResult();
+							if (!twoFAlogInResult.Succeeded)
+							{
+								Console.WriteLine("Failed to log in with 2FA.");
+								Console.WriteLine(twoFAlogInResult.Info.Message);
+
+								//Set failed login:
+								var user = Accounts.FirstOrDefault(acc => acc.UserName == userSession.UserName);
+								user.FailedLogin = true;
+
+								//Retry:
+								if (!lastFailed)
+								{
+									InstagramLogin(true, true, true, true);
+								}
+								else
+								{
+									Console.WriteLine("Multiple failures, not retrying.");
+								}
+							}
+							else
+							{
+								Console.WriteLine("Logged in with 2FA.");
+							}
+						}
+						else if (logInResult.Value == InstaLoginResult.ChallengeRequired)
+						{
+							Console.WriteLine("Challange required for " + userSession.UserName);
+							// Set to blocked:
+							var user = Accounts.FirstOrDefault(acc => acc.UserName == userSession.UserName);
+							user.ChallangeLocked = true;
+							//Try logging in again: (but dont cause a stack overflow)
+							if (!lastFailed)
+							{
+								InstagramLogin(true, true, true, true);
+							}
+							else
+							{
+								Console.WriteLine("Multiple failures, not retrying.");
+							}
+							return;
+						}
+						else
+						{
+							Console.WriteLine($"Unable to login: {logInResult.Info.Message}");
+
+							//Set failed login:
+							var user = Accounts.FirstOrDefault(acc => acc.UserName == userSession.UserName);
+							user.FailedLogin = true;
+
+							//Retry:
+							if (!lastFailed)
+							{
+								InstagramLogin(true, true, true, true);
+							}
+							else
+							{
+								Console.WriteLine("Multiple failures, not retrying.");
+							}
+							return;
+						}
+					}
+					var state = instaApi.GetStateDataAsStream();
+					// in .net core or uwp apps don't use GetStateDataAsStream.
+					// use this one:
+					// var state = _instaApi.GetStateDataAsString ();
+					// this returns you session as json string.
+					try
+					{
+						using (var fileStream = File.Create(stateFile))
+						{
+							state.Seek(0, SeekOrigin.Begin);
+							state.CopyTo(fileStream);
+						}
+					}
+					catch (Exception e)
+					{
+						Console.WriteLine("Error writing state file. Error: " + e);
+					}
+                }
+                finally
+                {
+					// Always unlock when done
+					LoginMethodRunning = false;
+                }
+
+			}
+			/// <summary>
+			/// Gets the 2FA OTP.
+			/// </summary>
+			/// <returns>A 2FA Auth code</returns>
+			/// <exception cref="ArgumentException">Thrown if 2FASecret is not set in the config.</exception>
+			public static string GetTwoFactorAuthCode(string secret)
+			{
+				//Convert secret:
+				var bytes = Base32Encoding.ToBytes(secret);
+				var totp = new Totp(bytes);
+
+				if (totp.RemainingSeconds() > 1)
+				{
+					return totp.ComputeTotp();
+				}
+				else
+				{
+					//Wait for next code if the current code is about to expire:
+					Thread.Sleep(totp.RemainingSeconds() * 1000 + 100);
+					return totp.ComputeTotp();
+				}
+			}
+			/// <summary>
+			/// Returns the username of the logged in Instagram account.
+			/// </summary>
+			/// <returns></returns>
+			public static string GetIGUsername()
+			{
+				return instaApi.GetLoggedUser().UserName;
+			}
+			/// <summary>
+			/// An android device to use for login with instagram to keep one consistant device.
+			/// </summary>
+			public static AndroidDevice device = new AndroidDevice
+			{
+				// Device name
+				AndroidBoardName = "HONOR",
+				// Device brand
+				DeviceBrand = "HUAWEI",
+				// Hardware manufacturer
+				HardwareManufacturer = "HUAWEI",
+				// Device model
+				DeviceModel = "PRA-LA1",
+				// Device model identifier
+				DeviceModelIdentifier = "PRA-LA1",
+				// Firmware brand
+				FirmwareBrand = "HWPRA-H",
+				// Hardware model
+				HardwareModel = "hi6250",
+				// Device guid
+				DeviceGuid = new Guid("be897499-c663-492e-a125-f4c8d3786ebf"),
+				// Phone guid
+				PhoneGuid = new Guid("7b72321f-dd9a-425e-b3ee-d4aaf476ec53"),
+				// Device id based on Device guid
+				DeviceId = ApiRequestMessage.GenerateDeviceIdFromGuid(new Guid("be897499-c663-492e-a125-f4c8d3786ebf")),
+				// Resolution
+				Resolution = "1080x1812",
+				// Dpi
+				Dpi = "480dpi",
+			};
+		}
+        #endregion
+    }
 }

@@ -163,7 +163,7 @@ namespace Instagram_Reels_Bot.Services
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
                         //Clear login information and relogin:
-                        InstagramProcessor.InstagramLogin(true, true);
+                        InstagramProcessor.BotAccountManager.InstagramLogin(true, true);
                         await message.ReplyAsync("Success");
                     }
                 }
@@ -171,16 +171,19 @@ namespace Instagram_Reels_Bot.Services
                 {
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
-                        //Clear login information and relogin:
-                        try
+                        await message.ReplyAsync("Current account: " + InstagramProcessor.BotAccountManager.GetIGUsername());
+                        foreach (InstagramProcessor.BotAccountManager.IGAccountCredentials user in InstagramProcessor.BotAccountManager.Accounts)
                         {
-                            var code = InstagramProcessor.GetTwoFactorAuthCode();
-                            await message.ReplyAsync("Username: " + InstagramProcessor.GetIGUsername() + "\n2FA Code: " + code);
-                        }
-                        catch (Exception e)
-                        {
-                            await message.ReplyAsync("Failed to get 2FA code.");
-                            Console.WriteLine("2FA Code error: " + e);
+                            try
+                            {
+                                var code = InstagramProcessor.BotAccountManager.GetTwoFactorAuthCode(user.OTPSecret);
+                                await message.ReplyAsync("Username: " + user.UserName + "\n2FA Code: " + code + "\nChallanged: " + user.ChallangeLocked+"\nLast Failed: "+user.FailedLogin);
+                            }
+                            catch (Exception e)
+                            {
+                                await message.ReplyAsync("Failed to get 2FA code.");
+                                Console.WriteLine("2FA Code error: " + e);
+                            }
                         }
                     }
                 }

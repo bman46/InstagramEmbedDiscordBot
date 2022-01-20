@@ -13,23 +13,6 @@ namespace Instagram_Reels_Bot.Helpers
         /// The Response from the Instagram processor.
         /// </summary>
         private InstagramProcessorResponse Response;
-        private string Requester;
-        private bool RequesterIsKnown
-        {
-            get
-            {
-                return !string.IsNullOrWhiteSpace(Requester);
-            }
-        }
-        /// <summary>
-        /// Create an instance of the component builder.
-        /// </summary>
-        /// <param name="response"></param>
-		public IGComponentBuilder(InstagramProcessorResponse response, string requester)
-        {
-            this.Response = response;
-            this.Requester = requester;
-        }
         /// <summary>
         /// For use when requester is not needed or unknown.
         /// </summary>

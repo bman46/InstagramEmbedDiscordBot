@@ -1,6 +1,7 @@
 # Instagram Embed Discord Bot
 Delivers new posts from Instagram accounts to a Discord channel.
-Embeds linked videos and images from users linked Instagram posts, videos, and reels into a Discord chat.
+Embeds linked videos and images from users linked Instagram posts, videos, and reels into a Discord chat. 
+Used in over 1,000 Discord servers for a total of over 250,000 users.
 
 [Invite To Discord Server](https://link.mcshane.systems/reelsbotinvite)
 

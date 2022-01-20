@@ -681,7 +681,8 @@ namespace Instagram_Reels_Bot.Helpers
 			switch (result.Info.ResponseType)
 			{
 				case ResponseType.ChallengeRequired:
-					throw new Exception("Challanged by Instagram.");
+				case ResponseType.LoginRequired:
+					throw new Exception("Challanged by Instagram or Login Required.");
 				case ResponseType.MediaNotFound:
 					return new InstagramProcessorResponse("Could not find that post. Is the account private?");
 				case ResponseType.DeletedPost:

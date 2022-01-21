@@ -23,11 +23,28 @@ namespace Instagram_Reels_Bot.Modules
         [ComponentInteraction("delete-message-*")]
         public async Task DeleteMessageButton(string userId)
         {
+            var originalMessage = Context.Interaction as SocketMessageComponent;
             // Context.User.Id are user id of the user that interact with the button.
-            // Also allow for admins with ManageMessages permission to delete posts.
-            if (Context.User.Id == ulong.Parse(userId) || (Context.User as SocketGuildUser).GuildPermissions.ManageMessages)
+            if (Context.User.Id == ulong.Parse(userId))
             {
-                var originalMessage = Context.Interaction as SocketMessageComponent;
+                // Validate authenticity:
+                var orginResponse = originalMessage.Message;
+                foreach(ActionRowComponent row in orginResponse.Components)
+                {
+                    foreach(IMessageComponent component in row.Components)
+                    {
+                        if (component.CustomId == "delete-message-" + userId)
+                        {
+                            await originalMessage.Message.DeleteAsync();
+                            return;
+                        }
+                    }
+                }
+                await RespondAsync("Button user ID appears to be spoofed.", ephemeral: true);
+            }
+            // Also allow for admins with ManageMessages permission to delete posts.
+            else if ((Context.User as SocketGuildUser).GuildPermissions.ManageMessages)
+            {
                 await originalMessage.Message.DeleteAsync();
             }
             else

@@ -75,7 +75,7 @@ This Privacy Statement governs use of the information that you provide to us thr
 
 We may also use your information if provided to us to contact you about our own and third-party services and products that may be of interest to you. If you do not want us to use your information in this way, you can opt out of receiving this information by so indicating in your registration/preferences file or by notifying us.
 
-We may also use or disclose information to resolve disputes, investigate problems or enforce our Terms of Use. At times, we may review status or activity of multiple users to do so. We may disclose or access information whenever we believe in good faith that the law so requires or if we otherwise consider it necessary to do so to maintain service and improve our services. We use your IP address to help diagnose problems with our server, to manage our website and to enhance our site based on the usage pattern we receive.
+We may also use or disclose information to resolve disputes, investigate problems or enforce our [Terms of Use](TermsAndConditions.md). At times, we may review status or activity of multiple users to do so. We may disclose or access information whenever we believe in good faith that the law so requires or if we otherwise consider it necessary to do so to maintain service and improve our services. We use your IP address to help diagnose problems with our server, to manage our website and to enhance our site based on the usage pattern we receive.
 
 ## DISCLOSURE OF YOUR INFORMATION
 We may disclose aggregated information about our users, and information that does not identify any individual, without restriction.
@@ -91,7 +91,7 @@ We may disclose personal information that we collect or you provide as described
 - With the consent of the person providing the information.
 - We may also disclose your personal information:
 - To comply with any court order, law or legal process, including to respond to any government or regulatory request.
-- To enforce or apply our Terms of Use and other agreements, including for billing and collection purposes.
+- To enforce or apply our [Terms of Use](TermsAndConditions.md) and other agreements, including for billing and collection purposes.
 - If we believe disclosure is necessary or appropriate to protect the rights, property or safety of Instagram Embed Discord Bot, our participants or others. This includes exchanging information with other organizations for the purposes of fraud protection and credit risk reduction.
 ## CHANGES TO OUR PRIVACY POLICY
 It is our policy to post any changes we make to our privacy policy on this page. If we make material changes to how we treat our users’ personal information, we will notify you by e-mail to the primary e-mail address specified in your registration information if any has been established and/or through a notice on the website home page. The date the privacy policy was last revised is identified at the top of the page. If information has been collected, you are responsible for ensuring we have an up-to- date active and deliverable e-mail address for you, and for periodically visiting our website and this privacy policy to check for any changes.

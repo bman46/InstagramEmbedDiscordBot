@@ -23,8 +23,9 @@ namespace Instagram_Reels_Bot.Modules
         [ComponentInteraction("delete-message-*")]
         public async Task DeleteMessageButton(string userId)
         {
-            // Context.User.Id are user id of the user that interact with the button
-            if (Context.User.Id == ulong.Parse(userId))
+            // Context.User.Id are user id of the user that interact with the button.
+            // Also allow for admins with ManageMessages permission to delete posts.
+            if (Context.User.Id == ulong.Parse(userId) || (Context.User as SocketGuildUser).GuildPermissions.ManageMessages)
             {
                 var originalMessage = Context.Interaction as SocketMessageComponent;
                 await originalMessage.Message.DeleteAsync();

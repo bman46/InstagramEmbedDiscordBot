@@ -489,6 +489,7 @@ namespace Instagram_Reels_Bot.Helpers
 		{
 			switch (result.Info.ResponseType)
 			{
+				case ResponseType.ChallengeRequired:
 				case ResponseType.LoginRequired:
 					//Try to relogin:
 					Console.WriteLine("Login required.");

@@ -74,17 +74,14 @@ namespace Instagram_Reels_Bot.Helpers
             button.Style = ButtonStyle.Link;
             button.Url = Response.postURL.ToString();
 
+            component.WithButton(button);
+
             // add button to component
             if (RequesterIsKnown)
             {
-                component.WithButton(button)
-                    .WithButton("Delete Message", $"delete-message-{RequesterId}", style: ButtonStyle.Danger);
+                component.WithButton("Delete Message", $"delete-message-{RequesterId}", style: ButtonStyle.Danger);
             }
-            else
-            {
-                component.WithButton(button);
-            }
-
+            
             return component.Build();
         }
         /// <summary>

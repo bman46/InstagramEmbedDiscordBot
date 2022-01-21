@@ -18,7 +18,7 @@ namespace Instagram_Reels_Bot.Helpers
         {
             get
             {
-                return RequesterId == default(ulong);
+                return RequesterId != default(ulong);
             }
         }
         /// <summary>

@@ -26,14 +26,13 @@ namespace Instagram_Reels_Bot.Modules
             // Context.User.Id are user id of the user that interact with the button
             if (Context.User.Id == ulong.Parse(userId))
             {
-                await RespondAsync("TODO: Delete the message", ephemeral: true);
-                //await Context.Channel.DeleteMessageAsync(ulong.Parse(messageId)); // not sure
-                //await DeleteOriginalResponseAsync(); // this function is deleting the new interaction. not sure
+                var originalMessage = Context.Interaction as SocketMessageComponent;
+                await originalMessage.Message.DeleteAsync();
             }
             else
             {
                 // if user is not the person who executed the command
-                await RespondAsync("you can't delete this", ephemeral: true);
+                await RespondAsync("You can't delete this message", ephemeral: true);
             }
         }
     }

@@ -92,11 +92,8 @@ namespace Instagram_Reels_Bot.Helpers
         {
             var component = BaseComponent();
 
-            if (Response.externalURL == null) // if there is no external url, then no button
-            {
-                return component.Build(); // no button
-            }
-            else
+            // Check for external URL
+            if (Response.externalURL != null)
             {
                 // create button
                 ButtonBuilder buttonLinkBio = new ButtonBuilder();
@@ -104,16 +101,12 @@ namespace Instagram_Reels_Bot.Helpers
                 buttonLinkBio.Style = ButtonStyle.Link;
                 buttonLinkBio.Url = Response.externalURL.ToString();
 
-                // add button to component
-                if (RequesterIsKnown)
-                {
-                    component.WithButton(buttonLinkBio)
-                        .WithButton("Delete Message", $"delete-message-{RequesterId}", style: ButtonStyle.Danger);
-                }
-                else
-                {
-                    component.WithButton(buttonLinkBio);
-                }
+                component.WithButton(buttonLinkBio);
+            }
+            // Add the delete button if user is known
+            if (RequesterIsKnown)
+            {
+                component.WithButton("Delete Message", $"delete-message-{RequesterId}", style: ButtonStyle.Danger);
             }
 
             return component.Build();

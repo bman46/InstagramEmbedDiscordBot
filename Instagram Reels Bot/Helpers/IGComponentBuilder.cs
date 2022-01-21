@@ -13,12 +13,12 @@ namespace Instagram_Reels_Bot.Helpers
         /// The Response from the Instagram processor.
         /// </summary>
         private InstagramProcessorResponse Response;
-        private ulong RequesterId = 0;
+        private ulong RequesterId;
         private bool RequesterIsKnown
         {
             get
             {
-                return RequesterId != 0;
+                return RequesterId == default(ulong);
             }
         }
         /// <summary>

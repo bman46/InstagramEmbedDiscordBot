@@ -102,7 +102,7 @@ GIVEN THAT SOME STATES DO NOT ALLOW FOR THE EXCLUSION OR LIMITATION OF LIABILITY
 Instagram Embed Discord Bot operates the Site from its headquarters in the United States, and the Site and TOU are intended only for users within the United States. If you use the Site outside the United States, you are responsible for following your applicable local laws and determining, among other things, whether your use of the Site violates any of those local laws. By using the Site, you agree and acknowledge that information about you, including personally identifiable information, may be transmitted to and stored in the United States.
 
 ## SITE PRIVACY POLICY
-Your use of the Site and Bot are governed by the Site Privacy Policy which is incorporated by reference into these TOU.
+Your use of the Site and Bot are governed by the [Site Privacy Policy](Privacy.md) which is incorporated by reference into these TOU.
 
 ## MISCELLANEOUS
 You acknowledge that the opinions and recommendations contained on the Site are not necessarily those of Instagram Embed Discord Bot nor endorsed by Instagram Embed Discord Bot. Any reliance on any opinions or recommendations offered on the Site is done at your risk. Instagram Embed Discord Bot does not guarantee or promise that any opinions and/or recommendations on the Site are accurate or will be helpful to any issue you may have. You agree that Instagram Embed Discord Bot is not liable to you or anyone else for any harm that might arise as a result of using and/or implementing in any manner any of the opinions or recommendations found on the Site.

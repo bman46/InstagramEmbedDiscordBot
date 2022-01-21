@@ -133,6 +133,7 @@ namespace Instagram_Reels_Bot.Modules
 				"- `View Channel`\n" +
                 "- `Attach Files`\n" +
                 "- `Manage Messages` (optional-used to remove duplicate embeds)");
+			embed.AddField("Legal", "[Terms of Use](https://github.com/bman46/InstagramEmbedDiscordBot/blob/master/legal/TermsAndConditions.md)\n[Privacy Policy](https://github.com/bman46/InstagramEmbedDiscordBot/blob/master/legal/Privacy.md)");
 			embed.WithColor(new Color(131, 58, 180));
 
 			ButtonBuilder button = new ButtonBuilder();

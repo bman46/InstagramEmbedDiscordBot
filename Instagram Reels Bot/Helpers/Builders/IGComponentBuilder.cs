@@ -13,11 +13,28 @@ namespace Instagram_Reels_Bot.Helpers
         /// The Response from the Instagram processor.
         /// </summary>
         private InstagramProcessorResponse Response;
+        private ulong RequesterId;
+        private bool RequesterIsKnown
+        {
+            get
+            {
+                return RequesterId == default(ulong);
+            }
+        }
+        /// <summary>
+        /// Create an instance of the component builder.
+        /// </summary>
+        /// <param name="response"></param>
+        public IGComponentBuilder(InstagramProcessorResponse response, ulong requesterId)
+        {
+            this.Response = response;
+            this.RequesterId = requesterId;
+        }
         /// <summary>
         /// For use when requester is not needed or unknown.
         /// </summary>
         /// <param name="response"></param>
-		public IGComponentBuilder(InstagramProcessorResponse response)
+        public IGComponentBuilder(InstagramProcessorResponse response)
         {
             this.Response = response;
         }
@@ -58,7 +75,15 @@ namespace Instagram_Reels_Bot.Helpers
             button.Url = Response.postURL.ToString();
 
             // add button to component
-            component.WithButton(button);
+            if (RequesterIsKnown)
+            {
+                component.WithButton(button)
+                    .WithButton("Delete Message", $"delete-message-{RequesterId}", style: ButtonStyle.Danger);
+            }
+            else
+            {
+                component.WithButton(button);
+            }
 
             return component.Build();
         }
@@ -77,13 +102,21 @@ namespace Instagram_Reels_Bot.Helpers
             else
             {
                 // create button
-                ButtonBuilder button = new ButtonBuilder();
-                button.Label = "Link in bio";
-                button.Style = ButtonStyle.Link;
-                button.Url = Response.externalURL.ToString();
+                ButtonBuilder buttonLinkBio = new ButtonBuilder();
+                buttonLinkBio.Label = "Link in bio";
+                buttonLinkBio.Style = ButtonStyle.Link;
+                buttonLinkBio.Url = Response.externalURL.ToString();
 
                 // add button to component
-                component.WithButton(button);
+                if (RequesterIsKnown)
+                {
+                    component.WithButton(buttonLinkBio)
+                        .WithButton("Delete Message", $"delete-message-{RequesterId}", style: ButtonStyle.Danger);
+                }
+                else
+                {
+                    component.WithButton(buttonLinkBio);
+                }
             }
 
             return component.Build();

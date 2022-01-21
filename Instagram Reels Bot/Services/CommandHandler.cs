@@ -94,8 +94,15 @@ namespace Instagram_Reels_Bot.Services
                 {
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
+                        long guilds = 0;
+                        foreach(DiscordSocketClient shard in _client.Shards)
+                        {
+                            guilds += shard.Guilds.Count();
+                        }
                         //Server count:
-                        await message.ReplyAsync("Server Count: " + _client.Guilds.Count);
+                        await message.ReplyAsync("Server Count: " + guilds);
+                        //Shard count:
+                        await message.ReplyAsync("Shards: " + _client.Shards.Count());
 
                         //IP check:
                         try
@@ -114,6 +121,7 @@ namespace Instagram_Reels_Bot.Services
                     //Guild list
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
+                        //TODO: Export to CSV file
                         string serverList = Format.Bold("Servers:");
                         foreach (SocketGuild guild in _client.Guilds)
                         {
@@ -149,10 +157,13 @@ namespace Instagram_Reels_Bot.Services
                 {
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
-                        int users = 0;
-                        foreach (SocketGuild guild in _client.Guilds)
-                        {
-                            users += guild.MemberCount;
+                        long users = 0;
+                        foreach (DiscordSocketClient shard in _client.Shards)
+                        { 
+                            foreach (SocketGuild guild in shard.Guilds)
+                            {
+                                users += guild.MemberCount;
+                            }
                         }
                         await message.ReplyAsync("Users: " + users);
                     }

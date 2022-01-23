@@ -76,12 +76,12 @@ namespace Instagram_Reels_Bot.Helpers
 
             component.WithButton(button);
 
-            //// add button to component
-            //if (RequesterIsKnown)
-            //{
-            //    component.WithButton("Delete Message", $"delete-message-{RequesterId}", style: ButtonStyle.Danger);
-            //}
-            
+            // add button to component
+            if (RequesterIsKnown)
+            {
+                component.WithButton("Delete Message", $"delete-message-{RequesterId}", style: ButtonStyle.Danger);
+            }
+
             return component.Build();
         }
         /// <summary>
@@ -103,11 +103,11 @@ namespace Instagram_Reels_Bot.Helpers
 
                 component.WithButton(buttonLinkBio);
             }
-            //// Add the delete button if user is known
-            //if (RequesterIsKnown)
-            //{
-            //    component.WithButton("Delete Message", $"delete-message-{RequesterId}", style: ButtonStyle.Danger);
-            //}
+            // Add the delete button if user is known
+            if (RequesterIsKnown)
+            {
+                component.WithButton("Delete Message", $"delete-message-{RequesterId}", style: ButtonStyle.Danger);
+            }
 
             return component.Build();
         }

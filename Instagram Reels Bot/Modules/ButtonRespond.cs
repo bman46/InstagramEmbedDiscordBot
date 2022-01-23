@@ -42,15 +42,15 @@ namespace Instagram_Reels_Bot.Modules
                 }
                 await RespondAsync("Button user ID appears to be spoofed.", ephemeral: true);
             }
-            // Also allow for admins with ManageMessages permission to delete posts.
-            else if ((Context.User as SocketGuildUser).GuildPermissions.ManageMessages)
+            // Also allow for admins to delete posts.
+            else if ((Context.User as SocketGuildUser).GuildPermissions.Administrator)
             {
                 await originalMessage.Message.DeleteAsync();
             }
             else
             {
                 // if user is not the person who executed the command
-                await RespondAsync("You can't delete this message", ephemeral: true);
+                await RespondAsync("You are not allowed to delete that message.", ephemeral: true);
             }
         }
     }

@@ -120,13 +120,11 @@ namespace Instagram_Reels_Bot.Modules
                         FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.");
                         await context.Message.Channel.SendFileAsync(attachment, embed: embed.AutoSelector(), components: component.AutoSelector());
                     }
-                    return;
                 }
                 else
                 {
                     //Response without stream:
                     await context.Message.ReplyAsync(response.contentURL.ToString(), embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());
-                    return;
                 }
 
             }

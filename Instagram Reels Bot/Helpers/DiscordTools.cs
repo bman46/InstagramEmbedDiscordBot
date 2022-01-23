@@ -148,6 +148,22 @@ namespace Instagram_Reels_Bot.Helpers
             client.Send(request);
         }
         /// <summary>
+        /// Attempts to remove the embed.
+        /// </summary>
+        /// <param name="context">The command context</param>
+        public static async void SuppressEmbeds(ICommandContext context)
+        {
+            //Try to remove the embeds on the command post:
+            try
+            {
+                await context.Message.ModifyAsync(item => { item.Flags = MessageFlags.SuppressEmbeds; });
+            }
+            catch
+            {
+                //Doesnt really matter if it fails.
+            }
+        }
+        /// <summary>
         /// Converts a slash param array to a string.
         /// Used for error handling and reporting.
         /// </summary>

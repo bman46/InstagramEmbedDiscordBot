@@ -87,6 +87,9 @@ namespace Instagram_Reels_Bot.Modules
             IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id);
 
             await Context.Message.ReplyAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());
+
+            //Attempt to remove any automatic embeds:
+            DiscordTools.SuppressEmbeds(Context);
         }
         /// <summary>
         /// Centralized method to handle all Instagram links and respond to text based messages (No slash commands).
@@ -145,14 +148,7 @@ namespace Instagram_Reels_Bot.Modules
             }
 
             //Try to remove the embeds on the command post:
-            try
-            {
-                await context.Message.ModifyAsync(item => { item.Flags = MessageFlags.SuppressEmbeds; });
-            }
-            catch
-            {
-                //Doesnt really matter if it fails.
-            }
+            DiscordTools.SuppressEmbeds(context);
         }
     }
 }

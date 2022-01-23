@@ -834,11 +834,11 @@ namespace Instagram_Reels_Bot.Helpers
 				// Hardware model
 				HardwareModel = "hi6250",
 				// Device guid
-				DeviceGuid = new Guid("be897499-c663-492e-a125-f4c8d3786ebf"),
+				DeviceGuid = new Guid("be997499-c663-492e-a125-f4c8d3786ebf"),
 				// Phone guid
-				PhoneGuid = new Guid("7b72321f-dd9a-425e-b3ee-d4aaf476ec53"),
+				PhoneGuid = new Guid("7b92321f-dd9a-425e-b3ee-d4aaf476ec53"),
 				// Device id based on Device guid
-				DeviceId = ApiRequestMessage.GenerateDeviceIdFromGuid(new Guid("be897499-c663-492e-a125-f4c8d3786ebf")),
+				DeviceId = ApiRequestMessage.GenerateDeviceIdFromGuid(new Guid("be997499-c663-492e-a125-f4c8d3786ebf")),
 				// Resolution
 				Resolution = "1080x1812",
 				// Dpi

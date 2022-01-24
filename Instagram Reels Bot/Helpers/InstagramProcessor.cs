@@ -630,14 +630,20 @@ namespace Instagram_Reels_Bot.Helpers
 					}
 					else if (logOutFirst)
 					{
-						// Log out of account:
-						Console.WriteLine("Logging out.");
-						//Logout:
-						instaApi.LogoutAsync().GetAwaiter().GetResult();
-						//Re-initialize instaApi object:
-						instaApi = InstaApiBuilder.CreateBuilder()
-							.UseLogger(new DebugLogger(LogLevel.Exceptions))
-							.Build();
+						try
+						{
+							// Log out of account:
+							Console.WriteLine("Logging out.");
+							//Logout:
+							instaApi.LogoutAsync().GetAwaiter().GetResult();
+							//Re-initialize instaApi object:
+							instaApi = InstaApiBuilder.CreateBuilder()
+								.UseLogger(new DebugLogger(LogLevel.Exceptions))
+								.Build();
+						}catch(Exception e)
+                        {
+							Console.WriteLine(e);
+                        }
 					}
 					// Set the Android Device:
 					instaApi.SetDevice(device);

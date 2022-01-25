@@ -13,6 +13,7 @@ using InstagramApiSharp.Logger;
 using Microsoft.Extensions.Configuration;
 using OtpNet;
 using System.Linq;
+using System.Net;
 
 namespace Instagram_Reels_Bot.Helpers
 {
@@ -628,7 +629,17 @@ namespace Instagram_Reels_Bot.Helpers
 						//Skip. Already Authenticated.
 						return;
 					}
-					else if (logOutFirst)
+
+					// create the configuration
+					var _builder = new ConfigurationBuilder()
+						.SetBasePath(AppContext.BaseDirectory)
+						.AddJsonFile(path: "config.json");
+
+					// build the configuration and assign to _config          
+					var config = _builder.Build();
+
+					//Logout:
+					if (logOutFirst)
 					{
 						try
 						{
@@ -640,21 +651,42 @@ namespace Instagram_Reels_Bot.Helpers
 							instaApi = InstaApiBuilder.CreateBuilder()
 								.UseLogger(new DebugLogger(LogLevel.Exceptions))
 								.Build();
-						}catch(Exception e)
+
+							//proxy config:
+							if (!string.IsNullOrEmpty(config["ProxyURL"]))
+							{
+								Console.WriteLine("Using proxy.");
+								WebProxy proxyObject;
+								if (!string.IsNullOrEmpty(config["ProxyUsername"]))
+								{
+									NetworkCredential nc = new NetworkCredential();
+									proxyObject = new WebProxy(config["ProxyURL"]);
+									proxyObject.Credentials = new NetworkCredential(config["ProxyUsername"], config["ProxyPassword"]);
+								}
+								else
+								{
+									proxyObject = new WebProxy(config["ProxyURL"]);
+								}
+
+								var httpClientHandler = new HttpClientHandler()
+								{
+									Proxy = proxyObject
+								};
+
+								//Login to Instagram:
+								InstagramProcessor.instaApi = InstaApiBuilder.CreateBuilder()
+									.UseLogger(new DebugLogger(LogLevel.Exceptions))
+									.UseHttpClientHandler(httpClientHandler)
+									.Build();
+							}
+						}
+						catch(Exception e)
                         {
 							Console.WriteLine(e);
                         }
 					}
 					// Set the Android Device:
 					instaApi.SetDevice(device);
-
-					// create the configuration
-					var _builder = new ConfigurationBuilder()
-						.SetBasePath(AppContext.BaseDirectory)
-						.AddJsonFile(path: "config.json");
-
-					// build the configuration and assign to _config          
-					var config = _builder.Build();
 
 					//Get user session:
 					IGAccountCredentials userSession = GetUnchallangedAccount();
@@ -820,37 +852,37 @@ namespace Instagram_Reels_Bot.Helpers
 			{
 				return instaApi.GetLoggedUser().UserName;
 			}
-			/// <summary>
-			/// An android device to use for login with instagram to keep one consistant device.
-			/// </summary>
-			public static AndroidDevice device = new AndroidDevice
-			{
-				// Device name
-				AndroidBoardName = "HONOR",
-				// Device brand
-				DeviceBrand = "HUAWEI",
-				// Hardware manufacturer
-				HardwareManufacturer = "HUAWEI",
-				// Device model
-				DeviceModel = "PRA-LA1",
-				// Device model identifier
-				DeviceModelIdentifier = "PRA-LA1",
-				// Firmware brand
-				FirmwareBrand = "HWPRA-H",
-				// Hardware model
-				HardwareModel = "hi6250",
-				// Device guid
-				DeviceGuid = new Guid("be997499-c663-492e-a125-f4c8d3786ebf"),
-				// Phone guid
-				PhoneGuid = new Guid("7b92321f-dd9a-425e-b3ee-d4aaf476ec53"),
-				// Device id based on Device guid
-				DeviceId = ApiRequestMessage.GenerateDeviceIdFromGuid(new Guid("be997499-c663-492e-a125-f4c8d3786ebf")),
-				// Resolution
-				Resolution = "1080x1812",
-				// Dpi
-				Dpi = "480dpi",
-			};
-		}
+            /// <summary>
+            /// An android device to use for login with instagram to keep one consistant device.
+            /// </summary>
+            public static AndroidDevice device = new AndroidDevice
+            {
+                // Device name
+                AndroidBoardName = "HONOR",
+                // Device brand
+                DeviceBrand = "HUAWEI",
+                // Hardware manufacturer
+                HardwareManufacturer = "HUAWEI",
+                // Device model
+                DeviceModel = "PRA-LA1",
+                // Device model identifier
+                DeviceModelIdentifier = "PRA-LA1",
+                // Firmware brand
+                FirmwareBrand = "HWPRA-H",
+                // Hardware model
+                HardwareModel = "hi6250",
+                // Device guid
+                DeviceGuid = new Guid("be997499-c663-492e-a125-f4c8d3786ebf"),
+                // Phone guid
+                PhoneGuid = new Guid("7b92321f-dd9a-425e-b3ee-d4aaf476ec53"),
+                // Device id based on Device guid
+                DeviceId = ApiRequestMessage.GenerateDeviceIdFromGuid(new Guid("be997499-c663-492e-a125-f4c8d3786ebf")),
+                // Resolution
+                Resolution = "1080x1812",
+                // Dpi
+                Dpi = "480dpi"
+            };
+        }
         #endregion
     }
 }

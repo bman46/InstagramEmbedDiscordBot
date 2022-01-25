@@ -387,6 +387,13 @@ namespace Instagram_Reels_Bot.Modules
 		[RequireContext(ContextType.Guild)]
 		public async Task Subscribed()
         {
+			//Ensure subscriptions are enabled:
+			if (!_subscriptions.ModuleEnabled)
+			{
+				await RespondAsync("Subscriptions module is currently disabled.", ephemeral: true);
+				return;
+			}
+
 			// buy time:
 			await DeferAsync(false);
 

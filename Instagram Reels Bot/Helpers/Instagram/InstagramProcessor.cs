@@ -225,7 +225,7 @@ namespace Instagram_Reels_Bot.Helpers
                         }
                     }
                 }
-                throw new InvalidDataException("No avaliable accounts.");
+                throw new InvalidDataException("No available accounts.");
             }
         }
         /// <summary>

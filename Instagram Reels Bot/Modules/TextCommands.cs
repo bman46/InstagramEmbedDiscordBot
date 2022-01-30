@@ -65,10 +65,13 @@ namespace Instagram_Reels_Bot.Modules
         [Command("profile", RunMode = RunMode.Async)]
         public async Task ProfileParser([Remainder] string args = null)
         {
+            // Get IG account:
+            InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
+
             string url = "https://instagram.com/" + args.Replace(" ", "/");
 
             // Process profile:
-            InstagramProcessorResponse response = await InstagramProcessor.PostRouter(url, (int)Context.Guild.PremiumTier, 1);
+            InstagramProcessorResponse response = await instagram.PostRouter(url, (int)Context.Guild.PremiumTier, 1);
 
             // Check for failed post:
             if (!response.success)
@@ -99,8 +102,11 @@ namespace Instagram_Reels_Bot.Modules
         /// <returns></returns>
         private static async Task Responder(string url, ICommandContext context)
         {
+            // Get IG account:
+            InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
+
             //Process Post:
-            InstagramProcessorResponse response = await InstagramProcessor.PostRouter(url, (int)context.Guild.PremiumTier, 1);
+            InstagramProcessorResponse response = await instagram.PostRouter(url, (int)context.Guild.PremiumTier, 1);
 
             //Check for failed post:
             if (!response.success)

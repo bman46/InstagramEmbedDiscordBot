@@ -234,6 +234,9 @@ namespace Instagram_Reels_Bot.Services
                             Console.WriteLine("Checking " + igAccount.InstagramID);
                             try
                             {
+                                // Get IG account:
+                                InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
+
                                 //Check to see if their is any subscribed accounts:
                                 if (igAccount.SubscribedChannels.Count == 0)
                                 {
@@ -244,7 +247,7 @@ namespace Instagram_Reels_Bot.Services
                                 {
                                     //Set last check as now:
                                     igAccount.LastCheckTime = DateTime.Now;
-                                    var newIGPosts = await InstagramProcessor.PostsSinceDate(long.Parse(igAccount.InstagramID), igAccount.LastPostDate);
+                                    var newIGPosts = await instagram.PostsSinceDate(long.Parse(igAccount.InstagramID), igAccount.LastPostDate);
                                     if (newIGPosts.Length > 0 && newIGPosts[newIGPosts.Length - 1].success)
                                     {
                                         //Set the most recent posts date:
@@ -399,7 +402,7 @@ namespace Instagram_Reels_Bot.Services
                                                 //TODO: Decide if the user should be informed or not. May create spam.
                                                 Console.WriteLine("Failed auto post. ID: " + igAccount.InstagramID);
                                                 var chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
-                                                string igUsername = await InstagramProcessor.GetIGUsername(igAccount.InstagramID);
+                                                string igUsername = await instagram.GetIGUsername(igAccount.InstagramID);
                                                 await chan.SendMessageAsync("Failed to get latest posts for " + igUsername + ". Use `/unsubscribe " + igUsername + "` to remove the inaccessible account.");
                                             }
                                         }
@@ -498,6 +501,9 @@ namespace Instagram_Reels_Bot.Services
         /// <returns></returns>
         public async Task UnsubscribeOverSubscriptions()
         {
+            // Get IG account:
+            InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
+
             IQueryable<PremiumGuild> queryable = PremiumGuildsContainer.GetItemLinqQueryable<PremiumGuild>(true);
             queryable = queryable.Where<PremiumGuild>(item => item.RecheckSubscribedAccounts);
             foreach(PremiumGuild pguild in queryable.ToArray())
@@ -527,7 +533,7 @@ namespace Instagram_Reels_Bot.Services
 
                             //Notify:
                             var discordChan = _client.GetChannel(ulong.Parse(chan.ChannelID)) as IMessageChannel;
-                            await discordChan.SendMessageAsync("This channel has been automatically unsubscribed to " + (await InstagramProcessor.GetIGUsername(igAccount.InstagramID)) + " as it exceeded the guild's maximum subscription limit.");
+                            await discordChan.SendMessageAsync("This channel has been automatically unsubscribed to " + (await instagram.GetIGUsername(igAccount.InstagramID)) + " as it exceeded the guild's maximum subscription limit.");
                         }
                         //Update Database:
                         await this.FollowedAccountsContainer.UpsertItemAsync<FollowedIGUser>(igAccount, new PartitionKey(igAccount.InstagramID));

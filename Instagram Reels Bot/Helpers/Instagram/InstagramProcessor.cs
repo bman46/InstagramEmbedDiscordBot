@@ -71,6 +71,7 @@ namespace Instagram_Reels_Bot.Helpers
                     {
                         if (cred.UsageTimes.Count > 0)
                         {
+                            // Check valid times:
                             foreach (IGAccount.OperatingTime time in cred.UsageTimes)
                             {
                                 if (time.BetweenStartAndEnd(timeNow))
@@ -81,6 +82,7 @@ namespace Instagram_Reels_Bot.Helpers
                         }
                         else
                         {
+                            // Warn about not setting valid times:
                             Console.WriteLine("Warning: No time set on account " + cred.UserName+". Using the account.");
                             return cred;
                         }

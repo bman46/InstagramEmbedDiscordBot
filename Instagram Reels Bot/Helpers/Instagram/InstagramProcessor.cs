@@ -81,7 +81,7 @@ namespace Instagram_Reels_Bot.Helpers
                         }
                         else
                         {
-                            Console.WriteLine("Warning: No time set on account " + cred.UserName);
+                            Console.WriteLine("Warning: No time set on account " + cred.UserName+". Using the account.");
                             return cred;
                         }
                     }

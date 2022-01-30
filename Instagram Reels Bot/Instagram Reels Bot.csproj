@@ -29,14 +29,16 @@
     <None Remove="Otp.NET" />
     <None Remove="Microsoft.Azure.Cosmos" />
     <None Remove="DataTables\" />
-    <None Remove="Helpers\Responses\" />
     <None Remove="Helpers\Builders\" />
     <None Remove="Microsoft.Extensions.Configuration.Binder" />
+    <None Remove="Helpers\Instagram\" />
+    <None Remove="Helpers\Instagram\Responses\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DataTables\" />
-    <Folder Include="Helpers\Responses\" />
     <Folder Include="Helpers\Builders\" />
+    <Folder Include="Helpers\Instagram\" />
+    <Folder Include="Helpers\Instagram\Responses\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="config.json">

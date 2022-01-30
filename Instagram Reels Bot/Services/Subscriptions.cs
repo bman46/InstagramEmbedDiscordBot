@@ -229,7 +229,12 @@ namespace Instagram_Reels_Bot.Services
                 {
                     while (dbfeed.HasMoreResults)
                     {
-                        foreach (var igAccount in await dbfeed.ReadNextAsync())
+                        //Randomize the order of the IG accounts:
+                        Random rand = new Random();
+                        var shuffledIGAccounts = (await dbfeed.ReadNextAsync()).OrderBy(x => rand.Next()).ToList();
+
+                        //Loop through the accounts:
+                        foreach (var igAccount in shuffledIGAccounts)
                         {
                             Console.WriteLine("Checking " + igAccount.InstagramID);
                             try

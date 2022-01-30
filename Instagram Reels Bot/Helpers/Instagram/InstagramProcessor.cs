@@ -251,7 +251,7 @@ namespace Instagram_Reels_Bot.Helpers
             DeviceGuid = new Guid("be997499-c663-492e-a125-f4c8d3786ebf"),
             // Phone guid
             PhoneGuid = new Guid("7b92321f-dd9a-425e-b3ee-d4aaf476ec53"),
-            // Device id based on Device guid
+            // Device id based on Device guid (should match DeviceGuid)
             DeviceId = ApiRequestMessage.GenerateDeviceIdFromGuid(new Guid("be997499-c663-492e-a125-f4c8d3786ebf")),
             // Resolution
             Resolution = "1080x1812",

@@ -39,6 +39,24 @@ namespace Instagram_Reels_Bot
 
             // build the configuration and assign to _config          
             _config = _builder.Build();
+
+            // Load the accounts
+            InstagramProcessor.AccountFinder.LoadAccounts();
+
+            // Create state file directory (if not existant)
+            string stateFileDir;
+            if (_config["StateFile"] != null && _config["StateFile"] != "")
+            {
+                stateFileDir = Path.Combine(_config["StateFile"]);
+            }
+            else
+            {
+                stateFileDir = Path.Combine(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "StateFiles");
+            }
+            if (!Directory.Exists(stateFileDir))
+            {
+                Directory.CreateDirectory(stateFileDir);
+            }
         }
 
         public async Task MainAsync()

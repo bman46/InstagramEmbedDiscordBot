@@ -135,7 +135,8 @@ namespace Instagram_Reels_Bot.Helpers
             // use this one:
             // var state = _instaApi.GetStateDataAsString ();
             // this returns you session as json string.
-            // TODO: lock the state file to one user at a time. 
+            // TODO: lock the state file to one user at a time.
+            // TODO: write only if needed.
             try
             {
                 using (var fileStream = File.Create(stateFile))
@@ -182,6 +183,10 @@ namespace Instagram_Reels_Bot.Helpers
 
                 //Add accounts to the array:
                 List<IGAccount> creds = config.GetSection("IGAccounts").Get<List<IGAccount>>();
+                for(int i = 0; i < creds.Count; i++)
+                {
+                    creds[i].UsageTimes = config.GetSection("IGAccounts:" + i + ":UsageTimes").Get<List<IGAccount.OperatingTime>>();
+                }
                 Accounts = creds;
             }
             /// <summary>

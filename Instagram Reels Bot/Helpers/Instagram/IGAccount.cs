@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using InstagramApiSharp.Classes;
+using Microsoft.Extensions.Configuration;
 
 namespace Instagram_Reels_Bot.Helpers.Instagram
 {
@@ -29,26 +30,48 @@ namespace Instagram_Reels_Bot.Helpers.Instagram
         public List<OperatingTime> UsageTimes = new List<OperatingTime>();
 
 		/// <summary>
-        /// A single time for the account to be used at
-        /// </summary>
+		/// A single time for the account to be used at
+		/// </summary>
+        [Serializable]
 		public class OperatingTime
 		{
 			/// <summary>
 			/// Time to start using this account
 			/// </summary>
 			public TimeOnly StartTime;
+			public int StartHour
+			{
+				get
+				{
+					return StartTime.Hour;
+				}
+				set
+				{
+					StartTime = new TimeOnly(value, 0);
+				}
+			}
 			/// <summary>
 			/// Time to stop using the account
 			/// </summary>
 			public TimeOnly EndTime;
-
+			public int EndHour
+			{
+				get
+				{
+					return EndTime.Hour;
+				}
+				set
+				{
+					EndTime = new TimeOnly(value, 0);
+				}
+			}
 			/// <summary>
-            /// Check to see if the time is valid
-            /// </summary>
-            /// <returns></returns>
+			/// Check to see if the time is valid
+			/// </summary>
+			/// <returns></returns>
 			public bool BetweenStartAndEnd(TimeOnly checkTime)
             {
-				return checkTime >= StartTime && checkTime <= EndTime;
+				return checkTime.IsBetween(StartTime, EndTime);
             }
 		}
         #endregion

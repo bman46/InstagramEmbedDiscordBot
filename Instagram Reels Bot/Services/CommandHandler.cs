@@ -169,21 +169,28 @@ namespace Instagram_Reels_Bot.Services
                         await message.ReplyAsync("Users: " + users);
                     }
                 }
-                else if (message.Content.ToLower().StartsWith("2fa"))
+                else if (message.Content.ToLower().StartsWith("accounts"))
                 {
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
                     {
                         foreach (IGAccount user in InstagramProcessor.AccountFinder.Accounts)
                         {
-                            try
+                            if (user.OTPSecret != null)
                             {
-                                var code = Security.GetTwoFactorAuthCode(user.OTPSecret);
-                                await message.ReplyAsync("Username: " + user.UserName + "\n2FA Code: " + code + "\nLast Failed: " + user.FailedLogin);
+                                try
+                                {
+                                    var code = Security.GetTwoFactorAuthCode(user.OTPSecret);
+                                    await message.ReplyAsync("Username: " + user.UserName + "\n2FA Code: " + code + "\nLast Failed: " + user.FailedLogin);
+                                }
+                                catch (Exception e)
+                                {
+                                    await message.ReplyAsync("Failed to get 2FA code.");
+                                    Console.WriteLine("2FA Code error: " + e);
+                                }
                             }
-                            catch (Exception e)
+                            else
                             {
-                                await message.ReplyAsync("Failed to get 2FA code.");
-                                Console.WriteLine("2FA Code error: " + e);
+                                await message.ReplyAsync("Username: " + user.UserName + "\nLast Failed: " + user.FailedLogin);
                             }
                         }
                     }

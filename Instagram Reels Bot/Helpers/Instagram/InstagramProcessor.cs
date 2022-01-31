@@ -27,27 +27,43 @@ namespace Instagram_Reels_Bot.Helpers
         /// <param name="account"></param>
         public InstagramProcessor(IGAccount account)
         {
-            //Create the instaApi object:
-            instaApi = InstaApiBuilder.CreateBuilder()
-                .UseLogger(new DebugLogger(LogLevel.Exceptions))
-                .Build();
+            if (account.instaApi == null)
+            {
+                account.InitializeAPI();
+            }
 
-            // Set the Android Device:
-            instaApi.SetDevice(device);
+            this.Account = account;
 
             //log in
             InstagramLogin(account);
         }
         /// <summary>
-        /// The IG processor for the account:
+        /// The IG account:
         /// </summary>
-        public InstagramApiSharp.API.IInstaApi instaApi;
+        public IGAccount Account;
+        /// <summary>
+        /// Point to the accounts processor.
+        /// </summary>
+        public ref InstagramApiSharp.API.IInstaApi instaApi
+        {
+            get
+            {
+                return ref Account.instaApi;
+            }
+        }
         /// <summary>
         /// Log into an instagram account.
         /// </summary>
         /// <param name="account">The ig account to use</param>
         public void InstagramLogin(IGAccount account)
         {
+            //Skip if logged in:
+            if (account.instaApi.IsUserAuthenticated)
+            {
+                Console.WriteLine("Logged in");
+                return;
+            }
+            Console.WriteLine("Logging in");
 
             // create the configuration
             var _builder = new ConfigurationBuilder()

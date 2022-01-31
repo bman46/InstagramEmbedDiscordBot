@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using InstagramApiSharp.API.Builder;
 using InstagramApiSharp.Classes;
+using InstagramApiSharp.Logger;
 using Microsoft.Extensions.Configuration;
 
 namespace Instagram_Reels_Bot.Helpers.Instagram
@@ -11,6 +13,25 @@ namespace Instagram_Reels_Bot.Helpers.Instagram
         /// Default class constructor
         /// </summary>
 		public IGAccount() { }
+
+		/// <summary>
+		/// The IG processor for the account:
+		/// </summary>
+		public InstagramApiSharp.API.IInstaApi instaApi;
+
+		/// <summary>
+        /// Load the InstaAPI
+        /// </summary>
+		public void InitializeAPI()
+        {
+			//Create the instaApi object:
+			instaApi = InstaApiBuilder.CreateBuilder()
+				.UseLogger(new DebugLogger(LogLevel.Exceptions))
+				.Build();
+
+			// Set the Android Device:
+			instaApi.SetDevice(InstagramProcessor.device);
+		}
 
 		/// <summary>
 		/// The 2FA secret code for generating OTPs

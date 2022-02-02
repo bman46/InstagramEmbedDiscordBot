@@ -416,8 +416,9 @@ namespace Instagram_Reels_Bot.Services
                                     }
                                     //Update database:
                                     await this.FollowedAccountsContainer.UpsertItemAsync<FollowedIGUser>(igAccount, new PartitionKey(igAccount.InstagramID));
-                                    //Wait to prevent spamming IG api:
-                                    Thread.Sleep(4000);
+                                    // Wait to prevent spamming IG api:
+                                    // 10 seconds
+                                    Thread.Sleep(10000);
                                 }
                             }catch(Exception e)
                             {

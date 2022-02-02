@@ -40,44 +40,23 @@ namespace Instagram_Reels_Bot
             // build the configuration and assign to _config          
             _config = _builder.Build();
 
-            //Create instagram API
-            InstagramProcessor.instaApi = InstaApiBuilder.CreateBuilder()
-                .UseLogger(new DebugLogger(LogLevel.Exceptions))
-                .Build();
+            // Load the accounts
+            InstagramProcessor.AccountFinder.LoadAccounts();
 
-            //proxy config:
-            if (!string.IsNullOrEmpty(_config["ProxyURL"]))
+            // Create state file directory (if not existant)
+            string stateFileDir;
+            if (_config["StateFile"] != null && _config["StateFile"] != "")
             {
-                Console.WriteLine("Using proxy.");
-                WebProxy proxyObject;
-                if (!string.IsNullOrEmpty(_config["ProxyUsername"]))
-                {
-                    NetworkCredential nc = new NetworkCredential();
-                    proxyObject = new WebProxy(_config["ProxyURL"]);
-                    proxyObject.Credentials = new NetworkCredential(_config["ProxyUsername"], _config["ProxyPassword"]);
-                }
-                else
-                {
-                    proxyObject = new WebProxy(_config["ProxyURL"]);
-                }
-
-                var httpClientHandler = new HttpClientHandler()
-                {
-                    Proxy = proxyObject
-                };
-
-                WebRequest.DefaultWebProxy = proxyObject;
-
-                //Login to Instagram:
-                InstagramProcessor.instaApi = InstaApiBuilder.CreateBuilder()
-                    .UseLogger(new DebugLogger(LogLevel.Exceptions))
-                    .UseHttpClientHandler(httpClientHandler)
-                    .Build();
+                stateFileDir = Path.Combine(_config["StateFile"]);
             }
-            //Get accounts:
-            InstagramProcessor.BotAccountManager.LoadAccounts();
-            //Login:
-            InstagramProcessor.BotAccountManager.InstagramLogin();
+            else
+            {
+                stateFileDir = Path.Combine(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "StateFiles");
+            }
+            if (!Directory.Exists(stateFileDir))
+            {
+                Directory.CreateDirectory(stateFileDir);
+            }
         }
 
         public async Task MainAsync()

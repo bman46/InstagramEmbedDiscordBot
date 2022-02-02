@@ -30,20 +30,21 @@ Embeds linked videos and images from users linked Instagram posts, videos, and r
   "TestGuildID": "ID",
   "DMErrors": true/false,
 
-    "IGAccounts": [
+  "IGAccounts": [
+    {
+      "username": "IG Username",
+      "password": "IG Password",
+      "OTPSecret": "IG OTP Secret (optional)",
+      "UsageTimes": [
         {
-            "username": "username",
-            "password": "password",
-            "OTPSecret": "2fa code (optional)"
-        },
-        {
-            "username": "username",
-            "password": "password",
-            "OTPSecret": "2fa code (optional)"
+          "StartHour": optional (int; 0-23),
+          "EndHour": optional (int; 0-23)
         }
-    ],
+      ]
+    }
+  ],
 
-  "ProxyURL": "",
+  "ProxyURL": "(optional)",
   "ProxyUsername": "username (optional)",
   "ProxyPassword": "password (optional)",
 

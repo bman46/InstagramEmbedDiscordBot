@@ -33,8 +33,11 @@ namespace Instagram_Reels_Bot.Modules
 			//Buy more time to process posts:
 			await DeferAsync(false);
 
+			// Get IG account:
+			InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
+
 			//Process Post:
-			InstagramProcessorResponse response = await InstagramProcessor.PostRouter(url, Context.Guild, index);
+			InstagramProcessorResponse response = await instagram.PostRouter(url, Context.Guild, index);
 
             if (!response.success)
             {
@@ -91,13 +94,16 @@ namespace Instagram_Reels_Bot.Modules
 			//Buy more time to process posts:
 			await DeferAsync(false);
 
+			// Get IG account:
+			InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
+
 			//Create url:
 			string url = username;
 			if (!Uri.IsWellFormedUriString(username, UriKind.Absolute))
 				url = "https://instagram.com/" + username;
 
 			// Process profile:
-			InstagramProcessorResponse response = await InstagramProcessor.PostRouter(url, (int)Context.Guild.PremiumTier, 1);
+			InstagramProcessorResponse response = await instagram.PostRouter(url, (int)Context.Guild.PremiumTier, 1);
 
 			// Check for failed post:
 			if (!response.success)
@@ -233,6 +239,9 @@ namespace Instagram_Reels_Bot.Modules
 			//Buy more time to process posts:
 			await DeferAsync(true);
 
+			// Get IG account:
+			InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
+
 			// Account limits:
 			int subcount = _subscriptions.GuildSubscriptionCount(Context.Guild.Id);
 			int maxcount = _subscriptions.MaxSubscriptionsCountForGuild(Context.Guild.Id);
@@ -250,7 +259,7 @@ namespace Instagram_Reels_Bot.Modules
 			long IGID;
             try
             {
-				IGID = await InstagramProcessor.GetUserIDFromUsername(username);
+				IGID = await instagram.GetUserIDFromUsername(username);
             }
 			catch(Exception e)
             {
@@ -259,7 +268,7 @@ namespace Instagram_Reels_Bot.Modules
 				await FollowupAsync("Failed to get Instagram ID. Is the account name correct?");
 				return;
             }
-            if (!await InstagramProcessor.AccountIsPublic(IGID))
+            if (!await instagram.AccountIsPublic(IGID))
             {
 				await FollowupAsync("The account appears to be private and cannot be viewed by the bot.");
 				return;
@@ -299,10 +308,13 @@ namespace Instagram_Reels_Bot.Modules
 			//Buy more time to process posts:
 			await DeferAsync(true);
 
+			// Get IG account:
+			InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
+
 			long IGID;
 			try
 			{
-				IGID = await InstagramProcessor.GetUserIDFromUsername(username);
+				IGID = await instagram.GetUserIDFromUsername(username);
 			}
 			catch (Exception e)
 			{
@@ -397,6 +409,9 @@ namespace Instagram_Reels_Bot.Modules
 			// buy time:
 			await DeferAsync(false);
 
+			// Get IG account:
+			InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
+
 			List<Embed> embeds = new List<Embed>();
 
 			var embed = new Discord.EmbedBuilder();
@@ -422,7 +437,7 @@ namespace Instagram_Reels_Bot.Modules
                         {
 							Console.WriteLine(e);
                         }
-						string accountMention = "- [" + await InstagramProcessor.GetIGUsername(user.InstagramID) + "](https://www.instagram.com/" + await InstagramProcessor.GetIGUsername(user.InstagramID) + ")\n";
+						string accountMention = "- [" + await instagram.GetIGUsername(user.InstagramID) + "](https://www.instagram.com/" + await instagram.GetIGUsername(user.InstagramID) + ")\n";
 						if((accountOutput+ accountMention).Length<=1024 && (channelOutput + chanMention).Length <= 1024)
                         {
 							accountOutput += accountMention;

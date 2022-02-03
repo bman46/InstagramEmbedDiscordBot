@@ -124,7 +124,7 @@ namespace Instagram_Reels_Bot.Helpers
 
                         //Set failed login:
                         var user = AccountFinder.Accounts.FirstOrDefault(acc => acc.UserName == account.UserName);
-                        user.FailedLogin = true;
+                        user.Blacklist = true;
 
                         //Throw failed login:
                         throw new Exception("Failed login. Error: " + twoFAlogInResult.Info.Message);
@@ -138,7 +138,7 @@ namespace Instagram_Reels_Bot.Helpers
                 {
                     //Set failed login:
                     var user = AccountFinder.Accounts.FirstOrDefault(acc => acc.UserName == account.UserName);
-                    user.FailedLogin = true;
+                    user.Blacklist = true;
 
                     //Throw error:
                     throw new Exception("Failed login. Error: " + logInResult.Info.Message);
@@ -220,7 +220,7 @@ namespace Instagram_Reels_Bot.Helpers
                 foreach (IGAccount cred in shuffledAccounts)
                 {
                     TimeOnly timeNow = TimeOnly.FromDateTime(DateTime.Now);
-                    if (!cred.FailedLogin)
+                    if (!cred.Blacklist)
                     {
                         if (cred.UsageTimes.Count > 0)
                         {
@@ -742,6 +742,10 @@ namespace Instagram_Reels_Bot.Helpers
             {
                 case ResponseType.ChallengeRequired:
                 case ResponseType.LoginRequired:
+                    //Blacklist the account
+                    var user = AccountFinder.Accounts.FirstOrDefault(acc => acc.UserName == Account.UserName);
+                    user.Blacklist = true;
+                    //Throw error:
                     throw new Exception("Relogin required");
                 case ResponseType.MediaNotFound:
                     return new InstagramProcessorResponse("Could not find that post. Is the account private?");

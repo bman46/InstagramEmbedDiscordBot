@@ -180,7 +180,7 @@ namespace Instagram_Reels_Bot.Services
                                 try
                                 {
                                     var code = Security.GetTwoFactorAuthCode(user.OTPSecret);
-                                    await message.ReplyAsync("Username: " + user.UserName + "\n2FA Code: " + code + "\nLast Failed: " + user.FailedLogin);
+                                    await message.ReplyAsync("Username: " + user.UserName + "\n2FA Code: " + code + "\nLast Failed: " + user.Blacklist);
                                 }
                                 catch (Exception e)
                                 {
@@ -190,7 +190,7 @@ namespace Instagram_Reels_Bot.Services
                             }
                             else
                             {
-                                await message.ReplyAsync("Username: " + user.UserName + "\nLast Failed: " + user.FailedLogin);
+                                await message.ReplyAsync("Username: " + user.UserName + "\nLast Failed: " + user.Blacklist);
                             }
                         }
                     }

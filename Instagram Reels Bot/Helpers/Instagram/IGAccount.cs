@@ -39,10 +39,10 @@ namespace Instagram_Reels_Bot.Helpers.Instagram
 		public string OTPSecret { get; set; }
 
 		/// <summary>
-		/// Set to true if login failed.
+		/// Set to true if the account has be blocked or failed to log in.
 		/// Defaults to false.
 		/// </summary>
-		public bool FailedLogin = false;
+		public bool Blacklist = false;
 
         #region times
         /// <summary>

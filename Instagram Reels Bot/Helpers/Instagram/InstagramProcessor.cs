@@ -127,7 +127,7 @@ namespace Instagram_Reels_Bot.Helpers
                         user.Blacklist = true;
 
                         //Throw failed login:
-                        throw new Exception("Failed login. Error: " + twoFAlogInResult.Info.Message);
+                        throw new Exception("Failed 2FA login. Account: " + user.UserName + " Error: " + twoFAlogInResult.Info.Message);
                     }
                     else
                     {
@@ -141,7 +141,7 @@ namespace Instagram_Reels_Bot.Helpers
                     user.Blacklist = true;
 
                     //Throw error:
-                    throw new Exception("Failed login. Error: " + logInResult.Info.Message);
+                    throw new Exception("Failed login. Account: "+user.UserName+" Error: " + logInResult.Info.Message);
                 }
             }
             // Write the state file:
@@ -746,7 +746,7 @@ namespace Instagram_Reels_Bot.Helpers
                     var user = AccountFinder.Accounts.FirstOrDefault(acc => acc.UserName == Account.UserName);
                     user.Blacklist = true;
                     //Throw error:
-                    throw new Exception("Relogin required");
+                    throw new Exception("Relogin required. Account: "+Account.UserName);
                 case ResponseType.MediaNotFound:
                     return new InstagramProcessorResponse("Could not find that post. Is the account private?");
                 case ResponseType.DeletedPost:

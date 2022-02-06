@@ -31,6 +31,9 @@ namespace Instagram_Reels_Bot.Helpers.Instagram
 
 			// Set the Android Device:
 			instaApi.SetDevice(InstagramProcessor.device);
+
+			// Set API version to v180:
+			instaApi.SetApiVersion(InstagramApiSharp.Enums.InstaApiVersionType.Version180);
 		}
 
 		/// <summary>

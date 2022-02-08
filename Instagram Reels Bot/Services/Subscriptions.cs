@@ -70,9 +70,9 @@ namespace Instagram_Reels_Bot.Services
         public async Task InitializeAsync()
         {
             Console.WriteLine("Starting the subscription task...");
-            if (string.IsNullOrEmpty(PrimaryKey) || string.IsNullOrEmpty(EndpointUri))
+            if (string.IsNullOrEmpty(PrimaryKey) || string.IsNullOrEmpty(EndpointUri) || !ModuleEnabled)
             {
-                Console.WriteLine("Databases not setup.");
+                Console.WriteLine("Databases not setup or module disabled.");
                 return;
             }
             //Connect to Database:
@@ -209,6 +209,13 @@ namespace Instagram_Reels_Bot.Services
         /// <returns></returns>
         public async Task GetLatestsPosts()
         {
+            //Ensure module is enabled.
+            if (!ModuleEnabled)
+            {
+                Console.WriteLine("Module disabled.");
+                return;
+            }
+
             if (InSubLoop)
             {
                 //Prevents multiple loops running at once which could cause an instagram block.

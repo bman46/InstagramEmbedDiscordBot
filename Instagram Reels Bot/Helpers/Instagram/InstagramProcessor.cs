@@ -222,7 +222,7 @@ namespace Instagram_Reels_Bot.Helpers
                     TimeOnly timeNow = TimeOnly.FromDateTime(DateTime.Now);
                     if (!cred.Blacklist)
                     {
-                        if (cred.UsageTimes.Count > 0)
+                        if (cred.UsageTimes != null && cred.UsageTimes.Count > 0)
                         {
                             // Check valid times:
                             foreach (IGAccount.OperatingTime time in cred.UsageTimes)

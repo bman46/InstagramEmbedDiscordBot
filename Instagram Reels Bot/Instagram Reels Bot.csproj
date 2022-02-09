@@ -48,7 +48,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\InstagramApiSharp\src\InstagramApiSharp\InstagramApiSharp.csproj" />
-  </ItemGroup>
 </Project>

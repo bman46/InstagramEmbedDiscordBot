@@ -30,6 +30,13 @@ namespace Instagram_Reels_Bot.Modules
 		[SlashCommand("link","Processes an Instagram link.", runMode: RunMode.Async)]
 		public async Task Link(string url, [Summary(description: "The post number for the desired post in a carousel.")][MinValue(1)] int index = 1)
         {
+			// Check whitelist:
+			if (!Whitelist.IsServerOnList(Context.Guild.Id))
+			{
+				await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
+				return;
+			}
+
 			//Buy more time to process posts:
 			await DeferAsync(false);
 
@@ -89,8 +96,15 @@ namespace Instagram_Reels_Bot.Modules
 			
 		}
 		[SlashCommand("profile", "Gets information about an Instagram profile.", runMode: RunMode.Async)]
-		public async Task Link([Summary("username", "The username of the Instagram account.")] string username)
+		public async Task Profile([Summary("username", "The username of the Instagram account.")] string username)
         {
+			// Check whitelist:
+			if (!Whitelist.IsServerOnList(Context.Guild.Id))
+			{
+				await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
+				return;
+			}
+
 			//Buy more time to process posts:
 			await DeferAsync(false);
 
@@ -235,6 +249,13 @@ namespace Instagram_Reels_Bot.Modules
 		[RequireContext(ContextType.Guild)]
 		public async Task Subscribe([Summary("username", "The username of the Instagram user.")]string username)
 		{
+			// Check whitelist:
+			if (!Whitelist.IsServerOnList(Context.Guild.Id))
+			{
+				await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
+				return;
+			}
+
 			//Ensure subscriptions are enabled:
 			if (!_subscriptions.ModuleEnabled)
 			{
@@ -304,6 +325,13 @@ namespace Instagram_Reels_Bot.Modules
 		[RequireContext(ContextType.Guild)]
 		public async Task Unsubscribe([Summary("username","The username of the Instagram user.")] string username)
 		{
+			// Check whitelist:
+			if (!Whitelist.IsServerOnList(Context.Guild.Id))
+			{
+				await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
+				return;
+			}
+
 			//Ensure subscriptions are enabled:
 			if (!_subscriptions.ModuleEnabled)
 			{
@@ -355,6 +383,13 @@ namespace Instagram_Reels_Bot.Modules
 		[RequireContext(ContextType.Guild)]
 		public async Task UnsubscribeAll()
         {
+			// Check whitelist:
+			if (!Whitelist.IsServerOnList(Context.Guild.Id))
+			{
+				await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
+				return;
+			}
+
 			//Ensure subscriptions are enabled:
 			if (!_subscriptions.ModuleEnabled)
 			{
@@ -413,6 +448,13 @@ namespace Instagram_Reels_Bot.Modules
 		[RequireContext(ContextType.Guild)]
 		public async Task Subscribed()
         {
+			// Check whitelist:
+			if (!Whitelist.IsServerOnList(Context.Guild.Id))
+			{
+				await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
+				return;
+			}
+
 			//Ensure subscriptions are enabled:
 			if (!_subscriptions.ModuleEnabled)
 			{

@@ -65,6 +65,13 @@ namespace Instagram_Reels_Bot.Modules
         [Command("profile", RunMode = RunMode.Async)]
         public async Task ProfileParser([Remainder] string args = null)
         {
+            // Check whitelist:
+            if (!Whitelist.IsServerOnList(Context.Guild.Id))
+            {
+                // Ignore if not on list:
+                return;
+            }
+
             // Get IG account:
             InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
 
@@ -102,6 +109,13 @@ namespace Instagram_Reels_Bot.Modules
         /// <returns></returns>
         private static async Task Responder(string url, ICommandContext context)
         {
+            // Check whitelist:
+            if (!Whitelist.IsServerOnList(context.Guild.Id))
+            {
+                // Ignore if not on list:
+                return;
+            }
+
             // Get IG account:
             InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
 

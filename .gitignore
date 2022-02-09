@@ -345,3 +345,6 @@ configCommunications.json
 
 # ignore .DS_Store
 *.DS_Store
+
+# ignore whitelist
+whitelist.txt

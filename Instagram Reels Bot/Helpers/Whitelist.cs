@@ -24,7 +24,8 @@ namespace Instagram_Reels_Bot.Helpers
                 else
                 {
 					ListSet = true;
-                }
+					return true; // whitelist disabled, then IsServerOnList returning true
+				}
             }
 			else if (WhitelistedServers.Count==0)
             {
@@ -48,7 +49,14 @@ namespace Instagram_Reels_Bot.Helpers
 			// build the configuration and assign to _config          
 			var config = _builder.Build();
 
-			WhitelistEnabled = config["Whitelist"].ToLower().Equals("true");
+			if (config["Whitelist"] != null) // check if whitelist is found on config
+			{
+				WhitelistEnabled = config["Whitelist"].ToLower().Equals("true");
+			}
+			else
+			{
+				WhitelistEnabled = false; // whitelist disabled by default (not found on config.json)
+			}
 		}
 
 		/// <summary>

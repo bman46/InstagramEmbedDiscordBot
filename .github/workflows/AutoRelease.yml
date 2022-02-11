@@ -36,7 +36,7 @@ jobs:
           tag=$(git describe --tags --abbrev=0)
           release_name="IGReelsBot-$tag-${{ matrix.target }}"
           # Build everything
-          dotnet publish src/Instagram Reels Bot/Instagram Reels Bot.csproj --framework net6.0 --runtime "${{ matrix.target }}" -c Release -o "$release_name"
+          dotnet publish "src/Instagram Reels Bot/Instagram Reels Bot.csproj" --framework net6.0 --runtime "${{ matrix.target }}" -c Release -o "$release_name"
           # Pack files
           if [ "${{ matrix.target }}" == "win-x64" ]; then
             # Pack to zip for Windows

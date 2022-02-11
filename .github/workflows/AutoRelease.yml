@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           tag=$(git describe --tags --abbrev=0)
-          release_name="App-$tag-${{ matrix.target }}"
+          release_name="IGReelsBot-$tag-${{ matrix.target }}"
           # Build everything
           dotnet publish src/Instagram Reels Bot/Instagram Reels Bot.csproj --framework net6.0 --runtime "${{ matrix.target }}" -c Release -o "$release_name"
           # Pack files
@@ -49,6 +49,6 @@ jobs:
       - name: Publish
         uses: softprops/action-gh-release@v1
         with:
-          files: "App*"
+          files: "IGReelsBot*"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

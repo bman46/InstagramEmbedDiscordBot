@@ -25,18 +25,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Setup dotnet
+      - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
-
+          
       - name: Build
         shell: bash
         run: |
           tag=$(git describe --tags --abbrev=0)
           release_name="IGReelsBot-$tag-${{ matrix.target }}"
           # Build everything
-          dotnet publish "src/Instagram Reels Bot/Instagram Reels Bot.csproj" --framework net6.0 --runtime "${{ matrix.target }}" -c Release -o "$release_name"
+          dotnet publish --framework net6.0 --runtime "${{ matrix.target }}" -c Release -o "$release_name"
           # Pack files
           if [ "${{ matrix.target }}" == "win-x64" ]; then
             # Pack to zip for Windows

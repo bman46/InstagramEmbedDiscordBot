@@ -178,53 +178,6 @@ namespace Instagram_Reels_Bot.Modules
 
 			await RespondAsync(embed: embed.Build(), ephemeral: false, components: component.Build());
 		}
-		//[SlashCommand("invite", "Invite the bot to your server!", runMode: RunMode.Async)]
-		//public async Task Invite()
-		//{
-		//	//response embed:
-		//	var embed = new Discord.EmbedBuilder();
-		//	embed.Title = "Invite Instagram Embed To Your Server!";
-		//	embed.Url = "https://top.gg/bot/815695225678463017";
-		//	embed.Description = "Please visit our [top.gg page](https://top.gg/bot/815695225678463017) to invite the bot to your server. https://top.gg/bot/815695225678463017";
-		//	embed.WithColor(new Color(131, 58, 180));
-
-		//	ButtonBuilder buttonTopgg = new ButtonBuilder();
-		//	buttonTopgg.Label = "Top.gg";
-		//	buttonTopgg.Style = ButtonStyle.Link;
-		//	buttonTopgg.Url = "https://top.gg/bot/815695225678463017";
-		//	// https://discord.com/oauth2/authorize?client_id=815695225678463017&permissions=60480&scope=applications.commands%20bot
-		//	ButtonBuilder buttonInvite = new ButtonBuilder();
-		//	buttonInvite.Label = "Invite";
-		//	buttonInvite.Style = ButtonStyle.Link;
-		//	buttonInvite.Url = "https://discord.com/oauth2/authorize?client_id=815695225678463017&permissions=60480&scope=applications.commands%20bot";
-		//	ComponentBuilder component = new ComponentBuilder().WithButton(buttonTopgg).WithButton(buttonInvite);
-
-		//	await RespondAsync(embed: embed.Build(), ephemeral: true, components: component.Build());
-		//}
-		//[SlashCommand("vote", "Vote our bot on Top.gg and DiscordBotList.com", runMode: RunMode.Async)]
-		//public async Task Vote()
-		//{
-		//	//response embed:
-		//	var embed = new Discord.EmbedBuilder();
-		//	embed.Title = "Instagram Embed Top.gg and DiscordBotList.com Page";
-		//	embed.Url = "https://top.gg/bot/815695225678463017";
-		//	embed.Description = "Please vote for us and leave a rating on [Top.gg](https://top.gg/bot/815695225678463017/vote) and [DiscordBotList.com](https://discordbotlist.com/bots/instagram-embed/upvote).";
-		//	embed.WithColor(new Color(131, 58, 180));
-
-		//	// top.gg
-		//	ButtonBuilder buttonTopgg = new ButtonBuilder();
-		//	buttonTopgg.Label = "Top.gg";
-		//	buttonTopgg.Style = ButtonStyle.Link;
-		//	buttonTopgg.Url = "https://top.gg/bot/815695225678463017/vote";
-		//	// dbl
-		//	ButtonBuilder buttonDBL = new ButtonBuilder();
-		//	buttonDBL.Label = "DBL";
-		//	buttonDBL.Style = ButtonStyle.Link;
-		//	buttonDBL.Url = "https://discordbotlist.com/bots/instagram-embed/upvote";
-		//	ComponentBuilder component = new ComponentBuilder().WithButton(buttonTopgg).WithButton(buttonDBL);
-
-		//	await RespondAsync(embed: embed.Build(), ephemeral: true, components: component.Build());
-		//}
 		[SlashCommand("github", "Visit our github page", runMode: RunMode.Async)]
 		public async Task Github()
 		{

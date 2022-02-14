@@ -65,15 +65,14 @@ namespace Instagram_Reels_Bot.Modules
         [Command("profile", RunMode = RunMode.Async)]
         public async Task ProfileParser([Remainder] string args = null)
         {
+            // Check whitelist:
+            if (!Whitelist.IsServerOnList(Context.Guild.Id))
+            {
+                // Ignore if not on list:
+                return;
+            }
             using (Context.Channel.EnterTypingState())
             {
-                // Check whitelist:
-                if (!Whitelist.IsServerOnList(Context.Guild.Id))
-                {
-                    // Ignore if not on list:
-                    return;
-                }
-
                 // Get IG account:
                 InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
 

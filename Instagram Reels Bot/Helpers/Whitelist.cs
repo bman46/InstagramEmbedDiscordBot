@@ -21,7 +21,9 @@ namespace Instagram_Reels_Bot.Helpers
 			// Load the list in:
             if (!ListSet)
             {
+				// Check config file for whitelist enabled bool:
 				SetWhitelistEnabledBool();
+
                 if (WhitelistEnabled)
                 {
 					LoadList();

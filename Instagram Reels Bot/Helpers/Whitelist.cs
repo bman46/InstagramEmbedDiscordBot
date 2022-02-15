@@ -11,12 +11,19 @@ namespace Instagram_Reels_Bot.Helpers
 		public static bool ListSet = false;
 		public static bool WhitelistEnabled = false;
 
+		/// <summary>
+        /// Checks to see if a server is on the list.
+        /// </summary>
+        /// <param name="serverID"></param>
+        /// <returns></returns>
 		public static bool IsServerOnList(ulong serverID)
         {
 			// Load the list in:
             if (!ListSet)
             {
+				// Check config file for whitelist enabled bool:
 				SetWhitelistEnabledBool();
+
                 if (WhitelistEnabled)
                 {
 					LoadList();

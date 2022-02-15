@@ -244,36 +244,6 @@ namespace Instagram_Reels_Bot.Helpers
                 throw new InvalidDataException("No available accounts.");
             }
         }
-        /// <summary>
-        /// Android device to be used
-        /// </summary>
-        public static AndroidDevice device = new AndroidDevice
-        {
-            // Device name
-            AndroidBoardName = "HONOR",
-            // Device brand
-            DeviceBrand = "HUAWEI",
-            // Hardware manufacturer
-            HardwareManufacturer = "HUAWEI",
-            // Device model
-            DeviceModel = "PRA-LA1",
-            // Device model identifier
-            DeviceModelIdentifier = "PRA-LA1",
-            // Firmware brand
-            FirmwareBrand = "HWPRA-H",
-            // Hardware model
-            HardwareModel = "hi6250",
-            // Device guid
-            DeviceGuid = new Guid("be997499-c663-492e-a125-f4c8d3786ebf"),
-            // Phone guid
-            PhoneGuid = new Guid("7b92321f-dd9a-425e-b3ee-d4aaf476ec53"),
-            // Device id based on Device guid (should match DeviceGuid)
-            DeviceId = ApiRequestMessage.GenerateDeviceIdFromGuid(new Guid("be997499-c663-492e-a125-f4c8d3786ebf")),
-            // Resolution
-            Resolution = "1080x1812",
-            // Dpi
-            Dpi = "480dpi"
-        };
         #endregion Accounts
         #region IG Accounts
         /// <summary>

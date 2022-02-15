@@ -30,7 +30,7 @@ namespace Instagram_Reels_Bot.Helpers.Instagram
 				.Build();
 
 			// Set the Android Device:
-			instaApi.SetDevice(InstagramProcessor.device);
+			//instaApi.SetDevice(InstagramProcessor.device);
 		}
 
 		/// <summary>

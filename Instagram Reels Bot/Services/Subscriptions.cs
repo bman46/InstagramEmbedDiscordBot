@@ -88,7 +88,11 @@ namespace Instagram_Reels_Bot.Services
             this.PremiumGuildsContainer = this.Database.GetCollection<PremiumGuild>("PremiumGuilds");
 
             // Timer:
-            UpdateTimer = new System.Timers.Timer(3600000.0 * double.Parse(_config["HoursToCheckForNewContent"])); //one hour in milliseconds
+            double timer = 3600000.0;
+#if (DEBUG)
+            //timer = 60000; //1 minute
+#endif
+            UpdateTimer = new System.Timers.Timer(timer * double.Parse(_config["HoursToCheckForNewContent"])); //one hour in milliseconds
             UpdateTimer.Elapsed += new ElapsedEventHandler(GetLatestsPosts);
             UpdateTimer.Start();
         }
@@ -106,7 +110,7 @@ namespace Instagram_Reels_Bot.Services
             FollowedIGUser databaseValue;
             try // search InstagramID on database
             {
-                databaseValue = FollowedAccountsContainer.Find(followedAccount => followedAccount.InstagramID.Equals(instagramID.ToString())).FirstOrDefault();
+                databaseValue = await FollowedAccountsContainer.Find(followedAccount => followedAccount.InstagramID.Equals(instagramID.ToString())).FirstOrDefaultAsync();
             }
             catch (MongoException) // when (ex.StatusCodes == System.Net.HttpStatusCode.NotFound)
             {
@@ -153,8 +157,7 @@ namespace Instagram_Reels_Bot.Services
             FollowedIGUser databaseValue;
             try
             {
-                var queryable = FollowedAccountsContainer.Find(x => x.InstagramID.Equals(instagramID.ToString())).FirstOrDefault();
-                databaseValue = queryable;
+                databaseValue = await FollowedAccountsContainer.Find(x => x.InstagramID.Equals(instagramID.ToString())).FirstOrDefaultAsync();
             }
             catch (MongoException) //ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
@@ -229,7 +232,7 @@ namespace Instagram_Reels_Bot.Services
                 //await UnsubscribeOverSubscriptions();
 
                 Console.WriteLine("Getting new posts!");
-                var getdbfeed = FollowedAccountsContainer.Find(_ => true).ToListAsync().Result;
+                var getdbfeed = await FollowedAccountsContainer.Find(_ => true).ToListAsync();
                 foreach (var dbfeed in getdbfeed)
                 {
                     //i might remove the Randomize. just because
@@ -422,9 +425,9 @@ namespace Instagram_Reels_Bot.Services
                             await this.FollowedAccountsContainer.ReplaceOneAsync(x => x.InstagramID == dbfeed.InstagramID, dbfeed, new ReplaceOptions { IsUpsert = true });
                             // Wait to prevent spamming IG api:
                             // 10 seconds
-                            Thread.Sleep(10000);
+                            // Thread.Sleep(10000);
                             //idk which one is better. Thread.Sleep or Task.Delay
-                            //await Task.Delay(10000);
+                            await Task.Delay(10000);
                         }
                     }catch(Exception e)
                     {
@@ -449,12 +452,12 @@ namespace Instagram_Reels_Bot.Services
         /// Gets the number of channels that a user is susbscribed to.
         /// </summary>
         /// <returns></returns>
-        public int GuildSubscriptionCount(ulong guildID)
+        public async Task<int> GuildSubscriptionCountAsync(ulong guildID)
         {
             try
             {
-                List<FollowedIGUser> databaseValue = FollowedAccountsContainer.Find(x => x.SubscribedChannels.Any(n => n.GuildID.Equals(guildID.ToString()))).ToList();
-                return databaseValue.Count();
+                List<FollowedIGUser> databaseValue = await FollowedAccountsContainer.Find(x => x.SubscribedChannels.Any(n => n.GuildID.Equals(guildID.ToString()))).ToListAsync();
+                return databaseValue.Count;
             }
             catch (MongoException) //ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
@@ -467,11 +470,11 @@ namespace Instagram_Reels_Bot.Services
         /// <param name="guildID"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public FollowedIGUser[] GuildSubscriptions(ulong guildID)
+        public async Task<FollowedIGUser[]> GuildSubscriptionsAsync(ulong guildID)
         {
             try
             {
-                List<FollowedIGUser> databaseValue = FollowedAccountsContainer.Find(x => x.SubscribedChannels.Any(n => n.GuildID.Equals(guildID.ToString()))).ToList();
+                List<FollowedIGUser> databaseValue = await FollowedAccountsContainer.Find(x => x.SubscribedChannels.Any(n => n.GuildID.Equals(guildID.ToString()))).ToListAsync();
                 return databaseValue.ToArray();
             }
             catch (MongoException)// ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -484,22 +487,24 @@ namespace Instagram_Reels_Bot.Services
         /// </summary>
         /// <param name="guildID"></param>
         /// <returns></returns>
-        public int MaxSubscriptionsCountForGuild(ulong guildID)
+        public async Task<int> MaxSubscriptionsCountForGuildAsync(ulong guildID)
         {
             int max = int.Parse(_config["DefaultSubscriptionsPerGuildMax"]);
 
             try
             {
-                PremiumGuild databaseValue = PremiumGuildsContainer.Find(x => x.GuildID.Equals(guildID.ToString())).FirstOrDefault();
+                PremiumGuild databaseValue = await PremiumGuildsContainer.Find(x => x.GuildID.Equals(guildID.ToString())).FirstOrDefaultAsync();
                 max += int.Parse(databaseValue.AdditionalAccounts.ToString());
             }
-            catch (NullReferenceException)
+            catch (NullReferenceException ex)
             {
                 //Not premium
+                Console.WriteLine(max.ToString() + " NullReferenceException\n" + ex);
             }
-            catch (MongoException) //ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            catch (MongoException ex)// when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 //Not premium
+                Console.WriteLine(max.ToString() + " MongoException\n"+ex);
             }
 
             return max;
@@ -513,19 +518,19 @@ namespace Instagram_Reels_Bot.Services
             // Get IG account:
             InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
 
-            List<PremiumGuild> queryable = PremiumGuildsContainer.Find(x => x.RecheckSubscribedAccounts).ToList();
+            List<PremiumGuild> queryable = PremiumGuildsContainer.Find(x => x.RecheckSubscribedAccounts).ToListAsync().Result;
 
             foreach (PremiumGuild pguild in queryable.ToArray())
             {
-                int maxAccounts = MaxSubscriptionsCountForGuild(ulong.Parse(pguild.GuildID));
-                int currentAccounts = GuildSubscriptionCount(ulong.Parse(pguild.GuildID));
+                int maxAccounts = await MaxSubscriptionsCountForGuildAsync(ulong.Parse(pguild.GuildID));
+                int currentAccounts = await GuildSubscriptionCountAsync(ulong.Parse(pguild.GuildID));
                 if (currentAccounts > maxAccounts)
                 {
                     Console.WriteLine("Guild over limit.");
 
                     int NumberOfAccountsToRemove = currentAccounts - maxAccounts;
 
-                    List<FollowedIGUser> queryableIG = FollowedAccountsContainer.Find(x => x.SubscribedChannels.Any(n => n.GuildID == pguild.GuildID)).ToList();
+                    List<FollowedIGUser> queryableIG = FollowedAccountsContainer.Find(x => x.SubscribedChannels.Any(n => n.GuildID == pguild.GuildID)).ToListAsync().Result;
                     foreach (FollowedIGUser igAccount in queryableIG.ToArray())
                     {
                         if (NumberOfAccountsToRemove <= 0)

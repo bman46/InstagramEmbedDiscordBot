@@ -31,9 +31,17 @@ namespace Instagram_Reels_Bot.Modules
 		public async Task Link(string url, [Summary(description: "The post number for the desired post in a carousel.")][MinValue(1)] int index = 1)
         {
 			// Check whitelist:
-			if (!Whitelist.IsServerOnList(((Context.Guild==null)?(0):(Context.Guild.Id))))
+			if (!Whitelist.IsServerOnList(((Context.Guild == null) ? (0) : (Context.Guild.Id))))
 			{
-				await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
+				// Self-hosted whitelist notification for official bot:
+				if (Context.Client.CurrentUser.Id == 815695225678463017)
+				{
+					await RespondAsync("This bot is now self-host only. Learn more about this change in the updates channel on the support server: https://discord.gg/8dkjmGSbYE", ephemeral: true);
+				}
+				else
+				{
+					await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
+				}
 				return;
 			}
 
@@ -101,7 +109,15 @@ namespace Instagram_Reels_Bot.Modules
 			// Check whitelist:
 			if (!Whitelist.IsServerOnList(((Context.Guild == null) ? (0) : (Context.Guild.Id))))
 			{
-				await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
+				// Self-hosted whitelist notification for official bot:
+				if (Context.Client.CurrentUser.Id == 815695225678463017)
+				{
+					await RespondAsync("This bot is now self-host only. Learn more about this change in the updates channel on the support server: https://discord.gg/8dkjmGSbYE", ephemeral: true);
+				}
+				else
+				{
+					await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
+				}
 				return;
 			}
 
@@ -140,6 +156,20 @@ namespace Instagram_Reels_Bot.Modules
 		[SlashCommand("help", "For help with the bot.", runMode: RunMode.Async)]
 		public async Task Help()
 		{
+			// Check whitelist:
+			if (!Whitelist.IsServerOnList(((Context.Guild == null) ? (0) : (Context.Guild.Id))))
+			{
+				// Self-hosted whitelist notification for official bot:
+				if (Context.Client.CurrentUser.Id == 815695225678463017)
+				{
+					await RespondAsync("This bot is now self-host only. Learn more about this change in the updates channel on the support server: https://discord.gg/8dkjmGSbYE", ephemeral: true);
+				}
+				else
+				{
+					await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
+				}
+				return;
+			}
 			//response embed:
 			var embed = new EmbedBuilder();
 			embed.Title = "Help With Instagram Embed";
@@ -205,7 +235,15 @@ namespace Instagram_Reels_Bot.Modules
 			// Check whitelist:
 			if (!Whitelist.IsServerOnList(((Context.Guild == null) ? (0) : (Context.Guild.Id))))
 			{
-				await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
+				// Self-hosted whitelist notification for official bot:
+				if (Context.Client.CurrentUser.Id == 815695225678463017)
+				{
+					await RespondAsync("This bot is now self-host only. Learn more about this change in the updates channel on the support server: https://discord.gg/8dkjmGSbYE", ephemeral: true);
+				}
+				else
+				{
+					await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
+				}
 				return;
 			}
 
@@ -278,13 +316,6 @@ namespace Instagram_Reels_Bot.Modules
 		[RequireContext(ContextType.Guild)]
 		public async Task Unsubscribe([Summary("username","The username of the Instagram user.")] string username)
 		{
-			// Check whitelist:
-			if (!Whitelist.IsServerOnList(((Context.Guild == null) ? (0) : (Context.Guild.Id))))
-			{
-				await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
-				return;
-			}
-
 			//Ensure subscriptions are enabled:
 			if (!_subscriptions.ModuleEnabled)
 			{
@@ -336,13 +367,6 @@ namespace Instagram_Reels_Bot.Modules
 		[RequireContext(ContextType.Guild)]
 		public async Task UnsubscribeAll()
         {
-			// Check whitelist:
-			if (!Whitelist.IsServerOnList(((Context.Guild == null) ? (0) : (Context.Guild.Id))))
-			{
-				await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
-				return;
-			}
-
 			//Ensure subscriptions are enabled:
 			if (!_subscriptions.ModuleEnabled)
 			{
@@ -404,7 +428,15 @@ namespace Instagram_Reels_Bot.Modules
 			// Check whitelist:
 			if (!Whitelist.IsServerOnList(((Context.Guild == null) ? (0) : (Context.Guild.Id))))
 			{
-				await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
+				// Self-hosted whitelist notification for official bot:
+				if (Context.Client.CurrentUser.Id == 815695225678463017)
+				{
+					await RespondAsync("This bot is now self-host only. Learn more about this change in the updates channel on the support server: https://discord.gg/8dkjmGSbYE", ephemeral: true);
+				}
+				else
+				{
+					await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);
+				}
 				return;
 			}
 

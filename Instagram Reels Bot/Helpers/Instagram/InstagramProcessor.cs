@@ -577,7 +577,7 @@ namespace Instagram_Reels_Bot.Helpers
             var stories = await instaApi.StoryProcessor.GetUserStoryAsync(userId);
             if (!stories.Succeeded)
             {
-                return new InstagramProcessorResponse("Failed to load stories for the user. Support Server: https://discord.gg/6K3tdsYd6J");
+                return new InstagramProcessorResponse("Failed to load stories for the user.");
             }
             if (stories.Value.Items.Count == 0)
             {
@@ -722,7 +722,7 @@ namespace Instagram_Reels_Bot.Helpers
                 case ResponseType.DeletedPost:
                     return new InstagramProcessorResponse("The post was deleted from Instagram.");
                 case ResponseType.NetworkProblem:
-                    return new InstagramProcessorResponse("Could not connect to Instagram. Is Instagram down? https://discord.gg/6K3tdsYd6J");
+                    return new InstagramProcessorResponse("Could not connect to Instagram.");
                 case ResponseType.UnExpectedResponse:
                     if (result.Info.Message.Contains("User not found"))
                     {
@@ -734,7 +734,7 @@ namespace Instagram_Reels_Bot.Helpers
                     }
                 default:
                     Console.WriteLine("Error: " + result.Info);
-                    return new InstagramProcessorResponse("Error retrieving the content. The account may be private. Please report this on our support server if the account is public or if this is unexpected. https://discord.gg/6K3tdsYd6J");
+                    return new InstagramProcessorResponse("Error retrieving the content. The account may be private. Please report this to the admin if the account is public or if this is unexpected.");
             }
         }
         #endregion Errors

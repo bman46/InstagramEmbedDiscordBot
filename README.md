@@ -43,7 +43,7 @@ Embeds linked videos and images from users linked Instagram posts, videos, and r
   "ProxyPassword": "password (optional)",
 
   "AllowSubscriptions": true/false,
-  "MongoDBUrl": "Mongo_ConnectionString",
+  "MongoDBUrl": "MongoDB Connection String (Required for subscriptions)",
   "DefaultSubscriptionsPerGuildMax": 1,
   "HoursToCheckForNewContent": 3
 }

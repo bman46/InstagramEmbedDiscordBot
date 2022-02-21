@@ -29,7 +29,7 @@ This module allows you to use the `/subscribe` command and get automatic updates
 5. Set `Database throughput` to manual
 6. Set `Database throughput` to 400 RU/s (suggested)
 7. Hit Ok
-> :warning: **Note**: If you are planning on working with the source code, you should repeat this process and create a `InstagramEmbedDatabaseDev` container.
+> :warning: **Note**: If you are planning on working with the source code, you should repeat this process and create a `InstagramEmbedDatabaseDev` database.
 
 ## Step 3: Configure the Bot
 1. Navigate to the Keys tab

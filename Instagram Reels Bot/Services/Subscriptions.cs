@@ -47,7 +47,7 @@ namespace Instagram_Reels_Bot.Services
             _config = config;
             _client = client;
 
-            //Dont set database locations unless AllowSubscriptions is true:
+            // Dont set database locations unless AllowSubscriptions is true:
             if (config["AllowSubscriptions"].ToLower() != "true")
             {
                 //Disable the module:
@@ -55,11 +55,19 @@ namespace Instagram_Reels_Bot.Services
                 Console.WriteLine("Subscriptions not allowed.");
                 return;
             }
-            //Enable the module:
+            // Enable the module:
             ModuleEnabled = true;
 
-            //Set cosmos DB info:
+            // Set cosmos DB info:
             MongoDB_ConnectionString = config["MongoDBUrl"];
+            // Check for old Cosmos Settings and warn the user:
+            if (string.IsNullOrEmpty(MongoDB_ConnectionString))
+            {
+                if (!string.IsNullOrEmpty(config["EndpointUrl"]))
+                {
+                    Console.WriteLine("CosmosDB is no longer supported. Please migrate to MongoDB.");
+                }
+            }
         }
         /// <summary>
         /// Starts the subscription tasks.
@@ -107,7 +115,7 @@ namespace Instagram_Reels_Bot.Services
             {
                 databaseValue = await FollowedAccountsContainer.Find(followedAccount => followedAccount.InstagramID.Equals(instagramID.ToString())).FirstOrDefaultAsync();
             }
-            catch (MongoException) // when (ex.StatusCodes == System.Net.HttpStatusCode.NotFound)
+            catch (MongoException)
             {
                 databaseValue = null;
             }
@@ -420,15 +428,13 @@ namespace Instagram_Reels_Bot.Services
                             await this.FollowedAccountsContainer.ReplaceOneAsync(x => x.InstagramID == dbfeed.InstagramID, dbfeed, new ReplaceOptions { IsUpsert = true });
                             // Wait to prevent spamming IG api:
                             // 10 seconds
-                            // Thread.Sleep(10000);
-                            //idk which one is better. Thread.Sleep or Task.Delay
                             await Task.Delay(10000);
                         }
-                    }catch(Exception e)
+                    }
+                    catch(Exception e)
                     {
                         Console.WriteLine("Failed to get updates for IG account. Error: "+e);
                     }
-                    //}
                 }
             }
             catch(Exception e)
@@ -454,7 +460,7 @@ namespace Instagram_Reels_Bot.Services
                 List<FollowedIGUser> databaseValue = await FollowedAccountsContainer.Find(x => x.SubscribedChannels.Any(n => n.GuildID.Equals(guildID.ToString()))).ToListAsync();
                 return databaseValue.Count;
             }
-            catch (MongoException) //ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            catch (MongoException)
             {
                 throw new Exception("Cannot find user.");
             }
@@ -472,7 +478,7 @@ namespace Instagram_Reels_Bot.Services
                 List<FollowedIGUser> databaseValue = await FollowedAccountsContainer.Find(x => x.SubscribedChannels.Any(n => n.GuildID.Equals(guildID.ToString()))).ToListAsync();
                 return databaseValue.ToArray();
             }
-            catch (MongoException)// ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            catch (MongoException)
             {
                 throw new Exception("Cannot find user.");
             }
@@ -496,7 +502,7 @@ namespace Instagram_Reels_Bot.Services
                 //Not premium
                 Console.WriteLine(max.ToString() + " NullReferenceException\n" + ex);
             }
-            catch (MongoException ex)// when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            catch (MongoException ex)
             {
                 //Not premium
                 Console.WriteLine(max.ToString() + " MongoException\n"+ex);

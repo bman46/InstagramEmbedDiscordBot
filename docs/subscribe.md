@@ -45,4 +45,4 @@ Example:
 6. Set the `PrimaryKey` value in config.json to the value copied from Azure
 7. Ensure the `AllowSubscriptions` value is set to true
 8. Set the `HoursToCheckForNewContent` to how often (in hours) that you would like it to check the accounts for new posts (Higher numbers are better)
-9. Start the bot and test the commands!
+9. Start the bot and test the commands! Example: `/subscribe google`

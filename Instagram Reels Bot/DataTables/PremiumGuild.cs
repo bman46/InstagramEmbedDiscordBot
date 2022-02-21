@@ -1,6 +1,8 @@
 ﻿using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Instagram_Reels_Bot.DataTables
 {
@@ -19,6 +21,8 @@ namespace Instagram_Reels_Bot.DataTables
 			this.AdditionalAccounts = AdditionalAccounts;
 			this.RecheckSubscribedAccounts = RecheckSubscribedAccounts;
 		}
+		[BsonId]
+		public ObjectId Id { get; set; }
 		[JsonProperty(PropertyName = "id")]
 		public string GuildID { get; set; }
 		public uint AdditionalAccounts { get; set; }

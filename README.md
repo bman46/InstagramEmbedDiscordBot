@@ -43,8 +43,7 @@ Embeds linked videos and images from users linked Instagram posts, videos, and r
   "ProxyPassword": "password (optional)",
 
   "AllowSubscriptions": true/false,
-  "EndpointUrl": "CosmosDB URL",
-  "PrimaryKey": "CosmosDB Key",
+  "MongoDBUrl": "Mongo_ConnectionString",
   "DefaultSubscriptionsPerGuildMax": 1,
   "HoursToCheckForNewContent": 3
 }

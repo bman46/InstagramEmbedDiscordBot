@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 
 namespace Instagram_Reels_Bot.DataTables
@@ -11,7 +13,8 @@ namespace Instagram_Reels_Bot.DataTables
             LastPostDate = DateTime.Now;
             LastCheckTime = DateTime.Now;
         }
-
+        [BsonId]
+        public ObjectId Id { get; set; }
         [JsonProperty(PropertyName = "id")]
         public string InstagramID { get; set; }
         public DateTime LastPostDate { get; set; }

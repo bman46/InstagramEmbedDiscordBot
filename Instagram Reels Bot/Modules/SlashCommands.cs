@@ -269,8 +269,8 @@ namespace Instagram_Reels_Bot.Modules
 			InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
 
 			// Account limits:
-			int subcount = _subscriptions.GuildSubscriptionCount(Context.Guild.Id);
-			int maxcount = _subscriptions.MaxSubscriptionsCountForGuild(Context.Guild.Id);
+			int subcount = await _subscriptions.GuildSubscriptionCountAsync(Context.Guild.Id);
+			int maxcount = await _subscriptions.MaxSubscriptionsCountForGuildAsync(Context.Guild.Id);
 			if (subcount >= maxcount)
             {
                 if (maxcount == 0)
@@ -385,7 +385,7 @@ namespace Instagram_Reels_Bot.Modules
 			//Buy more time to process posts:
 			await DeferAsync(false);
 
-			var subs = _subscriptions.GuildSubscriptions(Context.Guild.Id);
+			var subs = await _subscriptions.GuildSubscriptionsAsync(Context.Guild.Id);
 			int errorCount = 0;
 			foreach (FollowedIGUser user in subs)
 			{
@@ -424,7 +424,7 @@ namespace Instagram_Reels_Bot.Modules
 		[SlashCommand("subscribed", "List of accounts that the guild is subscribed to.", runMode: RunMode.Async)]
 		[RequireContext(ContextType.Guild)]
 		public async Task Subscribed()
-        {
+		{
 			// Check whitelist:
 			if (!Whitelist.IsServerOnList(((Context.Guild == null) ? (0) : (Context.Guild.Id))))
 			{
@@ -459,8 +459,8 @@ namespace Instagram_Reels_Bot.Modules
 			embed.Title = "Guild Subscriptions";
 			embed.WithColor(new Color(131, 58, 180));
 
-			var subs = _subscriptions.GuildSubscriptions(Context.Guild.Id);
-			embed.Description = subs.Count() + " of " + _subscriptions.MaxSubscriptionsCountForGuild(Context.Guild.Id) + " subscribes used.\n**Instagram Accounts:**";
+			var subs = await _subscriptions.GuildSubscriptionsAsync(Context.Guild.Id);
+			embed.Description = subs.Count() + " of " + await _subscriptions.MaxSubscriptionsCountForGuildAsync(Context.Guild.Id) + " subscribes used.\n**Instagram Accounts:**";
 
 			string accountOutput = "";
 			string channelOutput = "";

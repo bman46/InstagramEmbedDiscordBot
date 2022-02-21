@@ -66,8 +66,8 @@ namespace Instagram_Reels_Bot.Services
         /// TODO: Check this initialize method
         /// </summary>
         /// <returns></returns>
-        public async Task InitializeAsync() // mongo doesn't have GetAwaiter method. so it will run synchronously
-        { // async by default according to this blog. https://www.mongodb.com/blog/post/introducing-20-net-driver
+        public void Initialize()
+        {
             Console.WriteLine("Starting the subscription task...");
             if (string.IsNullOrEmpty(MongoDB_ConnectionString) || !ModuleEnabled)
             {

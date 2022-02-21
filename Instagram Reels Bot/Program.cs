@@ -88,7 +88,7 @@ namespace Instagram_Reels_Bot
                 await services.GetRequiredService<CommandHandler>().InitializeAsync();
 
                 //Start the subscription service:
-                await services.GetRequiredService<Subscriptions>().InitializeAsync();
+                services.GetRequiredService<Subscriptions>().Initialize();
 
                 await Task.Delay(-1);
             }

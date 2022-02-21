@@ -231,20 +231,17 @@ namespace Instagram_Reels_Bot.Services
             try
             {
                 //Unsubscribe oversubs:
-                //await UnsubscribeOverSubscriptions();
+                await UnsubscribeOverSubscriptions();
 
                 Console.WriteLine("Getting new posts!");
                 var getdbfeed = await FollowedAccountsContainer.Find(_ => true).ToListAsync();
+
+                //Randomize the order of the IG accounts:
+                Random rand = new Random();
+                getdbfeed.OrderBy(item => rand.Next());
+
                 foreach (var dbfeed in getdbfeed)
                 {
-                    //i might remove the Randomize. just because
-                    //Randomize the order of the IG accounts:
-                    //Random rand = new Random();
-                    //var shuffledIGAccounts = (await dbfeed.ReadNextAsync()).OrderBy(x => rand.Next()).ToList();
-
-                    //Loop through the accounts:
-                    //foreach (var dbfeed in shuffledIGAccounts)
-                    //{
                     Console.WriteLine("Checking " + dbfeed.InstagramID);
                     try
                     {

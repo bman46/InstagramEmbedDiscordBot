@@ -1,5 +1,5 @@
 # Configuring The Subscribe Module
-This module allows you to use the /subscribe command and get automatic updates from accounts.
+This module allows you to use the `/subscribe` command and get automatic updates from accounts.
 > :warning: **Note**: This feature requires a [Microsoft Azure](https://azure.microsoft.com/) account. Usage may be [billed](https://azure.microsoft.com/pricing/details/cosmos-db/).
 > 
 > [Student discounts](https://azure.microsoft.com/free/students/) are avaliable through Azure and do not require a credit card.

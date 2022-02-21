@@ -273,11 +273,6 @@ namespace Instagram_Reels_Bot.Modules
 			int maxcount = await _subscriptions.MaxSubscriptionsCountForGuildAsync(Context.Guild.Id);
 			if (subcount >= maxcount)
             {
-                if (maxcount == 0)
-                {
-					await FollowupAsync("The subscription module is currently in beta testing to a limited number of guilds. Please join the support server https://discord.gg/6K3tdsYd6J for future updates.", ephemeral: false);
-					return;
-				}
 				await FollowupAsync("You are already subscribed to "+ subcount +" Instagram accounts which is greater than or equal to your limit of "+maxcount+" accounts. use `/unsubscribe` to remove these accounts.");
 				return;
 			}

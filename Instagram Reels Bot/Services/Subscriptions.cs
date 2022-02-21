@@ -132,7 +132,6 @@ namespace Instagram_Reels_Bot.Services
                 //Create the Item:
                 await this.FollowedAccountsContainer.InsertOneAsync(databaseValue);
             }
-            // TODO: Continue the development
             else
             {
                 foreach(RespondChannel channel in databaseValue.SubscribedChannels)

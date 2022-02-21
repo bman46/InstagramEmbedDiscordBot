@@ -89,9 +89,7 @@ namespace Instagram_Reels_Bot.Services
 
             // Timer:
             double timer = 3600000.0;
-#if (DEBUG)
-            //timer = 60000; //1 minute
-#endif
+
             UpdateTimer = new System.Timers.Timer(timer * double.Parse(_config["HoursToCheckForNewContent"])); //one hour in milliseconds
             UpdateTimer.Elapsed += new ElapsedEventHandler(GetLatestsPosts);
             UpdateTimer.Start();

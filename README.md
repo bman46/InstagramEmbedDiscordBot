@@ -13,7 +13,7 @@ Embeds linked videos and images from users linked Instagram posts, videos, and r
 - Multiple IG accounts for failover
 
 ## Example: 
-![Example of reels bot on discord](https://github.com/bman46/Instagram-Reels-Bot/raw/master/Example.png)
+![Example of reels bot on discord](/docs/Content/ReadMe/Example.png)
 
 ### Config.json format:
 ```

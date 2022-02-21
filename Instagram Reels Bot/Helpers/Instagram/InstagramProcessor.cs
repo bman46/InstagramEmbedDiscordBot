@@ -244,36 +244,6 @@ namespace Instagram_Reels_Bot.Helpers
                 throw new InvalidDataException("No available accounts.");
             }
         }
-        /// <summary>
-        /// Android device to be used
-        /// </summary>
-        public static AndroidDevice device = new AndroidDevice
-        {
-            // Device name
-            AndroidBoardName = "HONOR",
-            // Device brand
-            DeviceBrand = "HUAWEI",
-            // Hardware manufacturer
-            HardwareManufacturer = "HUAWEI",
-            // Device model
-            DeviceModel = "PRA-LA1",
-            // Device model identifier
-            DeviceModelIdentifier = "PRA-LA1",
-            // Firmware brand
-            FirmwareBrand = "HWPRA-H",
-            // Hardware model
-            HardwareModel = "hi6250",
-            // Device guid
-            DeviceGuid = new Guid("be997499-c663-492e-a125-f4c8d3786ebf"),
-            // Phone guid
-            PhoneGuid = new Guid("7b92321f-dd9a-425e-b3ee-d4aaf476ec53"),
-            // Device id based on Device guid (should match DeviceGuid)
-            DeviceId = ApiRequestMessage.GenerateDeviceIdFromGuid(new Guid("be997499-c663-492e-a125-f4c8d3786ebf")),
-            // Resolution
-            Resolution = "1080x1812",
-            // Dpi
-            Dpi = "480dpi"
-        };
         #endregion Accounts
         #region IG Accounts
         /// <summary>
@@ -607,7 +577,7 @@ namespace Instagram_Reels_Bot.Helpers
             var stories = await instaApi.StoryProcessor.GetUserStoryAsync(userId);
             if (!stories.Succeeded)
             {
-                return new InstagramProcessorResponse("Failed to load stories for the user. Support Server: https://discord.gg/6K3tdsYd6J");
+                return new InstagramProcessorResponse("Failed to load stories for the user.");
             }
             if (stories.Value.Items.Count == 0)
             {
@@ -752,7 +722,7 @@ namespace Instagram_Reels_Bot.Helpers
                 case ResponseType.DeletedPost:
                     return new InstagramProcessorResponse("The post was deleted from Instagram.");
                 case ResponseType.NetworkProblem:
-                    return new InstagramProcessorResponse("Could not connect to Instagram. Is Instagram down? https://discord.gg/6K3tdsYd6J");
+                    return new InstagramProcessorResponse("Could not connect to Instagram.");
                 case ResponseType.UnExpectedResponse:
                     if (result.Info.Message.Contains("User not found"))
                     {
@@ -764,7 +734,7 @@ namespace Instagram_Reels_Bot.Helpers
                     }
                 default:
                     Console.WriteLine("Error: " + result.Info);
-                    return new InstagramProcessorResponse("Error retrieving the content. The account may be private. Please report this on our support server if the account is public or if this is unexpected. https://discord.gg/6K3tdsYd6J");
+                    return new InstagramProcessorResponse("Error retrieving the content. The account may be private. Please report this to the admin if the account is public or if this is unexpected.");
             }
         }
         #endregion Errors

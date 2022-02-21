@@ -23,7 +23,6 @@ namespace Instagram_Reels_Bot.DataTables
 		}
 		[BsonId]
 		public ObjectId Id { get; set; }
-		[JsonProperty(PropertyName = "id")]
 		public string GuildID { get; set; }
 		public uint AdditionalAccounts { get; set; }
 		public List<long> PaidDiscordUsers { get; set; }

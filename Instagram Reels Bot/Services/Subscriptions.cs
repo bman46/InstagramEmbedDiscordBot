@@ -87,10 +87,7 @@ namespace Instagram_Reels_Bot.Services
             this.FollowedAccountsContainer = this.Database.GetCollection<FollowedIGUser>("FollowedAccounts");
             this.PremiumGuildsContainer = this.Database.GetCollection<PremiumGuild>("PremiumGuilds");
 
-            // Timer:
-            double timer = 3600000.0;
-
-            UpdateTimer = new System.Timers.Timer(timer * double.Parse(_config["HoursToCheckForNewContent"])); //one hour in milliseconds
+            UpdateTimer = new System.Timers.Timer(3600000.0 * double.Parse(_config["HoursToCheckForNewContent"])); //one hour in milliseconds
             UpdateTimer.Elapsed += new ElapsedEventHandler(GetLatestsPosts);
             UpdateTimer.Start();
         }

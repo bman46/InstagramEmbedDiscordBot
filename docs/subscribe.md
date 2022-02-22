@@ -15,7 +15,7 @@ Please sign up for a [MongoDB Atlas](https://www.mongodb.com/atlas/database) acc
 
 ## Step 2: Connecting the Bot to the Database
 1. Navigate to `Database` in the left pane
-2. Next to `Cluster0` click on the `Connect` button
+2. Next to `Cluster0` (or whatever your cluster name is) click on the `Connect` button
 3. Select `Connect Your Application`
 4. Under the driver dropdown, Select `C# / .NET`
 5. Under version, select `2.13` or `2.13 or later`

@@ -456,9 +456,9 @@ namespace Instagram_Reels_Bot.Services
                 List<FollowedIGUser> databaseValue = await FollowedAccountsContainer.Find(x => x.SubscribedChannels.Any(n => n.GuildID.Equals(guildID.ToString()))).ToListAsync();
                 return databaseValue.Count;
             }
-            catch (MongoException)
+            catch (MongoException ex)
             {
-                throw new Exception("Cannot find user.");
+                throw new Exception("Cannot find user in database. Error: "+ex);
             }
         }
         /// <summary>

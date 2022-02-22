@@ -491,12 +491,10 @@ namespace Instagram_Reels_Bot.Services
             try
             {
                 PremiumGuild databaseValue = await PremiumGuildsContainer.Find(x => x.GuildID.Equals(guildID.ToString())).FirstOrDefaultAsync();
-                max += int.Parse(databaseValue.AdditionalAccounts.ToString());
-            }
-            catch (NullReferenceException ex)
-            {
-                //Not premium
-                Console.WriteLine(max.ToString() + " NullReferenceException\n" + ex);
+                if (databaseValue != null)
+                {
+                    max += int.Parse(databaseValue.AdditionalAccounts.ToString());
+                }
             }
             catch (MongoException ex)
             {

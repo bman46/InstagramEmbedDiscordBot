@@ -9,8 +9,8 @@ Please sign up for a [MongoDB Atlas](https://www.mongodb.com/atlas/database) acc
 1. When asked `How would you like to authenticate your connection?` select `Username and Password`.
 2. Type in credentials and click `Create User`.
    - Dont forget the password you created.
-3. When asked `Where would you like to connect from?` you can either type in your IP or use `0.0.0.0` to allow all IPs
-   - Using your IP is suggested, but keep in mind that they may change from time to time.
+3. When asked `Where would you like to connect from?` you can either type in your IP (more secure) or use `0.0.0.0` to allow all IPs (less secure)
+   - Using your IP is suggested, but keep in mind that **IPs may change from time to time**.
 4. Click `Finish and Close`
 
 ## Step 2: Connecting the Bot to the Database

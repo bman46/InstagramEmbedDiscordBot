@@ -1,12 +1,8 @@
 ﻿using Discord;
 using Discord.Commands;
-using System;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.IO;
 using Instagram_Reels_Bot.Helpers;
-using System.Net.Http;
-using Microsoft.Extensions.Configuration;
 
 namespace Instagram_Reels_Bot.Modules
 {

@@ -23,5 +23,5 @@ Please sign up for a [MongoDB Atlas](https://www.mongodb.com/atlas/database) acc
 6. Copy the connection string from the box and replace `<password>` with the password you created earlier.
    - If you forgot this password, you can re-create it again under the `Database Access` tab.
 7. Paste the connection string into the `MongoDBUrl` parameter in the `config.json` file.
-8. Set `AllowSubscriptions` to `true`
+8. Set `AllowSubscriptions` to `true` in the config.json file.
 9. Start the bot and test the commands! 

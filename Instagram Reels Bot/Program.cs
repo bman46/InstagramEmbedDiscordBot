@@ -82,7 +82,25 @@ namespace Instagram_Reels_Bot
                 await client.StartAsync();
 
                 //Set status:
-                await client.SetActivityAsync(new Game("for Instagram links", ActivityType.Watching));
+                string status = "for Instagram links";
+                ActivityType activity = ActivityType.Watching;
+
+                if (!string.IsNullOrEmpty(_config["statusDesc"]))
+                {
+                    status = _config["statusDesc"];
+                }
+                if (!string.IsNullOrEmpty(_config["statusActivity"]))
+                {
+                    if (!Enum.TryParse(_config["statusActivity"], out activity))
+                    {
+                        Console.WriteLine("Could not find 'statusActivity' value in enum.");
+
+                        //Default to Watching:
+                        activity = ActivityType.Watching;
+                    }
+                }
+
+                await client.SetActivityAsync(new Game(status, activity));
 
                 // we get the CommandHandler class here and call the InitializeAsync method to start things up for the CommandHandler service
                 await services.GetRequiredService<CommandHandler>().InitializeAsync();

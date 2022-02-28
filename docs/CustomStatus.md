@@ -12,10 +12,10 @@ These settings allow you to set a alternative Discord status for the bot aside f
 | Streaming        | Sets the activity to 'Streaming'             |
 | Watching         | Sets the activity to 'Watching'              |
 
-2. Add the following line to the `config.json` file below `whitelist`: `"statusActivity": "Watching",`
+2. Add the following line to the `config.json` file below `DMErrors`: `"statusActivity": "Watching",`
 3. Replace the word `Watching` with one of the statuses from the table in step 1 (Case Sensitive).
 4. Save the config file.
 ## Step 2: Setting the Status Name
 1. Open `config.json` file
-2. Add the following line below `whitelist`: `"statusDesc": "Your text here",`
+2. Add the following line below `DMErrors`: `"statusDesc": "Your text here",`
 3. Replace `Your text here` with the message that you would like to display.

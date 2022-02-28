@@ -13,7 +13,7 @@ These settings allow you to set a alternative Discord status for the bot aside f
 | Watching         | Sets the activity to 'Watching'              |
 
 2. Add the following line to the `config.json` file below `whitelist`: `"statusActivity": "Watching",`
-3. Replace the word `Watching` with one of the statuses from the table in step 1.
+3. Replace the word `Watching` with one of the statuses from the table in step 1 (Case Sensitive).
 4. Save the config file.
 ## Step 2: Setting the Status Name
 1. Open `config.json` file

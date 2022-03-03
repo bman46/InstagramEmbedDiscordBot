@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using Discord;
@@ -10,7 +9,6 @@ using Discord.WebSocket;
 using Instagram_Reels_Bot.DataTables;
 using Instagram_Reels_Bot.Helpers;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 
 namespace Instagram_Reels_Bot.Services

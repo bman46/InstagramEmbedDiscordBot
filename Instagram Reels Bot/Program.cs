@@ -6,15 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Instagram_Reels_Bot.Services;
-using System.Net;
-using InstagramApiSharp.API.Builder;
-using InstagramApiSharp.Classes;
-using InstagramApiSharp.Logger;
 using System.IO;
-using System.Collections.Generic;
 using Discord.Interactions;
 using Instagram_Reels_Bot.Helpers;
-using System.Net.Http;
 
 namespace Instagram_Reels_Bot
 {

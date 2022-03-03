@@ -8,7 +8,6 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using OpenGraphNet;
 using System.Linq;
-using Instagram_Reels_Bot.Modules;
 using Discord.Interactions;
 using Instagram_Reels_Bot.Helpers;
 using Instagram_Reels_Bot.Helpers.Instagram;

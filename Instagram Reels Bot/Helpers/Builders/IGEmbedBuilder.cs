@@ -73,7 +73,19 @@ namespace Instagram_Reels_Bot.Helpers
             }
             if (Response.postCount > 1)
             {
-				embed.Description += "\n\nThere is " + (Response.postCount - 1) + " other ";
+				embed.Description += "\n\nThere ";
+
+				// Plural or singular?
+				if ((Response.postCount - 1) != 1)
+				{
+					embed.Description += "are ";
+				}
+				else
+				{
+					embed.Description += "is ";
+				}
+
+				embed.Description += (Response.postCount - 1) + " other ";
 
 				// Plural or singular?
 				if((Response.postCount - 1) != 1)

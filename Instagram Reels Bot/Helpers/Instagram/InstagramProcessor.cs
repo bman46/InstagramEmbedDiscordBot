@@ -453,6 +453,7 @@ namespace Instagram_Reels_Bot.Helpers
                 caption = media.Caption.Text;
             }
 
+            int postCount = 1;
             //inject image from carousel:
             if (media.Carousel != null && media.Carousel.Count > 0)
             {
@@ -470,6 +471,8 @@ namespace Instagram_Reels_Bot.Helpers
                     var image = media.Carousel[index].Images[0];
                     media.Images.Add(image);
                 }
+                // Set amount of posts:
+                postCount = media.Carousel.Count;
             }
             //get upload tier:
             long maxUploadSize = DiscordTools.MaxUploadSize(premiumTier);
@@ -501,7 +504,7 @@ namespace Instagram_Reels_Bot.Helpers
                     if (data.Length < maxUploadSize)
                     {
                         //No account information avaliable:
-                        return new InstagramProcessorResponse(isVideo, caption, media.User.FullName, media.User.UserName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, data);
+                        return new InstagramProcessorResponse(isVideo, caption, media.User.FullName, media.User.UserName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, data, postCount);
                     }
 
                 }
@@ -525,7 +528,7 @@ namespace Instagram_Reels_Bot.Helpers
             }
             //Fallback to URL:
             //No account information avaliable:
-            return new InstagramProcessorResponse(true, caption, media.User.FullName, media.User.UserName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, null);
+            return new InstagramProcessorResponse(true, caption, media.User.FullName, media.User.UserName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, null, postCount);
         }
         /// <summary>
         /// Processes an Instagram story.
@@ -618,7 +621,7 @@ namespace Instagram_Reels_Bot.Helpers
                             //If statement to double check size.
                             if (data.Length < maxUploadSize)
                             {
-                                return new InstagramProcessorResponse(isVideo, "", story.User.FullName, story.User.UserName, new Uri(story.User.ProfilePicture), downloadUrl, url, story.TakenAt, data);
+                                return new InstagramProcessorResponse(isVideo, "", story.User.FullName, story.User.UserName, new Uri(story.User.ProfilePicture), downloadUrl, url, story.TakenAt, data, 1);
                             }
 
                         }
@@ -641,7 +644,7 @@ namespace Instagram_Reels_Bot.Helpers
                         Console.WriteLine(e);
                     }
                     //Fallback to URL:
-                    return new InstagramProcessorResponse(true, "", story.User.FullName, story.User.UserName, new Uri(story.User.ProfilePicture), downloadUrl, url, story.TakenAt, null);
+                    return new InstagramProcessorResponse(true, "", story.User.FullName, story.User.UserName, new Uri(story.User.ProfilePicture), downloadUrl, url, story.TakenAt, null, 1);
                 }
             }
             return new InstagramProcessorResponse("Could not find story.");

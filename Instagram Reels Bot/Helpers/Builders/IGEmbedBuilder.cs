@@ -71,7 +71,21 @@ namespace Instagram_Reels_Bot.Helpers
 				embed.Title = "Content from " + Requester + "'s linked post.";
 				embed.Url = Response.postURL.ToString();
             }
+            if (Response.postCount > 1)
+            {
+				embed.Description += "\n\nThere is " + (Response.postCount - 1) + " other ";
 
+				// Plural or singular?
+				if((Response.postCount - 1) != 1)
+                {
+					embed.Description += "images/videos";
+                }
+                else
+                {
+					embed.Description += "image/video";
+                }
+				embed.Description += " in this post.";
+			}
 			if (!Response.isVideo)
             {
 				if (Response.stream != null)

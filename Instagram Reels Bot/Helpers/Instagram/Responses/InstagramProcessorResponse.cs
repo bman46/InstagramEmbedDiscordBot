@@ -18,7 +18,8 @@ namespace Instagram_Reels_Bot.Helpers
         /// <param name="postURL">URL to the post.</param>
         /// <param name="date">Time of the post.</param>
         /// <param name="stream">Byte array of the downloaded video or image.</param>
-        public InstagramProcessorResponse(bool isVideo, string caption, string accountName, string username, Uri accountImage, string contentURL, string postURL, DateTime date, byte[] stream)
+        /// <param name="postCount">The amount of images/videos (for carousel posts)</param>
+        public InstagramProcessorResponse(bool isVideo, string caption, string accountName, string username, Uri accountImage, string contentURL, string postURL, DateTime date, byte[] stream, int postCount)
 		{
 			this.isVideo = isVideo;
 			this.caption = caption;
@@ -29,6 +30,7 @@ namespace Instagram_Reels_Bot.Helpers
 			this.iconURL = accountImage;
 			this.accountUrl = new Uri("https://www.instagram.com/"+username);
 			this.username = username;
+			this.postCount = postCount;
 
 			if (stream != null)
             {
@@ -50,6 +52,7 @@ namespace Instagram_Reels_Bot.Helpers
 		/// <param name="following"></param>
 		/// <param name="posts"></param>
 		/// <param name="bio"></param>
+        /// <param name="externalURL"></param>
 		public InstagramProcessorResponse(string accountName, string username, Uri accountImage, long followers, long following, long posts, string bio, string externalURL)
         {
 			this.accountName = accountName;
@@ -86,6 +89,7 @@ namespace Instagram_Reels_Bot.Helpers
 
         #region data
         public Boolean isVideo = false;
+		public int postCount = 1;
 		public string caption = "";
 		public Uri contentURL = null;
 		public Uri postURL = null;

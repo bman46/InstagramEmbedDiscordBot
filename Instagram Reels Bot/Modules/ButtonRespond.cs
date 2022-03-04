@@ -16,7 +16,7 @@ namespace Instagram_Reels_Bot.Modules
             _handler = handler;
         }
 
-        [ComponentInteraction("delete-message-*")]
+        [ComponentInteraction("delete-message-*", runMode: RunMode.Async)]
         public async Task DeleteMessageButton(string userId)
         {
             var originalMessage = Context.Interaction as SocketMessageComponent;

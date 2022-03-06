@@ -1,7 +1,10 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Instagram_Reels_Bot.Helpers;
 using Instagram_Reels_Bot.Services;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Instagram_Reels_Bot.Modules
@@ -11,9 +14,11 @@ namespace Instagram_Reels_Bot.Modules
         public InteractionService Commands { get; set; }
 
         private CommandHandler _handler;
-        public ComponentRespond(CommandHandler handler)
+        private Subscriptions _subscriptions;
+        public ComponentRespond(CommandHandler handler, Subscriptions subs)
         {
             _handler = handler;
+            _subscriptions = subs;
         }
 
         [ComponentInteraction("delete-message-*", runMode: RunMode.Async)]
@@ -49,6 +54,74 @@ namespace Instagram_Reels_Bot.Modules
                 await RespondAsync("You are not allowed to delete that message.", ephemeral: true);
             }
         }
-        
+
+        [ComponentInteraction("unsubscribe", runMode: RunMode.Async)]
+        [DisableSource]
+        [RequireContext(ContextType.Guild)]
+        public async Task UnsubscribeMenu(string[] values)
+        {
+            //Ensure subscriptions are enabled:
+            if (!_subscriptions.ModuleEnabled)
+            {
+                await RespondAsync("Subscriptions module is currently disabled.", ephemeral: true);
+                return;
+            }
+
+            //Check role:
+            var role = (Context.User as SocketGuildUser).Roles.FirstOrDefault(role => role.Name == "InstagramBotSubscribe");
+            if (role == null && !(Context.User as SocketGuildUser).GuildPermissions.Administrator)
+            {
+                await RespondAsync("You need guild Administrator permission or the role `InstagramBotSubscribe` assigned to your account to perform this action.", ephemeral: true);
+                return;
+            }
+
+            //Buy more time to process posts:
+            await DeferAsync(true);
+
+            foreach (string encodedData in values)
+            {
+                // Split String:
+                long IGID = long.Parse(encodedData.Split("-")[0]);
+                ulong chanID = ulong.Parse(encodedData.Split("-")[1]);
+
+                // Remove Subscribe:
+                try
+                {
+                    await _subscriptions.UnsubscribeToAccount(IGID, chanID, Context.Guild.Id);
+                }
+                catch (ArgumentException e) when (e.Message.Contains("Cannot find user."))
+                {
+                    await FollowupAsync("Error: You are not subscribed to that user.", ephemeral: true);
+                    return;
+                }
+
+                string username;
+                try
+                {
+                    // Get IG account:
+                    InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
+                    username = await instagram.GetIGUsername(IGID.ToString());
+                }
+                catch
+                {
+                    username = "*unknown user*";
+                }
+
+                try
+                {
+                    // Get Channel:
+                    var chan = Context.Guild.GetChannel(chanID) as SocketTextChannel;
+
+                    // Notify:
+                    await chan.SendMessageAsync("This channel has been unsubscribed to " + username + " on Instagram by " + Context.User.Mention, allowedMentions: AllowedMentions.None);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    // Failed to send message (chan might have been deleted).
+                }
+            }
+            await FollowupAsync("Success! You will no longer receive new posts to the selected channel(s).", ephemeral: true);
+        }
     }
 }

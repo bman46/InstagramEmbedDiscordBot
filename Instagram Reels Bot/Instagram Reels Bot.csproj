@@ -33,12 +33,14 @@
     <None Remove="Microsoft.Extensions.Configuration.Binder" />
     <None Remove="Helpers\Instagram\" />
     <None Remove="Helpers\Instagram\Responses\" />
+    <None Remove="Helpers\Discord\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DataTables\" />
     <Folder Include="Helpers\Builders\" />
     <Folder Include="Helpers\Instagram\" />
     <Folder Include="Helpers\Instagram\Responses\" />
+    <Folder Include="Helpers\Discord\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="config.json">

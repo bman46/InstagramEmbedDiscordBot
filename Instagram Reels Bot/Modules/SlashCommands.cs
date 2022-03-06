@@ -17,11 +17,11 @@ namespace Instagram_Reels_Bot.Modules
 		// Dependencies can be accessed through Property injection, public properties with public setters will be set by the service provider
 		public InteractionService Commands { get; set; }
 
-		private Services.CommandHandler _handler;
+		private CommandHandler _handler;
 		private Subscriptions _subscriptions;
 
 		// Constructor injection is also a valid way to access the dependecies
-		public SlashCommands(Services.CommandHandler handler, Services.Subscriptions subs)
+		public SlashCommands(CommandHandler handler, Subscriptions subs)
 		{
 			_handler = handler;
 			_subscriptions = subs;
@@ -309,7 +309,7 @@ namespace Instagram_Reels_Bot.Modules
 		}
 		[SlashCommand("unsubscribe", "Stop getting updates when a user posts a new post on Instagram.", runMode: RunMode.Async)]
 		[RequireContext(ContextType.Guild)]
-		public async Task Unsubscribe([Summary("username","The username of the Instagram user.")] string username)
+		public async Task Unsubscribe()
 		{
 			//Ensure subscriptions are enabled:
 			if (!_subscriptions.ModuleEnabled)
@@ -327,36 +327,66 @@ namespace Instagram_Reels_Bot.Modules
 			}
 
 			//Buy more time to process posts:
-			await DeferAsync(true);
+			await DeferAsync(false);
+
+			// Get Accounts:
+			var subs = await _subscriptions.GuildSubscriptionsAsync(Context.Guild.Id);
+
+			// Create Dropdown with channels:
+			var menuBuilder = new SelectMenuBuilder()
+				.WithCustomId("unsubscribe")
+				.WithPlaceholder("Select accounts to remove.")
+				.WithMinValues(0);
 
 			// Get IG account:
 			InstagramProcessor instagram = new InstagramProcessor(InstagramProcessor.AccountFinder.GetIGAccount());
 
-			long IGID;
-			try
+			// Add users to dropdown:
+			foreach (FollowedIGUser user in subs)
 			{
-				IGID = await instagram.GetUserIDFromUsername(username);
+				foreach (RespondChannel chan in user.SubscribedChannels)
+				{
+					// Get username:
+					string username = await instagram.GetIGUsername(user.InstagramID);
+					string channelName = "Unknown";
+
+					//Should channel be deleted or otherwise unknown:
+					try
+					{
+						// Get channel name:
+						channelName = Context.Guild.GetChannel(ulong.Parse(chan.ChannelID)).Name;
+					}
+					catch { }
+
+					// Add account option to menu:
+					SelectMenuOptionBuilder optBuilder = new SelectMenuOptionBuilder()
+						.WithLabel(username)
+						.WithValue(user.InstagramID+"-"+chan.ChannelID)
+						.WithDescription(username+" in channel "+ channelName);
+					menuBuilder.AddOption(optBuilder);
+				}
 			}
-			catch (Exception e)
-			{
-				//Possibly incorrect username:
-				Console.WriteLine("Get username failure: " + e);
-				await FollowupAsync("Failed to get Instagram ID. Is the account name correct?");
-				return;
-			}
-			try
-			{
-				//Subscribe:
-				await _subscriptions.UnsubscribeToAccount(IGID, Context.Channel.Id, Context.Guild.Id);
-			}
-			catch(ArgumentException e) when (e.Message.Contains("Cannot find user."))
+            //Check for subs:
+            if (subs.Length < 1)
             {
-				await FollowupAsync("You are not subscribed to that user.");
+				await FollowupAsync("No accounts subscribed.");
 				return;
             }
-			//Notify:
-			await Context.Channel.SendMessageAsync("This channel has been unsubscribed to " + username + " on Instagram by " + Context.User.Mention, allowedMentions: AllowedMentions.None);
-			await FollowupAsync("Success! You will no longer receive new posts to this channel.");
+
+			// Make embed:
+			var embed = new EmbedBuilder();
+			embed.Title = "Unsubscribe";
+			embed.Description = "Select accounts that you would like to unsubscribe from in the dropdown below.";
+			embed.WithColor(new Color(131, 58, 180));
+
+			// Set max count:
+			menuBuilder.WithMaxValues(menuBuilder.Options.Count);
+			// Component Builder:
+			var builder = new ComponentBuilder()
+				.WithSelectMenu(menuBuilder);
+
+			// Send message
+			await FollowupAsync(embed: embed.Build(), components: builder.Build());
 		}
 		[SlashCommand("unsubscribeall", "Unsubscribe from all Instagram accounts.", runMode: RunMode.Async)]
 		[RequireContext(ContextType.Guild)]
@@ -450,7 +480,7 @@ namespace Instagram_Reels_Bot.Modules
 
 			List<Embed> embeds = new List<Embed>();
 
-			var embed = new Discord.EmbedBuilder();
+			var embed = new EmbedBuilder();
 			embed.Title = "Guild Subscriptions";
 			embed.WithColor(new Color(131, 58, 180));
 

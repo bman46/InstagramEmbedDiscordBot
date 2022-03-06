@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Instagram_Reels_Bot.Modules
 {
-    public class ButtonRespond : InteractionModuleBase<ShardedInteractionContext>
+    public class ComponentRespond : InteractionModuleBase<ShardedInteractionContext>
     {
         public InteractionService Commands { get; set; }
 
         private CommandHandler _handler;
-        public ButtonRespond(CommandHandler handler)
+        public ComponentRespond(CommandHandler handler)
         {
             _handler = handler;
         }
@@ -49,5 +49,6 @@ namespace Instagram_Reels_Bot.Modules
                 await RespondAsync("You are not allowed to delete that message.", ephemeral: true);
             }
         }
+        
     }
 }

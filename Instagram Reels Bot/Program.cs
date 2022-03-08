@@ -21,7 +21,20 @@ namespace Instagram_Reels_Bot
 
         public static async Task Main(string[] args)
         {
-            await new Program().MainAsync();
+            try
+            {
+                await new Program().MainAsync();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("ERROR: " + e.Message);
+                Console.WriteLine("\nA critical error (listed above) has occured and the bot cannot proceed. Press 'q' to quit.");
+                // Wait until q is pressed:
+                while (Console.ReadKey().KeyChar != 'q') { }
+
+                // Throw the exception (for debugging)
+                throw;
+            }
         }
 
         public Program()
@@ -31,8 +44,19 @@ namespace Instagram_Reels_Bot
                 .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile(path: "config.json");
 
-            // build the configuration and assign to _config          
-            _config = _builder.Build();
+            // build the configuration and assign to _config
+            try
+            {
+                _config = _builder.Build();
+            }
+            catch (System.IO.InvalidDataException)
+            {
+                throw new Exception("The config.json file is not properly formatted. Please check the formatting of the config.json on https://jsonlint.com/");
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                throw new Exception("The config.json file is required and could not be found.");
+            }
 
             // Load the accounts
             InstagramProcessor.AccountFinder.LoadAccounts();

@@ -19,9 +19,9 @@ namespace Instagram_Reels_Bot
         private DiscordShardedClient _client;
         private InteractionService _interact;
 
-        static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            new Program().MainAsync().GetAwaiter().GetResult();
+            await new Program().MainAsync();
         }
 
         public Program()

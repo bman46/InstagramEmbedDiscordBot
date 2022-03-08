@@ -19,9 +19,32 @@ namespace Instagram_Reels_Bot
         private DiscordShardedClient _client;
         private InteractionService _interact;
 
+        /// <summary>
+        /// Main entry point for the program
+        /// </summary>
+        /// <param name="args">Use -error startup flag to bypass error press q prompt.</param>
+        /// <returns></returns>
         public static async Task Main(string[] args)
         {
-            await new Program().MainAsync();
+            try
+            {
+                await new Program().MainAsync();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("ERROR: " + e.Message);
+
+                // Allow for users to bypass with -error flag.
+                // Useful for linux services.
+                if (!(Array.IndexOf(args, "-error") >= 0))
+                {
+                    Console.WriteLine("\nA critical error (listed above) has occured and the bot cannot proceed. Press 'q' to quit.");
+                    // Wait until q is pressed:
+                    while (Console.ReadKey().KeyChar != 'q') { }
+                }
+                // Throw the exception (for debugging)
+                throw;
+            }
         }
 
         public Program()
@@ -31,8 +54,19 @@ namespace Instagram_Reels_Bot
                 .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile(path: "config.json");
 
-            // build the configuration and assign to _config          
-            _config = _builder.Build();
+            // build the configuration and assign to _config
+            try
+            {
+                _config = _builder.Build();
+            }
+            catch (System.IO.InvalidDataException)
+            {
+                throw new Exception("The config.json file is not properly formatted. Please check the formatting of the config.json on https://jsonlint.com/");
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                throw new Exception("The config.json file is required and could not be found.");
+            }
 
             // Load the accounts
             InstagramProcessor.AccountFinder.LoadAccounts();

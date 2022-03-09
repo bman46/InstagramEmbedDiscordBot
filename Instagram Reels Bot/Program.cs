@@ -109,7 +109,7 @@ namespace Instagram_Reels_Bot
                 await client.LoginAsync(TokenType.Bot, _config["Token"]);
                 await client.StartAsync();
 
-                //Set status:
+                // Set status:
                 string status = "for Instagram links";
                 ActivityType activity = ActivityType.Watching;
 
@@ -165,7 +165,7 @@ namespace Instagram_Reels_Bot
                 Console.WriteLine("Global");
                 await _interact.RegisterCommandsGloballyAsync(true);
             }
-
+            
             return Task.CompletedTask;
         }
 

@@ -89,7 +89,7 @@ namespace Instagram_Reels_Bot.Services
             //DMs:
             if (message.Channel.GetType() == typeof(SocketDMChannel))
             {
-                //TODO: Move this to a module file and make it a switch statement:
+                //TODO: Move this to a module file:
                 if (message.Content.ToLower().StartsWith("debug"))
                 {
                     if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
@@ -210,6 +210,23 @@ namespace Instagram_Reels_Bot.Services
                             //Let the user know its being worked on:
                             await message.ReplyAsync("Working on it.");
                         }
+                    }
+                }
+                else if (message.Content.ToLower().StartsWith("overwrite"))
+                {
+                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    {
+                        // Load all registered commands:
+                        var commands = await _client.Rest.GetGlobalApplicationCommands();
+                        // Delete all commands:
+                        foreach(var command in commands)
+                        {
+                            await command.DeleteAsync();
+                        }
+                        // Re-register commands:
+                        await _interact.RegisterCommandsGloballyAsync(true);
+                        // Alert user:
+                        await message.ReplyAsync("Slash commands resynced.");
                     }
                 }
                 return;

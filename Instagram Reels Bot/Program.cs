@@ -123,7 +123,7 @@ namespace Instagram_Reels_Bot
                     {
                         Console.WriteLine("Could not find 'statusActivity' value in enum.");
 
-                        //Default to Watching:
+                        // Default to Watching:
                         activity = ActivityType.Watching;
                     }
                 }
@@ -133,7 +133,7 @@ namespace Instagram_Reels_Bot
                 // we get the CommandHandler class here and call the InitializeAsync method to start things up for the CommandHandler service
                 await services.GetRequiredService<CommandHandler>().InitializeAsync();
 
-                //Start the subscription service:
+                // Start the subscription service:
                 services.GetRequiredService<Subscriptions>().Initialize();
 
                 await Task.Delay(-1);
@@ -150,7 +150,7 @@ namespace Instagram_Reels_Bot
         {
             Console.WriteLine(shard.ShardId+" Shard Ready");
 
-            //Register Slash Commands:
+            // Register Slash Commands:
             Console.WriteLine("Register Commands...");
             if (IsDebug())
             {

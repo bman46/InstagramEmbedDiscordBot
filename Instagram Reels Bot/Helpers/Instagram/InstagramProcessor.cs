@@ -9,6 +9,7 @@ using InstagramApiSharp.Classes;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using Instagram_Reels_Bot.Helpers.Instagram;
+using System.Web;
 
 namespace Instagram_Reels_Bot.Helpers
 {
@@ -336,23 +337,37 @@ namespace Instagram_Reels_Bot.Helpers
                 return new InstagramProcessorResponse("Link must be served over http or https.");
             }
 
-            //Process the link:
-            //process account
+            // Process the link:
+            // Check for link param:
+            try
+            {
+                var queryDictionary = HttpUtility.ParseQueryString(link.Query);
+                if (queryDictionary["index"] != null && postIndex==1)
+                {
+                    postIndex = int.Parse(queryDictionary["index"]);
+                }
+            }
+            catch
+            {
+                Console.WriteLine("Could not adjust index from url.");
+            }
+            
+            // process account
             if (isProfileLink(link))
             {
                 return await ProcessAccountAsync(link, tier);
             }
-            //Process story
+            // Process story
             if (isStory(link))
             {
                 return await StoryProcessorAsync(url, tier);
             }
-            //TODO Highlights:
+            // TODO Highlights:
             else if (isHighlight(link))
             {
                 return new InstagramProcessorResponse("Highlights are not supported yet.");
             }
-            //all others:
+            // all others:
             else
             {
                 return await PostProcessorAsync(url, postIndex, tier);

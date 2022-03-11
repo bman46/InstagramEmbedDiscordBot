@@ -79,7 +79,11 @@ namespace Instagram_Reels_Bot.Services
             // ensures we don't process system/other bot messages
             if (!(rawMessage is SocketUserMessage message))
             {
-                return;
+                // Allow config option to allow bots:
+                if (string.IsNullOrEmpty(_config["AllowBots"]) || _config["AllowBots"].ToLower()!="true")
+                {
+                    return;
+                }
             }
 
             if (message.Source != MessageSource.User)

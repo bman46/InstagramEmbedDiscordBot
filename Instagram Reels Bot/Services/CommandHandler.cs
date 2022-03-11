@@ -76,15 +76,19 @@ namespace Instagram_Reels_Bot.Services
         // this class is where the magic starts, and takes actions upon receiving messages
         public async Task MessageReceivedAsync(SocketMessage rawMessage)
         {
-            // ensures we don't process system/other bot messages
             if (!(rawMessage is SocketUserMessage message))
             {
                 return;
             }
 
+            // ensures we don't process system/other bot messages
             if (message.Source != MessageSource.User)
             {
-                return;
+                // Add exception to this rule if desired:
+                if(string.IsNullOrEmpty(_config["AllowBotMessages"]) || _config["AllowBotMessages"].ToLower() != "true")
+                {
+                    return;
+                }
             }
             //DMs:
             if (message.Channel.GetType() == typeof(SocketDMChannel))

@@ -22,7 +22,7 @@ namespace Instagram_Reels_Bot.Helpers
         /// <returns></returns>
         public override async Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo commandInfo, IServiceProvider services)
         {
-            if (context.Interaction is not SocketMessageComponent messageComponent)
+            if (context.Interaction is not IComponentInteraction messageComponent)
                 return PreconditionResult.FromError("This attribute does not work for application commands!");
 
             var builder = new ComponentBuilder();

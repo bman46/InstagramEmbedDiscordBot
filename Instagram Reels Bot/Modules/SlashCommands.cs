@@ -229,6 +229,8 @@ namespace Instagram_Reels_Bot.Modules
 		[SlashCommand("subscribe", "Get updates when a user posts a new post on Instagram.", runMode: RunMode.Async)]
 		[RequireBotPermission(ChannelPermission.SendMessages)]
 		[RequireBotPermission(ChannelPermission.AttachFiles)]
+		[RequireUserPermission(GuildPermission.Administrator, Group = "UserPerm")]
+		[RequireRole("InstagramBotSubscribe", Group = "UserPerm")]
 		[RequireContext(ContextType.Guild)]
 		public async Task Subscribe([Summary("username", "The username of the Instagram user.")]string username)
 		{
@@ -251,14 +253,6 @@ namespace Instagram_Reels_Bot.Modules
 			if (!_subscriptions.ModuleEnabled)
 			{
 				await RespondAsync("Subscriptions module is currently disabled.", ephemeral: true);
-				return;
-			}
-
-			//Check role:
-			var role = (Context.User as SocketGuildUser).Roles.FirstOrDefault(role => role.Name == "InstagramBotSubscribe");
-			if (role == null && !(Context.User as SocketGuildUser).GuildPermissions.Administrator)
-            {
-				await RespondAsync("You need guild Administrator permission or the role `InstagramBotSubscribe` assigned to your account to perform this action.", ephemeral: true);
 				return;
 			}
 
@@ -308,6 +302,8 @@ namespace Instagram_Reels_Bot.Modules
 			await FollowupAsync("Success! You will receive new posts to this channel. They will not be instant and accounts are checked on a time interval.");
 		}
 		[SlashCommand("unsubscribe", "Unsubscribe to updates from selectable Instagram accounts.", runMode: RunMode.Async)]
+		[RequireUserPermission(GuildPermission.Administrator, Group = "UserPerm")]
+		[RequireRole("InstagramBotSubscribe", Group = "UserPerm")]
 		[RequireContext(ContextType.Guild)]
 		public async Task Unsubscribe()
 		{
@@ -315,14 +311,6 @@ namespace Instagram_Reels_Bot.Modules
 			if (!_subscriptions.ModuleEnabled)
 			{
 				await RespondAsync("Subscriptions module is currently disabled.", ephemeral: true);
-				return;
-			}
-
-			//Check role:
-			var role = (Context.User as SocketGuildUser).Roles.FirstOrDefault(role => role.Name == "InstagramBotSubscribe");
-			if (role == null && !(Context.User as SocketGuildUser).GuildPermissions.Administrator)
-			{
-				await RespondAsync("You need guild Administrator permission or the role `InstagramBotSubscribe` assigned to your account to perform this action.", ephemeral: true);
 				return;
 			}
 
@@ -389,6 +377,8 @@ namespace Instagram_Reels_Bot.Modules
 			await FollowupAsync(embed: embed.Build(), components: builder.Build());
 		}
 		[SlashCommand("unsubscribeall", "Unsubscribe from all Instagram accounts.", runMode: RunMode.Async)]
+		[RequireUserPermission(GuildPermission.Administrator, Group = "UserPerm")]
+		[RequireRole("InstagramBotSubscribe", Group = "UserPerm")]
 		[RequireContext(ContextType.Guild)]
 		public async Task UnsubscribeAll()
         {
@@ -396,14 +386,6 @@ namespace Instagram_Reels_Bot.Modules
 			if (!_subscriptions.ModuleEnabled)
 			{
 				await RespondAsync("Subscriptions module is currently disabled.", ephemeral: true);
-				return;
-			}
-
-			//Check role:
-			var role = (Context.User as SocketGuildUser).Roles.FirstOrDefault(role => role.Name == "InstagramBotSubscribe");
-			if (role == null && !(Context.User as SocketGuildUser).GuildPermissions.Administrator)
-			{
-				await RespondAsync("You need guild Administrator permission or the role `InstagramBotSubscribe` assigned to your account to perform this action.", ephemeral: true);
 				return;
 			}
 

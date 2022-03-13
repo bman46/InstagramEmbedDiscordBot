@@ -338,7 +338,7 @@ namespace Instagram_Reels_Bot.Modules
 					string username = await instagram.GetIGUsername(user.InstagramID);
 					string channelName = "Unknown";
 
-					//Should channel be deleted or otherwise unknown:
+					// Should channel be deleted or otherwise unknown:
 					try
 					{
 						// Get channel name:
@@ -354,7 +354,8 @@ namespace Instagram_Reels_Bot.Modules
 					menuBuilder.AddOption(optBuilder);
 				}
 			}
-            //Check for subs:
+
+            // Check for subs:
             if (subs.Length < 1)
             {
 				await FollowupAsync("No accounts subscribed.");

@@ -361,23 +361,34 @@ namespace Instagram_Reels_Bot.Services
         {
             if (!arg3.IsSuccess)
             {
+                // Defer if not already done:
+                arg2.Interaction.DeferAsync(true);
+                // Write error to console:
                 Console.WriteLine("Error: " + arg3.Error);
+                
                 switch (arg3.Error)
                 {
                     case InteractionCommandError.UnmetPrecondition:
-                        arg2.Interaction.RespondAsync("Command Failed\n"+arg3.ErrorReason, ephemeral: true);
+                        // Check for userperm error:
+                        if (arg3.ErrorReason.Contains("UserPerm"))
+                        {
+                            arg2.Interaction.FollowupAsync("You are not allowed to execute this command.", ephemeral: true);
+                            break;
+                        }
+
+                        arg2.Interaction.FollowupAsync("Command Failed\n"+arg3.ErrorReason, ephemeral: true);
                         break;
                     case InteractionCommandError.UnknownCommand:
-                        arg2.Interaction.RespondAsync("Unknown command. It may have been recently removed or changed.", ephemeral: true);
+                        arg2.Interaction.FollowupAsync("Unknown command. It may have been recently removed or changed.", ephemeral: true);
                         break;
                     case InteractionCommandError.BadArgs:
-                        arg2.Interaction.FollowupAsync("The provided values are invalid. (BadArgs)");
+                        arg2.Interaction.FollowupAsync("The provided values are invalid. (BadArgs)", ephemeral: true);
                         break;
                     case InteractionCommandError.Exception:
                         //notify owner if desired:
                         if(arg3.ErrorReason.Contains("Invalid Form Body"))
                         {
-                            arg2.Interaction.FollowupAsync("Invalid form body. Please check to ensure that all of your parameters are correct.");
+                            arg2.Interaction.FollowupAsync("Invalid form body. Please check to ensure that all of your parameters are correct.", ephemeral: true);
                             break;
                         }
                         if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
@@ -387,9 +398,9 @@ namespace Instagram_Reels_Bot.Services
                             {
                                 error = error.Substring(0, 2000);
                             }
-                            Discord.UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
+                            UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
                         }
-                        arg2.Interaction.FollowupAsync("Sorry, Something went wrong...");
+                        arg2.Interaction.FollowupAsync("Sorry, Something went wrong...", ephemeral: true);
                         break;
                     case InteractionCommandError.Unsuccessful:
                         //notify owner if desired:
@@ -400,9 +411,9 @@ namespace Instagram_Reels_Bot.Services
                             {
                                 error = error.Substring(0, 2000);
                             }
-                            Discord.UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
+                            UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
                         }
-                        arg2.Interaction.FollowupAsync("Sorry, Something went wrong...");
+                        arg2.Interaction.FollowupAsync("Sorry, Something went wrong...", ephemeral: true);
                         break;
                     default:
                         //notify owner if desired:
@@ -413,7 +424,7 @@ namespace Instagram_Reels_Bot.Services
                             {
                                 error = error.Substring(0, 2000);
                             }
-                            Discord.UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
+                            UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
                         }
                         arg2.Interaction.FollowupAsync("Sorry, Something went wrong...");
                         break;
@@ -433,24 +444,70 @@ namespace Instagram_Reels_Bot.Services
         {
             if (!arg3.IsSuccess)
             {
+                // Defer if not already done:
+                arg2.Interaction.DeferAsync(true);
+
                 switch (arg3.Error)
                 {
                     case InteractionCommandError.UnmetPrecondition:
-                        // implement
+                        // Check for userperm error:
+                        if (arg3.ErrorReason.Contains("UserPerm"))
+                        {
+                            arg2.Interaction.FollowupAsync("You are not allowed to execute this command.", ephemeral: true);
+                            break;
+                        }
+
+                        arg2.Interaction.FollowupAsync("Action Failed\n" + arg3.ErrorReason, ephemeral: true);
                         break;
                     case InteractionCommandError.UnknownCommand:
-                        // implement
+                        arg2.Interaction.FollowupAsync("Unknown action. It may have been recently removed or changed.", ephemeral: true);
                         break;
                     case InteractionCommandError.BadArgs:
-                        // implement
+                        arg2.Interaction.FollowupAsync("The provided values are invalid. (BadArgs)", ephemeral: true);
                         break;
                     case InteractionCommandError.Exception:
-                        // implement
+                        //notify owner if desired:
+                        if (arg3.ErrorReason.Contains("Invalid Form Body"))
+                        {
+                            arg2.Interaction.FollowupAsync("Invalid form body. Please check to ensure that all of your parameters are correct.", ephemeral: true);
+                            break;
+                        }
+                        if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
+                        {
+                            string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + DiscordTools.SlashParamToString(arg2));
+                            if (error.Length > 2000)
+                            {
+                                error = error.Substring(0, 2000);
+                            }
+                            UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
+                        }
+                        arg2.Interaction.FollowupAsync("Sorry, Something went wrong...", ephemeral: true);
                         break;
                     case InteractionCommandError.Unsuccessful:
-                        // implement
+                        //notify owner if desired:
+                        if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
+                        {
+                            string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + DiscordTools.SlashParamToString(arg2));
+                            if (error.Length > 2000)
+                            {
+                                error = error.Substring(0, 2000);
+                            }
+                            UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
+                        }
+                        arg2.Interaction.FollowupAsync("Sorry, Something went wrong...", ephemeral: true);
                         break;
                     default:
+                        //notify owner if desired:
+                        if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
+                        {
+                            string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + DiscordTools.SlashParamToString(arg2));
+                            if (error.Length > 2000)
+                            {
+                                error = error.Substring(0, 2000);
+                            }
+                            UserExtensions.SendMessageAsync(_client.GetUser(ulong.Parse(_config["OwnerID"])), error);
+                        }
+                        arg2.Interaction.FollowupAsync("Sorry, Something went wrong...");
                         break;
                 }
             }

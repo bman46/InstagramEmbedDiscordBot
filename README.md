@@ -1,4 +1,7 @@
 # Instagram Embed Discord Bot
+[![CodeQL](https://github.com/bman46/InstagramEmbedDiscordBot/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/bman46/InstagramEmbedDiscordBot/actions/workflows/codeql-analysis.yml)
+[![Publish](https://github.com/bman46/InstagramEmbedDiscordBot/actions/workflows/AutoRelease.yml/badge.svg)](https://github.com/bman46/InstagramEmbedDiscordBot/actions/workflows/AutoRelease.yml)
+
 Delivers new posts from Instagram accounts to a Discord channel.
 Embeds linked videos and images from users linked Instagram posts, videos, and reels into a Discord chat.
 

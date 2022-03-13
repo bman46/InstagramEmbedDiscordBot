@@ -369,6 +369,13 @@ namespace Instagram_Reels_Bot.Services
                 switch (arg3.Error)
                 {
                     case InteractionCommandError.UnmetPrecondition:
+                        // Check for userperm error:
+                        if (arg3.ErrorReason.Contains("UserPerm"))
+                        {
+                            arg2.Interaction.FollowupAsync("You are not allowed to execute this command.", ephemeral: true);
+                            break;
+                        }
+
                         arg2.Interaction.FollowupAsync("Command Failed\n"+arg3.ErrorReason, ephemeral: true);
                         break;
                     case InteractionCommandError.UnknownCommand:
@@ -443,6 +450,13 @@ namespace Instagram_Reels_Bot.Services
                 switch (arg3.Error)
                 {
                     case InteractionCommandError.UnmetPrecondition:
+                        // Check for userperm error:
+                        if (arg3.ErrorReason.Contains("UserPerm"))
+                        {
+                            arg2.Interaction.FollowupAsync("You are not allowed to execute this command.", ephemeral: true);
+                            break;
+                        }
+
                         arg2.Interaction.FollowupAsync("Action Failed\n" + arg3.ErrorReason, ephemeral: true);
                         break;
                     case InteractionCommandError.UnknownCommand:

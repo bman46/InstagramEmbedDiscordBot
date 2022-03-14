@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
-using Discord.WebSocket;
 using System.Linq;
 using System.Collections.Generic;
 using Instagram_Reels_Bot.Helpers;

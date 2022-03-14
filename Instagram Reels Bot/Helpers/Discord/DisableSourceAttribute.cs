@@ -2,8 +2,6 @@
 using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
-using Discord.Rest;
-using Discord.WebSocket;
 
 namespace Instagram_Reels_Bot.Helpers
 {

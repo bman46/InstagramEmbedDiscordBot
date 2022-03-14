@@ -35,7 +35,7 @@ namespace Instagram_Reels_Bot.Helpers
                     {
                         case ButtonComponent button:
                             builder.WithButton(button.ToBuilder()
-                                .WithDisabled(true), i);
+                                .WithDisabled(!button.CustomId.StartsWith("delete-message-")), i);
                             break;
                         case SelectMenuComponent menu:
                             builder.WithSelectMenu(menu.ToBuilder()

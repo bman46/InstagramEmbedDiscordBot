@@ -313,7 +313,7 @@ namespace Instagram_Reels_Bot.Modules
 				return;
 			}
 
-			//Buy more time to process posts:
+			//Buy more time to process:
 			await DeferAsync(false);
 
 			// Get Accounts:
@@ -371,7 +371,8 @@ namespace Instagram_Reels_Bot.Modules
 			menuBuilder.WithMaxValues(menuBuilder.Options.Count);
 			// Component Builder:
 			var builder = new ComponentBuilder()
-				.WithSelectMenu(menuBuilder);
+				.WithSelectMenu(menuBuilder)
+				.WithButton("Delete Message", $"delete-message-{Context.User.Id}", style: ButtonStyle.Danger);
 
 			// Send message
 			await FollowupAsync(embed: embed.Build(), components: builder.Build());

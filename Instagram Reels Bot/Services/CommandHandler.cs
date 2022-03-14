@@ -434,7 +434,8 @@ namespace Instagram_Reels_Bot.Services
             return Task.CompletedTask;
         }
         /// <summary>
-        /// Not currently used
+        /// Handle an executed component
+        /// Used for buttons, drop downs, etc.
         /// </summary>
         /// <param name="arg1"></param>
         /// <param name="arg2"></param>

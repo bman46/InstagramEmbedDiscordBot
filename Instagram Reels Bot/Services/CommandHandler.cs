@@ -362,7 +362,14 @@ namespace Instagram_Reels_Bot.Services
             if (!arg3.IsSuccess)
             {
                 // Defer if not already done:
-                arg2.Interaction.DeferAsync(true);
+                try
+                {
+                    arg2.Interaction.DeferAsync(true).GetAwaiter().GetResult();
+                }
+                catch
+                {
+                    // ignore
+                }
                 // Write error to console:
                 Console.WriteLine("Error: " + arg3.Error);
                 
@@ -372,10 +379,9 @@ namespace Instagram_Reels_Bot.Services
                         // Check for userperm error:
                         if (arg3.ErrorReason.Contains("UserPerm"))
                         {
-                            arg2.Interaction.FollowupAsync("You are not allowed to execute this command.", ephemeral: true);
+                            arg2.Interaction.FollowupAsync("You do not have permission to execute this command.", ephemeral: true);
                             break;
                         }
-
                         arg2.Interaction.FollowupAsync("Command Failed\n"+arg3.ErrorReason, ephemeral: true);
                         break;
                     case InteractionCommandError.UnknownCommand:
@@ -446,7 +452,14 @@ namespace Instagram_Reels_Bot.Services
             if (!arg3.IsSuccess)
             {
                 // Defer if not already done:
-                arg2.Interaction.DeferAsync(true);
+                try
+                {
+                    arg2.Interaction.DeferAsync(true).GetAwaiter().GetResult();
+                }
+                catch
+                {
+                    // ignore
+                }
 
                 switch (arg3.Error)
                 {
@@ -454,7 +467,7 @@ namespace Instagram_Reels_Bot.Services
                         // Check for userperm error:
                         if (arg3.ErrorReason.Contains("UserPerm"))
                         {
-                            arg2.Interaction.FollowupAsync("You are not allowed to execute this command.", ephemeral: true);
+                            arg2.Interaction.FollowupAsync("You do not have permission to execute this command.", ephemeral: true);
                             break;
                         }
 

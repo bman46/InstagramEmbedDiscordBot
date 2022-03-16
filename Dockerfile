@@ -4,6 +4,7 @@ MAINTAINER notarock <roch.damour@gmail.com>
 WORKDIR /usr/src
 
 ARG src="Instagram Reels Bot"
+ENV APP_ENV="Docker"
 
 COPY ${src}/*.csproj ./
 RUN dotnet restore
@@ -17,4 +18,4 @@ WORKDIR /app
 
 COPY --from=builder /usr/src/app .
 
-CMD ["dotnet", "Instagram Reels Bot.dll"]
+CMD ["dotnet", "Instagram Reels Bot.dll", "-error"]

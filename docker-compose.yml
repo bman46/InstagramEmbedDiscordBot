@@ -1,0 +1,8 @@
+version: "2"
+
+services:
+  instagram_embed_discord_bot:
+    build: .
+    restart: always
+    volumes:
+      - "./config.json:/app/config.json"

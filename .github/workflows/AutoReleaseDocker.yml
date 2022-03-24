@@ -3,7 +3,7 @@ name: "Build and push docker image to ghcr.io"
 on:
   push:
     tags:
-      - v*
+      - *
 
 jobs:
   Deploy:

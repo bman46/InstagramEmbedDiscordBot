@@ -20,7 +20,7 @@ Please sign up for a [MongoDB Atlas](https://www.mongodb.com/atlas/database) acc
 3. Select `Connect Your Application`
 4. Under the driver dropdown, Select `C# / .NET`
 5. Under version, select `2.13` or `2.13 or later`
-6. Copy the connection string from the box and replace `<password>` with the password you created earlier.
+6. Copy the connection string from the box and replace `<password>` with the password you created earlier. Make sure that your remove the `<` and `>` as well.
    - If you forgot this password, you can re-create it again under the `Database Access` tab.
 7. Paste the connection string into the `MongoDBUrl` parameter in the `config.json` file.
 8. Set `AllowSubscriptions` to `true` in the config.json file.

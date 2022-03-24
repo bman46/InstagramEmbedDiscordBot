@@ -567,23 +567,6 @@ namespace Instagram_Reels_Bot.Helpers
 
             //Get user data:
             long userId = user.Value.Pk;
-            long followers = -1, following = -1, posts = -1;
-            string bio = "";
-            try
-            {
-                var userData = await instaApi.UserProcessor.GetUserInfoByIdAsync(userId);
-
-                followers = userData.Value.FollowerCount;
-                following = userData.Value.FollowingCount;
-                posts = userData.Value.MediaCount;
-                bio = (string.IsNullOrEmpty(userData.Value.Biography)) ? ("") : (userData.Value.Biography);
-            }
-            catch (Exception e)
-            {
-                //Not too important, but log anyway.
-                Console.WriteLine("Error loading profile info. Error: " + e);
-                bio = "Error loading profile information.";
-            }
 
             //Get the story:
             var stories = await instaApi.StoryProcessor.GetUserStoryAsync(userId);

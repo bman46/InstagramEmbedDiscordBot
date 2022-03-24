@@ -1,8 +1,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS builder
 MAINTAINER notarock <roch.damour@gmail.com>
 
-LABEL org.opencontainers.image.source "https://github.com/bman46/InstagramEmbedDiscordBot"
-LABEL org.opencontainers.image.description "Usage: `docker run -v $(pwd)/config.json:/app/config.json ghcr.io/notarock/instagramembeddiscordbot`"
+LABEL org.opencontainers.image.source="https://github.com/bman46/InstagramEmbedDiscordBot"
+LABEL org.opencontainers.image.description="Usage: `docker run -v $(pwd)/config.json:/app/config.json ghcr.io/notarock/instagramembeddiscordbot`"
 
 WORKDIR /usr/src
 

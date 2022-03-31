@@ -10,6 +10,7 @@ namespace Instagram_Reels_Bot.Helpers
         /// </summary>
 		private InstagramProcessorResponse Response;
 		private string Requester;
+		private bool IsSpoiler;
 		private bool RequesterIsKnown
 		{
 			get
@@ -21,19 +22,22 @@ namespace Instagram_Reels_Bot.Helpers
         /// Create an instance of the embed builder.
         /// </summary>
         /// <param name="Response"></param>
-		public IGEmbedBuilder(InstagramProcessorResponse response, string requester)
+		public IGEmbedBuilder(InstagramProcessorResponse response, string requester, bool isSpoiler = false)
 		{
 			this.Response = response;
 			this.Requester = requester;
+			this.IsSpoiler = isSpoiler;
 		}
 		/// <summary>
         /// For use when requester is not needed or unknown.
         /// </summary>
         /// <param name="response"></param>
-		public IGEmbedBuilder(InstagramProcessorResponse response)
+		public IGEmbedBuilder(InstagramProcessorResponse response, bool isSpoiler = false)
         {
 			this.Response = response;
-        }
+			this.IsSpoiler = isSpoiler;
+
+		}
 		/// <summary>
         /// Automatically determines what embed type to use
         /// </summary>
@@ -109,7 +113,10 @@ namespace Instagram_Reels_Bot.Helpers
 					embed.ImageUrl = Response.contentURL.ToString();
 				}
 			}
-
+            if (IsSpoiler)
+            {
+				embed.Description = "||" + embed.Description + "||";
+			}
 			return embed.Build();
 		}
 		/// <summary>

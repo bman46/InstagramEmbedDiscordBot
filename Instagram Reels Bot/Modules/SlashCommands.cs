@@ -27,7 +27,7 @@ namespace Instagram_Reels_Bot.Modules
 		}
 
 		[SlashCommand("link","Processes an Instagram link.", runMode: RunMode.Async)]
-		public async Task Link(string url, [Summary(description: "The post number for the desired post in a carousel.")][MinValue(1)] int index = 1)
+		public async Task Link(string url, [Summary(description: "The post number for the desired post in a carousel.")][MinValue(1)] int index = 1, [Summary(description: "Set to true to mark the image/video and caption as a spoiler.")] bool HasSpoilers = false)
         {
 			// Check whitelist:
 			if (!Whitelist.IsServerOnList(((Context.Guild == null) ? (0) : (Context.Guild.Id))))
@@ -61,7 +61,7 @@ namespace Instagram_Reels_Bot.Modules
             }
 
 			//Create embed builder:
-			IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username);
+			IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username, HasSpoilers);
 
 			//Create component builder:
 			IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id);
@@ -73,7 +73,7 @@ namespace Instagram_Reels_Bot.Modules
 					//Response with stream:
 					using (Stream stream = new MemoryStream(response.stream))
 					{
-						FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.");
+						FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.", isSpoiler: HasSpoilers);
 
 						await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.AutoSelector(), components: component.AutoSelector());
 					}
@@ -91,7 +91,7 @@ namespace Instagram_Reels_Bot.Modules
 				{
 					using (Stream stream = new MemoryStream(response.stream))
 					{
-						FileAttachment attachment = new FileAttachment(stream, "IGMedia.jpg", "An Instagram Image.");
+						FileAttachment attachment = new FileAttachment(stream, "IGMedia.jpg", "An Instagram Image.", isSpoiler: HasSpoilers);
 						await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());
 					}
 				}

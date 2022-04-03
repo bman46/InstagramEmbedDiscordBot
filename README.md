@@ -3,7 +3,7 @@
 [![Publish](https://github.com/bman46/InstagramEmbedDiscordBot/actions/workflows/AutoRelease.yml/badge.svg)](https://github.com/bman46/InstagramEmbedDiscordBot/actions/workflows/AutoRelease.yml)
 
 Delivers new posts from Instagram accounts to a Discord channel.
-Embeds linked videos and images from users linked Instagram posts, videos, and reels into a Discord chat. Public bot had over 500k users and over 2k servers before being shut down by the owner due to resource restrictions.
+Embeds linked videos and images from users linked Instagram posts, videos, and reels into a Discord chat. Public bot had over 500k users across over 2k servers before being shut down by the owner due to resource restrictions.
 
 [Support Discord Server](https://discord.gg/6K3tdsYd6J)
 

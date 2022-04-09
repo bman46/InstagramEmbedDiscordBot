@@ -139,8 +139,7 @@ namespace Instagram_Reels_Bot.Helpers
                 using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), apiUrl)
                 {
                     Content = new StringContent("{\"flags\": 4}", System.Text.Encoding.UTF8, "application/json"),
-                }
-                )
+                })
                 {
 
                     request.Headers.Add("User-Agent", "DiscordBot (https://github.com/bman46/InstagramEmbedDiscordBot, 1.0)");

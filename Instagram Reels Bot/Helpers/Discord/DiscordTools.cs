@@ -136,16 +136,19 @@ namespace Instagram_Reels_Bot.Helpers
 
                 Uri apiUrl = new Uri("https://discord.com/api/v9/channels/" + channelId + "/messages/" + messageId);
 
-                var request = new HttpRequestMessage(new HttpMethod("PATCH"), apiUrl)
+                using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), apiUrl)
                 {
                     Content = new StringContent("{\"flags\": 4}", System.Text.Encoding.UTF8, "application/json"),
-                };
+                }
+                )
+                {
 
-                request.Headers.Add("User-Agent", "DiscordBot (https://github.com/bman46/InstagramEmbedDiscordBot, 1.0)");
-                request.Headers.Add("Authorization", "Bot " + config["Token"]);
+                    request.Headers.Add("User-Agent", "DiscordBot (https://github.com/bman46/InstagramEmbedDiscordBot, 1.0)");
+                    request.Headers.Add("Authorization", "Bot " + config["Token"]);
 
-                //Send the request:
-                client.Send(request);
+                    //Send the request:
+                    client.Send(request);
+                }
             }
         }
         /// <summary>

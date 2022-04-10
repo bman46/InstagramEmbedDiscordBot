@@ -19,7 +19,7 @@ Embeds linked videos and images from users linked Instagram posts, videos, and r
 ![Example of reels bot on discord](/docs/Content/ReadMe/Example.png)
 
 ### Config.json format:
-Create a new file named `config.json`, copy and paste the contents below into it, fill it out, and then save it in the same directory as the Instagram Embed executable file. Replace any fields that are optional and not filled in with `""`. Example: `"OTPSecret": "",`.
+Create a new file named `config.json`, copy and paste the contents below into it, fill it out, and then save it in the same directory as the Instagram Embed executable file. Replace any fields that are optional and not filled in with `""`. Example: `"OTPSecret": "",`. If you get an error with your JSON formatting, you can check your JSON syntax on [jsonlint.com](https://jsonlint.com/).
 ```
 {
   "Token": "Token",

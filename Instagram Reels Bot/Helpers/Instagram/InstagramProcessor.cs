@@ -245,10 +245,10 @@ namespace Instagram_Reels_Bot.Helpers
         /// The Instagram username of the user.
         /// </summary>
         /// <param name="igid"></param>
-        /// <returns></returns>
+        /// <returns>Null if account cannot be found.</returns>
         public async Task<string> GetIGUsername(string igid)
         {
-            return (await instaApi.UserProcessor.GetUserInfoByIdAsync(long.Parse(igid))).Value.Username;
+            return (await instaApi.UserProcessor.GetUserInfoByIdAsync(long.Parse(igid))).Value?.Username;
         }
         /// <summary>
         /// Checks to see if an account is public and accesible or not.
@@ -651,6 +651,13 @@ namespace Instagram_Reels_Bot.Helpers
         {
             //get the IG user:
             var user = (await instaApi.UserProcessor.GetUserInfoByIdAsync(userID)).Value;
+            // check for null values:
+            if(user == null)
+            {
+                Console.WriteLine("Account no longer exists.");
+                return new InstagramProcessorResponse[1] { new InstagramProcessorResponse("NullAccount") };
+            }
+
             List<InstagramProcessorResponse> responses = new List<InstagramProcessorResponse>();
             var LatestMedia = (await instaApi.UserProcessor.GetUserMediaAsync(user.Username, PaginationParameters.MaxPagesToLoad(1))).Value;
 

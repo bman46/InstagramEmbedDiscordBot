@@ -335,15 +335,17 @@ namespace Instagram_Reels_Bot.Modules
 				{
 					// Get username:
 					string username = await instagram.GetIGUsername(user.InstagramID);
-					string channelName = "Unknown";
+                    if (username == null)
+                    {
+						username = "Deleted Account";
+                    }
 
-					// Should channel be deleted or otherwise unknown:
-					try
-					{
-						// Get channel name:
-						channelName = Context.Guild.GetChannel(ulong.Parse(chan.ChannelID)).Name;
+					string channelName = Context.Guild.GetChannel(ulong.Parse(chan.ChannelID))?.Name;
+					// Channel null check:
+					if(channelName is null)
+                    {
+						channelName = "Unknown Channel";
 					}
-					catch { }
 
 					// Add account option to menu:
 					SelectMenuOptionBuilder optBuilder = new SelectMenuOptionBuilder()
@@ -479,14 +481,18 @@ namespace Instagram_Reels_Bot.Modules
                     if (chan.GuildID.Equals(Context.Guild.Id.ToString()))
                     {
 						string chanMention = "Missing channel.\n";
-                        try
-                        {
-							chanMention = "<#"+Context.Guild.GetChannel(ulong.Parse(chan.ChannelID)).Id+">\n";
-						}catch(Exception e)
-                        {
-							Console.WriteLine(e);
-                        }
-						string accountMention = "- [" + await instagram.GetIGUsername(user.InstagramID) + "](https://www.instagram.com/" + await instagram.GetIGUsername(user.InstagramID) + ")\n";
+						if (Context.Guild.GetChannel(ulong.Parse(chan.ChannelID)) is not null)
+						{
+							chanMention = "<#" + Context.Guild.GetChannel(ulong.Parse(chan.ChannelID)).Id + ">\n";
+						}
+
+						string username = await instagram.GetIGUsername(user.InstagramID);
+						string accountMention = "- Deleted Account";
+						if (username is not null)
+						{
+							accountMention = "- [" + username + "](https://www.instagram.com/" + username + ")\n";
+						}
+
 						if((accountOutput+ accountMention).Length<=1024 && (channelOutput + chanMention).Length <= 1024)
                         {
 							accountOutput += accountMention;

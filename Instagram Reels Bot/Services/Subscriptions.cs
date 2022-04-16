@@ -406,6 +406,11 @@ namespace Instagram_Reels_Bot.Services
                                             }
                                         }
                                     }
+                                    else if (response.error == "NullAccount")
+                                    {
+                                        Console.WriteLine("Removing null account: "+ dbfeed.InstagramID);
+                                        invalidChannels.Add(subbedGuild);
+                                    }
                                     else
                                     {
                                         //TODO: Decide if the user should be informed or not. May create spam.

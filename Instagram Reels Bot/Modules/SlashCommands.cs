@@ -335,6 +335,11 @@ namespace Instagram_Reels_Bot.Modules
 				{
 					// Get username:
 					string username = await instagram.GetIGUsername(user.InstagramID);
+                    if (username == null)
+                    {
+						username = "Deleted Account";
+                    }
+
 					string channelName = "Unknown";
 
 					// Should channel be deleted or otherwise unknown:
@@ -486,7 +491,16 @@ namespace Instagram_Reels_Bot.Modules
                         {
 							Console.WriteLine(e);
                         }
-						string accountMention = "- [" + await instagram.GetIGUsername(user.InstagramID) + "](https://www.instagram.com/" + await instagram.GetIGUsername(user.InstagramID) + ")\n";
+						string username = await instagram.GetIGUsername(user.InstagramID);
+						string accountMention;
+						if (username == null)
+						{
+							accountMention = "- Deleted Account";
+						}
+                        else
+                        {
+							accountMention = "- [" + username + "](https://www.instagram.com/" + username + ")\n";
+						}
 						if((accountOutput+ accountMention).Length<=1024 && (channelOutput + chanMention).Length <= 1024)
                         {
 							accountOutput += accountMention;

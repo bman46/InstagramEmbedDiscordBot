@@ -340,15 +340,12 @@ namespace Instagram_Reels_Bot.Modules
 						username = "Deleted Account";
                     }
 
-					string channelName = "Unknown";
-
-					// Should channel be deleted or otherwise unknown:
-					try
-					{
-						// Get channel name:
-						channelName = Context.Guild.GetChannel(ulong.Parse(chan.ChannelID)).Name;
+					string channelName = Context.Guild.GetChannel(ulong.Parse(chan.ChannelID))?.Name;
+					// Channel null check:
+					if(channelName is null)
+                    {
+						channelName = "Unknown Channel";
 					}
-					catch { }
 
 					// Add account option to menu:
 					SelectMenuOptionBuilder optBuilder = new SelectMenuOptionBuilder()

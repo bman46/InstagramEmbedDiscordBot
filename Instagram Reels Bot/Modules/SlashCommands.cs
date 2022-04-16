@@ -484,23 +484,18 @@ namespace Instagram_Reels_Bot.Modules
                     if (chan.GuildID.Equals(Context.Guild.Id.ToString()))
                     {
 						string chanMention = "Missing channel.\n";
-                        try
-                        {
-							chanMention = "<#"+Context.Guild.GetChannel(ulong.Parse(chan.ChannelID)).Id+">\n";
-						}catch(Exception e)
-                        {
-							Console.WriteLine(e);
-                        }
-						string username = await instagram.GetIGUsername(user.InstagramID);
-						string accountMention;
-						if (username == null)
+						if (Context.Guild.GetChannel(ulong.Parse(chan.ChannelID)) is not null)
 						{
-							accountMention = "- Deleted Account";
+							chanMention = "<#" + Context.Guild.GetChannel(ulong.Parse(chan.ChannelID)).Id + ">\n";
 						}
-                        else
-                        {
+
+						string username = await instagram.GetIGUsername(user.InstagramID);
+						string accountMention = "- Deleted Account";
+						if (username is not null)
+						{
 							accountMention = "- [" + username + "](https://www.instagram.com/" + username + ")\n";
 						}
+
 						if((accountOutput+ accountMention).Length<=1024 && (channelOutput + chanMention).Length <= 1024)
                         {
 							accountOutput += accountMention;

@@ -4,7 +4,6 @@ using Discord.WebSocket;
 using Instagram_Reels_Bot.Helpers;
 using Instagram_Reels_Bot.Services;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Instagram_Reels_Bot.Modules

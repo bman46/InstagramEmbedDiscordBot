@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using OtpNet;
 
 namespace Instagram_Reels_Bot.Helpers.Instagram

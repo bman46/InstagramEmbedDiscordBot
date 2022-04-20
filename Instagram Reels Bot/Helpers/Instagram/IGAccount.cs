@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using InstagramApiSharp.API.Builder;
 using InstagramApiSharp.Classes;
 using InstagramApiSharp.Logger;
-using Microsoft.Extensions.Configuration;
 
 namespace Instagram_Reels_Bot.Helpers.Instagram
 {

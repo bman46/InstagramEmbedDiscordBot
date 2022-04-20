@@ -1,9 +1,4 @@
-﻿using System;
-using Discord;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Discord;
 
 namespace Instagram_Reels_Bot.Helpers
 {

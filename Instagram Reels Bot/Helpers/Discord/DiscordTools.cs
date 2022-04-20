@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Discord;
 using Discord.Commands;
-using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 

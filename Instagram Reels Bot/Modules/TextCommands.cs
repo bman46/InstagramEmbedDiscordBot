@@ -58,6 +58,11 @@ namespace Instagram_Reels_Bot.Modules
             string url = "https://www.instagram.com/stories/" + args.Replace(" ", "/");
             await Responder(url, Context);
         }
+        /// <summary>
+        /// Parses a link to a users profile page.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         [Command("profile", RunMode = RunMode.Async)]
         public async Task ProfileParser([Remainder] string args = null)
         {

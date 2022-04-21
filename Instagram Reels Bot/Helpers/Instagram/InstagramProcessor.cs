@@ -435,7 +435,7 @@ namespace Instagram_Reels_Bot.Helpers
                 }
                 else if (mediaId.Value == null)
                 {
-                    return new InstagramProcessorResponse("No post information returned. Profile links are not supported (if applicable).");
+                    return new InstagramProcessorResponse("No post information returned.");
                 }
                 else
                 {

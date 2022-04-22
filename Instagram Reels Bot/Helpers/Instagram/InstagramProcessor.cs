@@ -443,7 +443,7 @@ namespace Instagram_Reels_Bot.Helpers
                     //Check for failure:
                     if (!mediaSource.Succeeded)
                     {
-                        HandleFailure(mediaSource);
+                        return HandleFailure(mediaSource);
                     }
                 }
 
@@ -736,7 +736,7 @@ namespace Instagram_Reels_Bot.Helpers
                     }
                 default:
                     Console.WriteLine("Error: " + result.Info);
-                    return new InstagramProcessorResponse("Error retrieving the content. The account may be private. Please report this to the admin if the account is public or if this is unexpected.");
+                    return new InstagramProcessorResponse("Error retrieving the content. The account may be private. Please report this to the admin if the account is public or if this is unexpected. (unknown error)");
             }
         }
         #endregion Errors

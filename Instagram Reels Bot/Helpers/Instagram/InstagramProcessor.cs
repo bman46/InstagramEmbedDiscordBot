@@ -720,6 +720,7 @@ namespace Instagram_Reels_Bot.Helpers
                     //Throw error:
                     throw new Exception("Relogin required. Account: "+Account.UserName);
                 case ResponseType.CheckPointRequired:
+                    // Not much is known about this error.
                     throw new Exception("Checkpoint Required error from IG.");
                 case ResponseType.MediaNotFound:
                     return new InstagramProcessorResponse("Could not find that post. Is the account private?");

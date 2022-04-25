@@ -487,7 +487,7 @@ namespace Instagram_Reels_Bot.Modules
 						}
 
 						string username = await instagram.GetIGUsername(user.InstagramID);
-						string accountMention = "- Deleted Account";
+						string accountMention = "- Deleted Account\n";
 						if (username is not null)
 						{
 							accountMention = "- [" + username + "](https://www.instagram.com/" + username + ")\n";

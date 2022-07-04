@@ -356,8 +356,7 @@ namespace Instagram_Reels_Bot.Services
                                                     }
                                                     catch
                                                     {
-                                                        Console.WriteLine("Cannot find channel. Removing from DB.");
-                                                        invalidChannels.Add(subbedGuild);
+                                                        Console.WriteLine("Cannot find channel.");
                                                     }
                                                     if (chan != null)
                                                     {
@@ -415,13 +414,20 @@ namespace Instagram_Reels_Bot.Services
                                     {
                                         //TODO: Decide if the user should be informed or not. May create spam.
                                         Console.WriteLine("Failed auto post. ID: " + dbfeed.InstagramID);
-                                        var chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
-                                        string igUsername = await instagram.GetIGUsername(dbfeed.InstagramID);
-                                        await chan.SendMessageAsync("Failed to get latest posts for " + igUsername + ". Use `/unsubscribe " + igUsername + "` to remove the inaccessible account.");
+                                        //var chan = _client.GetChannel(ulong.Parse(subbedGuild.ChannelID)) as IMessageChannel;
+                                        //string igUsername = await instagram.GetIGUsername(dbfeed.InstagramID);
+                                        //await chan.SendMessageAsync("Failed to get latest posts for " + igUsername + ". Use `/unsubscribe " + igUsername + "` to remove the inaccessible account.");
                                     }
                                 }
                                 //Remove all invalid channels:
-                                invalidChannels.ForEach(item => dbfeed.SubscribedChannels.RemoveAll(c => c.ChannelID.Equals(item.ChannelID)));
+                                if (_config["DisableSubscribeCleanup"] is null || !bool.Parse(_config["DisableSubscribeCleanup"]))
+                                {
+                                    invalidChannels.ForEach(item => dbfeed.SubscribedChannels.RemoveAll(c => c.ChannelID.Equals(item.ChannelID)));
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Subscribe cleanup is disabled.");
+                                }
                             }
                             //Update database:
                             await this.FollowedAccountsContainer.ReplaceOneAsync(x => x.InstagramID == dbfeed.InstagramID, dbfeed, new ReplaceOptions { IsUpsert = true });

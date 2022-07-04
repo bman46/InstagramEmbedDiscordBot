@@ -650,13 +650,18 @@ namespace Instagram_Reels_Bot.Helpers
         public async Task<InstagramProcessorResponse[]> PostsSinceDate(long userID, DateTime startDate)
         {
             //get the IG user:
-            var user = (await instaApi.UserProcessor.GetUserInfoByIdAsync(userID)).Value;
+            var userPull = (await instaApi.UserProcessor.GetUserInfoByIdAsync(userID));
             // check for null values:
-            if(user == null)
+            if (!userPull.Succeeded && userPull.Info.Message == "Target user not found")
             {
                 Console.WriteLine("Account no longer exists.");
                 return new InstagramProcessorResponse[1] { new InstagramProcessorResponse("NullAccount") };
             }
+            else if(!userPull.Succeeded)
+            {
+                return new InstagramProcessorResponse[1] { new InstagramProcessorResponse("Unknown") };
+            }
+            var user = userPull.Value;
 
             List<InstagramProcessorResponse> responses = new List<InstagramProcessorResponse>();
             var LatestMedia = (await instaApi.UserProcessor.GetUserMediaAsync(user.Username, PaginationParameters.MaxPagesToLoad(1))).Value;

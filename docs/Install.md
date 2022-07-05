@@ -76,7 +76,7 @@ Invite the Discord bot to your server.
 
 `https://discord.com/oauth2/authorize?client_id=YOURBOTID&permissions=60480&scope=applications.commands%20bot`
 
-Replace `YOURBOTID` with the application ID from the Discord Developer Portal.
+Replace `YOURBOTID` with the application ID from the Discord Developer Portal. Paste the URL into a web browser and navigate to the site to complete the invite.
 
 ### Step 6:
 Launch the program.

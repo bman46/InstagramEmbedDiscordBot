@@ -50,6 +50,27 @@ Open the `config.json` file from the previous step with any text editor (such as
 ```
 Replace `IG Username` with the username of the throw away Instagram account. Then, replace `IG Password` with the password to the Instagram account.
 
+For multiple accounts, use the following syntax:
+```
+  "IGAccounts": [
+    {
+      "username": "IG Username",
+      "password": "IG Password",
+      "OTPSecret": ""
+    },
+    {
+      "username": "IG Username",
+      "password": "IG Password",
+      "OTPSecret": ""
+    },
+    {
+      "username": "IG Username",
+      "password": "IG Password",
+      "OTPSecret": ""
+    }
+  ],
+```
+
 ### Step 5:
 Invite the Discord bot to your server.
 

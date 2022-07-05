@@ -60,9 +60,9 @@ Replace `YOURBOTID` with the application ID from the Discord Developer Portal.
 ### Step 6:
 Launch the program.
 
-On Windows, find the `Instagram Embed Bot.exe` file and open it. A command line window should open and the bot should indicate that it is online in Discord.
+On Windows, find the `Instagram Reels Bot.exe` file and open it. A command line window should open and the bot should indicate that it is online in Discord.
 
-On Linux and MacOS, find the file named `Instagram Embed Bot` with no extensions. Launch that file and a terminal should appear and the bot should indicate that it is online in Discord.
+On Linux and MacOS, find the file named `Instagram Reels Bot` with no extensions. Launch that file and a terminal should appear and the bot should indicate that it is online in Discord.
 
 ### Step 7:
 Test the bot by typing `/link`. Discord should acknowledge the slash command and show you parameters to enter. Then, put a link to the Instagram post in the `URL` parameter and hit enter. The bot should reply with the contents of the post.

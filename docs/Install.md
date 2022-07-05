@@ -54,18 +54,18 @@ For multiple accounts, use the following syntax:
 ```
   "IGAccounts": [
     {
-      "username": "IG Username",
-      "password": "IG Password",
+      "username": "IG Username 1",
+      "password": "IG Password 1",
       "OTPSecret": ""
     },
     {
-      "username": "IG Username",
-      "password": "IG Password",
+      "username": "IG Username 2",
+      "password": "IG Password 2",
       "OTPSecret": ""
     },
     {
-      "username": "IG Username",
-      "password": "IG Password",
+      "username": "IG Username 3",
+      "password": "IG Password 3",
       "OTPSecret": ""
     }
   ],

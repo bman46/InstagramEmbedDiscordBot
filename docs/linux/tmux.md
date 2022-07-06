@@ -3,19 +3,19 @@ Tmux is a terminal emulator. Essentially, it will act as a seperate session that
 
 > **_NOTE:_**  Tmux sessions will be closed when the computer is restarted or shut down. You will need to reinitalize the bot when the computer starts back up.
 
-## Setup
-1. SSH to your machine
-2. Install tmux
-
-    Ubuntu/Debian:
+## Install tmux
+Ubuntu/Debian:
 ```
 sudo apt-get update
 sudo apt-get install tmux
 ```
-    Fedora/CentOS:
+Fedora/CentOS:
 ```
 sudo dnf -y install tmux
 ```
+
+## Setup
+1. SSH to your machine
 3. Start a tmux session with the following command
 ```
 tmux new -s instagram_bot

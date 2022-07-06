@@ -83,7 +83,9 @@ Launch the program.
 
 On Windows, find the `Instagram Reels Bot.exe` file and open it. A command line window should open and the bot should indicate that it is online in Discord.
 
-On Linux and MacOS, find the file named `Instagram Reels Bot` with no extensions. Launch that file and a terminal should appear and the bot should indicate that it is online in Discord.
+On Linux and MacOS, find the file named `Instagram Reels Bot` with no extensions. Launch that file and a terminal should appear and the bot should indicate that it is online in Discord. On Linux, using tmux is recommended as it will run the program in the background. A creating a service is also a very good but more advanced approach.
+
+> **_NOTE:_**  The program and computer must be running in order for the bot to process requests. Exiting the Window or closing the SSH session (without using tmux or a service) will stop the bot from running.
 
 ### Step 7:
 Test the bot by typing `/link`. Discord should acknowledge the slash command and show you parameters to enter. Then, put a link to the Instagram post in the `URL` parameter and hit enter. The bot should reply with the contents of the post.

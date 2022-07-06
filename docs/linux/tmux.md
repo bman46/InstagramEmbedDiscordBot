@@ -1,7 +1,7 @@
 # Using tmux
 Tmux is a terminal emulator. Essentially, it will act as a seperate session that will run in the background and allow you to connect and disconnect from it as you wish. For a better explanation and more advanced usage, see [this guide](https://linuxize.com/post/getting-started-with-tmux/). We will be using it to run the bot in the background. This guide is for linux only.
 
-> **_NOTE:_**  Tmux sessions will be closed when the computer is restarted or shut down. You will need to reinitalize the bot when the computer starts back up.
+> **_NOTE:_**  Tmux sessions will be closed when the computer is restarted or shut down. You will need to restart the bot when the computer starts back up.
 
 ## Install tmux
 Ubuntu/Debian:

@@ -17,9 +17,9 @@ sudo dnf -y install tmux
 ## Setup
 1. SSH to your machine
 3. Start a tmux session with the following command
-```
+`
 tmux new -s instagram_bot
-```
+`
 4. Start the Instagram Bot
 5. Exit the tmux session by pressing `ctrl-b` then `d`
 

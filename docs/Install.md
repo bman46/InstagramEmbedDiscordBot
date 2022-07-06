@@ -83,7 +83,7 @@ Launch the program.
 
 On Windows, find the `Instagram Reels Bot.exe` file and open it. A command line window should open and the bot should indicate that it is online in Discord.
 
-On Linux and MacOS, find the file named `Instagram Reels Bot` with no extensions. Launch that file and a terminal should appear and the bot should indicate that it is online in Discord. On Linux, using tmux is recommended for beginners as it will run the program in the background. See the [tmux guide](tmux.md) for more information. A creating a service is a better but more advanced approach.
+On Linux and MacOS, find the file named `Instagram Reels Bot` with no extensions. Launch that file and a terminal should appear and the bot should indicate that it is online in Discord. On Linux, using tmux is recommended for beginners as it will run the program in the background. See the [tmux guide](linux/tmux.md) for more information. A creating a service is a better but more advanced approach.
 
 > **_NOTE:_**  The program and computer must be running in order for the bot to process requests. Exiting the Window or closing the SSH session (without using tmux or a service) will stop the bot from running.
 

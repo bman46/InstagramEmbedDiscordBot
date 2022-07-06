@@ -15,6 +15,8 @@ sudo dnf -y install tmux
 ```
 
 ## Setup
+To create a new tmux session to run the bot in, follow these steps. Note that you will have to do this every time that the computer is shut down or restarted. For a more permanent (but advanced) solution, look into using systemd.
+
 1. SSH to your machine
 3. Start a tmux session with the following command
 `

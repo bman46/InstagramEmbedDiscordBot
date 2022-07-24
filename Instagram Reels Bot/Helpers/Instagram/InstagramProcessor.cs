@@ -664,17 +664,17 @@ namespace Instagram_Reels_Bot.Helpers
             var user = userPull.Value;
 
             List<InstagramProcessorResponse> responses = new List<InstagramProcessorResponse>();
-            var LatestMedia = (await instaApi.UserProcessor.GetUserMediaAsync(user.Username, PaginationParameters.MaxPagesToLoad(1))).Value;
+            var LatestMedia = (await instaApi.UserProcessor.GetUserMediaAsync(user.Username, PaginationParameters.MaxPagesToLoad(4))).Value;
 
             if (LatestMedia == null)
             {
-                responses.Add(new InstagramProcessorResponse("Cannot get profile."));
+                responses.Add(new InstagramProcessorResponse("Unknown"));
                 return responses.ToArray();
             }
-            //Only show the latest 4 for resource reasons:
-            if (LatestMedia.Count > 4)
+            //Only show the latest 35:
+            if (LatestMedia.Count > 35)
             {
-                LatestMedia.RemoveRange(4, LatestMedia.Count - 4);
+                LatestMedia.RemoveRange(35, LatestMedia.Count - 35);
             }
             foreach (var media in LatestMedia)
             {

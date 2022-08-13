@@ -3,6 +3,8 @@ using Discord.Commands;
 using System.Threading.Tasks;
 using System.IO;
 using Instagram_Reels_Bot.Helpers;
+using Microsoft.Extensions.Configuration;
+using System;
 
 namespace Instagram_Reels_Bot.Modules
 {
@@ -132,9 +134,14 @@ namespace Instagram_Reels_Bot.Modules
                     await context.Message.ReplyAsync(response.error);
                     return;
                 }
+                // Check config:
+                var _builder = new ConfigurationBuilder()
+                    .SetBasePath(AppContext.BaseDirectory)
+                    .AddJsonFile(path: "config.json");
+                var _config = _builder.Build();
 
                 // Embed builder:
-                IGEmbedBuilder embed = new IGEmbedBuilder(response, context.User.Username);
+                IGEmbedBuilder embed = (!string.IsNullOrEmpty(_config["DisableTitle"]) && _config["DisableTitle"].ToLower() == "true") ? (new IGEmbedBuilder(response)) : (new IGEmbedBuilder(response, context.User.Username));
                 IGComponentBuilder component = new IGComponentBuilder(response, context.User.Id);
 
                 if (response.isVideo)

@@ -46,6 +46,8 @@ Create a new file named `config.json`, copy and paste the contents below into it
   "ProxyUsername": "username (optional)",
   "ProxyPassword": "password (optional)",
 
+  "DisableTitle": false,
+
   "AllowSubscriptions": true/false,
   "MongoDBUrl": "MongoDB Connection String (Required for subscriptions)",
   "DefaultSubscriptionsPerGuildMax": 1,

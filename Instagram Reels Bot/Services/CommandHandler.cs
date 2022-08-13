@@ -113,7 +113,7 @@ namespace Instagram_Reels_Bot.Services
                         //IP check:
                         try
                         {
-                            OpenGraph graph = OpenGraph.ParseUrl("https://api.ipify.org/", "");
+                            OpenGraph graph = await OpenGraph.ParseUrlAsync("https://api.ipify.org/", "");
                             await message.ReplyAsync("IP: " + graph.OriginalHtml);
                         }
                         catch (Exception e)

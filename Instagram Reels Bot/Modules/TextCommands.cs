@@ -141,16 +141,8 @@ namespace Instagram_Reels_Bot.Modules
                 var _config = _builder.Build();
 
                 // Embed builder:
-                IGEmbedBuilder embed;
+                IGEmbedBuilder embed = (!string.IsNullOrEmpty(_config["DisableTitle"]) && _config["DisableTitle"].ToLower() == "true") ? (new IGEmbedBuilder(response)) : (new IGEmbedBuilder(response, context.User.Username));
                 IGComponentBuilder component = new IGComponentBuilder(response, context.User.Id);
-                if (!string.IsNullOrEmpty(_config["DisableTitle"]) && _config["DisableTitle"].ToLower() == "true")
-                {
-                    embed = new IGEmbedBuilder(response);
-                }
-                else
-                {
-                    embed = new IGEmbedBuilder(response, context.User.Username);
-                }
 
                 if (response.isVideo)
                 {

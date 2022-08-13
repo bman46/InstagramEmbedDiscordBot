@@ -143,7 +143,7 @@ namespace Instagram_Reels_Bot.Modules
                 // Embed builder:
                 IGEmbedBuilder embed;
                 IGComponentBuilder component = new IGComponentBuilder(response, context.User.Id);
-                if (_config["DisableTitle"].ToLower() == "true")
+                if (!string.IsNullOrEmpty(_config["DisableTitle"]) && _config["DisableTitle"].ToLower() == "true")
                 {
                     embed = new IGEmbedBuilder(response);
                 }

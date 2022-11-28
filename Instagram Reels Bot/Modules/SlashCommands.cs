@@ -64,10 +64,10 @@ namespace Instagram_Reels_Bot.Modules
             }
 
 			//Create embed builder:
-			IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username, HasSpoilers);
+            IGEmbedBuilder embed = (!string.IsNullOrEmpty(_config["DisableTitle"]) && _config["DisableTitle"].ToLower() == "true") ? (new IGEmbedBuilder(response)) : (new IGEmbedBuilder(response, Context.User.Username));
 
-			//Create component builder:
-			IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id, _config);
+            //Create component builder:
+            IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id, _config);
 
 			if (response.isVideo)
 			{
@@ -150,8 +150,8 @@ namespace Instagram_Reels_Bot.Modules
 				return;
 			}
 
-			IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username);
-			IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id, _config);
+            IGEmbedBuilder embed = (!string.IsNullOrEmpty(_config["DisableTitle"]) && _config["DisableTitle"].ToLower() == "true") ? (new IGEmbedBuilder(response)) : (new IGEmbedBuilder(response, Context.User.Username));
+            IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id, _config);
 
 			await FollowupAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());
 		}

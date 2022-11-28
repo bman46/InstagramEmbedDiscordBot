@@ -47,6 +47,7 @@ Create a new file named `config.json`, copy and paste the contents below into it
   "ProxyPassword": "password (optional)",
 
   "DisableTitle": false,
+  "EnableDeleteButton": true,
 
   "AllowSubscriptions": true/false,
   "MongoDBUrl": "MongoDB Connection String (Required for subscriptions)",

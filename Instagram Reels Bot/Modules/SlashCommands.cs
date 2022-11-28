@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Instagram_Reels_Bot.Helpers;
 using Instagram_Reels_Bot.Services;
 using Instagram_Reels_Bot.DataTables;
+using Microsoft.Extensions.Configuration;
 
 namespace Instagram_Reels_Bot.Modules
 {
@@ -18,12 +19,14 @@ namespace Instagram_Reels_Bot.Modules
 
 		private CommandHandler _handler;
 		private Subscriptions _subscriptions;
+        private readonly IConfiguration _config;
 
-		// Constructor injection is also a valid way to access the dependecies
-		public SlashCommands(CommandHandler handler, Subscriptions subs)
+        // Constructor injection is also a valid way to access the dependecies
+        public SlashCommands(CommandHandler handler, Subscriptions subs, IConfiguration config)
 		{
 			_handler = handler;
 			_subscriptions = subs;
+			_config = config;
 		}
 
 		[SlashCommand("link","Processes an Instagram link.", runMode: RunMode.Async)]
@@ -64,7 +67,7 @@ namespace Instagram_Reels_Bot.Modules
 			IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username, HasSpoilers);
 
 			//Create component builder:
-			IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id);
+			IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id, _config);
 
 			if (response.isVideo)
 			{
@@ -148,7 +151,7 @@ namespace Instagram_Reels_Bot.Modules
 			}
 
 			IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username);
-			IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id);
+			IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id, _config);
 
 			await FollowupAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());
 		}

@@ -1,4 +1,6 @@
 ﻿using Discord;
+using Microsoft.Extensions.Configuration;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Instagram_Reels_Bot.Helpers
 {
@@ -9,6 +11,8 @@ namespace Instagram_Reels_Bot.Helpers
         /// </summary>
         private InstagramProcessorResponse Response;
         private ulong RequesterId;
+        private bool EnableDeleteButton;
+        private readonly IConfiguration _config;
         private bool RequesterIsKnown
         {
             get
@@ -20,18 +24,30 @@ namespace Instagram_Reels_Bot.Helpers
         /// Create an instance of the component builder.
         /// </summary>
         /// <param name="response"></param>
-        public IGComponentBuilder(InstagramProcessorResponse response, ulong requesterId)
+        public IGComponentBuilder(InstagramProcessorResponse response, ulong requesterId, IConfiguration config)
         {
             this.Response = response;
             this.RequesterId = requesterId;
+            _config = config;
+            EnableDeleteButton = true;
+            if (config["EnableDeleteButton"]?.ToLower() == "false")
+            {
+                EnableDeleteButton = false;
+            }
         }
         /// <summary>
         /// For use when requester is not needed or unknown.
         /// </summary>
         /// <param name="response"></param>
-        public IGComponentBuilder(InstagramProcessorResponse response)
+        public IGComponentBuilder(InstagramProcessorResponse response, IConfiguration config)
         {
             this.Response = response;
+            _config = config;
+            EnableDeleteButton = true;
+            if (config["EnableDeleteButton"]?.ToLower() == "false")
+            {
+                EnableDeleteButton = false;
+            }
         }
         /// <summary>
         /// Automatically determines what component type to use
@@ -72,7 +88,7 @@ namespace Instagram_Reels_Bot.Helpers
             component.WithButton(button);
 
             // add button to component
-            if (RequesterIsKnown)
+            if (RequesterIsKnown && EnableDeleteButton)
             {
                 component.WithButton("Delete Message", $"delete-message-{RequesterId}", style: ButtonStyle.Danger);
             }
@@ -99,7 +115,7 @@ namespace Instagram_Reels_Bot.Helpers
                 component.WithButton(buttonLinkBio);
             }
             // Add the delete button if user is known
-            if (RequesterIsKnown)
+            if (RequesterIsKnown && EnableDeleteButton)
             {
                 component.WithButton("Delete Message", $"delete-message-{RequesterId}", style: ButtonStyle.Danger);
             }

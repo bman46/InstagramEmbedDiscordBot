@@ -270,7 +270,7 @@ namespace Instagram_Reels_Bot.Services
                                     if (response.success)
                                     {
                                         //Create component builder:
-                                        IGComponentBuilder component = new IGComponentBuilder(response);
+                                        IGComponentBuilder component = new IGComponentBuilder(response, _config);
                                         //Create embed response:
                                         IGEmbedBuilder embed = new IGEmbedBuilder(response);
 

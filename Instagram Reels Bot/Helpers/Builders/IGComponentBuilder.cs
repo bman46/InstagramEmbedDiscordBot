@@ -10,8 +10,8 @@ namespace Instagram_Reels_Bot.Helpers
         /// The Response from the Instagram processor.
         /// </summary>
         private InstagramProcessorResponse Response;
-        private ulong RequesterId;
-        private bool EnableDeleteButton;
+        private readonly ulong RequesterId;
+        private readonly bool EnableDeleteButton;
         private readonly IConfiguration _config;
         private bool RequesterIsKnown
         {

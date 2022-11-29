@@ -431,9 +431,14 @@ namespace Instagram_Reels_Bot.Services
                             }
                             //Update database:
                             await this.FollowedAccountsContainer.ReplaceOneAsync(x => x.InstagramID == dbfeed.InstagramID, dbfeed, new ReplaceOptions { IsUpsert = true });
-                            // Wait to prevent spamming IG api:
-                            // 10 seconds
-                            await Task.Delay(10000);
+
+                            // Wait to prevent spamming IG api
+                            // Get value from config:
+                            int time;
+                            _ = int.TryParse(_config["SubscribeCheckDelayTime"], out time);
+                            // Enforce a minimum of 10 seconds.
+                            time = Math.Max(time, 10);
+                            await Task.Delay(time * 1000);
                         }
                     }
                     catch(Exception e)

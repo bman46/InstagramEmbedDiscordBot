@@ -52,6 +52,7 @@ Create a new file named `config.json`, copy and paste the contents below into it
   "AllowSubscriptions": true/false,
   "MongoDBUrl": "MongoDB Connection String (Required for subscriptions)",
   "DefaultSubscriptionsPerGuildMax": 1,
-  "HoursToCheckForNewContent": 3
+  "HoursToCheckForNewContent": 3,
+  "SubscribeCheckDelayTime": 10
 }
 ```

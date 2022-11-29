@@ -434,8 +434,8 @@ namespace Instagram_Reels_Bot.Services
 
                             // Wait to prevent spamming IG api
                             // Get value from config:
-                            int time = 10;
-                            int.TryParse(_config["SubscribeCheckDelayTime"], out time);
+                            int time;
+                            _ = int.TryParse(_config["SubscribeCheckDelayTime"], out time);
                             // Enforce a minimum of 10 seconds.
                             time = Math.Max(time, 10);
                             await Task.Delay(time * 1000);

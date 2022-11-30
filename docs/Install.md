@@ -4,7 +4,10 @@ This setup will go over the basic installation and configuration of the bot.
 ## Whats Required?
 
 1. Must have a Windows/Linux/MacOS computer that is always running
-    - Optionally, you may use a cloud provider (such as AWS or Azure)
+    - Optionally, you may use a cloud provider (such as [AWS](https://aws.amazon.com/), [Azure](https://azure.microsoft.com/), or [Digital Ocean](https://www.digitalocean.com/))
+    - Note that some cloud providers may be blocked or highly limited by Instagram. Using a residential network is preferred for this reason
+    - A [Raspberry Pi](https://www.raspberrypi.com/products/) is a great option for hosting on your home network.
+      - It has a low power consumption and has a small form factor
 2. An internet connection with access to Instagram and Discord
 3. At least one throw away Instagram account
 4. A Discord bot token [Instructions here](https://www.writebots.com/discord-bot-token/)
@@ -70,15 +73,19 @@ For multiple accounts, use the following syntax:
     }
   ],
 ```
-
 ### Step 5:
+Enable 
+
+Go to the [Discord developer portal](https://discord.com/developers) and navigate to your bot page. Then, under `Privileged Gateway Intents` toggle the `MESSAGE CONTENT INTENT` check box to on.
+
+### Step 6:
 Invite the Discord bot to your server.
 
 `https://discord.com/oauth2/authorize?client_id=YOURBOTID&permissions=60480&scope=applications.commands%20bot`
 
 Replace `YOURBOTID` with the application ID from the Discord Developer Portal. Paste the URL into a web browser and navigate to the site to complete the invite.
 
-### Step 6:
+### Step 7:
 Launch the program.
 
 On Windows, find the `Instagram Reels Bot.exe` file and open it. A command line window should open and the bot should indicate that it is online in Discord.
@@ -87,7 +94,7 @@ On Linux and MacOS, find the file named `Instagram Reels Bot` with no extensions
 
 > **_NOTE:_**  The program and computer must be running in order for the bot to process requests. Exiting the Window or closing the SSH session (without using tmux or a service) will stop the bot from running.
 
-### Step 7:
+### Step 8:
 Test the bot by typing `/link`. Discord should acknowledge the slash command and show you parameters to enter. Then, put a link to the Instagram post in the `URL` parameter and hit enter. The bot should reply with the contents of the post.
 
 ## Further Configuration:

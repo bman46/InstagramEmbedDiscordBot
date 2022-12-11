@@ -3,11 +3,22 @@ using Discord.Commands;
 using System.Threading.Tasks;
 using System.IO;
 using Instagram_Reels_Bot.Helpers;
+using Microsoft.Extensions.Configuration;
+using System;
+using Instagram_Reels_Bot.Services;
+using System.Reflection.Metadata;
 
 namespace Instagram_Reels_Bot.Modules
 {
     public class TextCommands : ModuleBase
     {
+        private readonly IConfiguration _config;
+
+        // Constructor injection is also a valid way to access the dependecies
+        public TextCommands(IConfiguration config)
+        {
+            _config = config;
+        }
         /// <summary>
         /// Parse reel URL:
         /// </summary>
@@ -96,7 +107,7 @@ namespace Instagram_Reels_Bot.Modules
                 }
 
                 IGEmbedBuilder embed = new IGEmbedBuilder(response, Context.User.Username);
-                IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id);
+                IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id, _config);
 
                 await Context.Message.ReplyAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());
 
@@ -132,10 +143,15 @@ namespace Instagram_Reels_Bot.Modules
                     await context.Message.ReplyAsync(response.error);
                     return;
                 }
+                // Check config:
+                var _builder = new ConfigurationBuilder()
+                    .SetBasePath(AppContext.BaseDirectory)
+                    .AddJsonFile(path: "config.json");
+                var _config = _builder.Build();
 
                 // Embed builder:
-                IGEmbedBuilder embed = new IGEmbedBuilder(response, context.User.Username);
-                IGComponentBuilder component = new IGComponentBuilder(response, context.User.Id);
+                IGEmbedBuilder embed = (!string.IsNullOrEmpty(_config["DisableTitle"]) && _config["DisableTitle"].ToLower() == "true") ? (new IGEmbedBuilder(response)) : (new IGEmbedBuilder(response, context.User.Username));
+                IGComponentBuilder component = new IGComponentBuilder(response, context.User.Id, _config);
 
                 if (response.isVideo)
                 {

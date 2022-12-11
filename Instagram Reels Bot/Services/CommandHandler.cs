@@ -11,6 +11,8 @@ using System.Linq;
 using Discord.Interactions;
 using Instagram_Reels_Bot.Helpers;
 using Instagram_Reels_Bot.Helpers.Instagram;
+using System.IO;
+using System.Collections.Generic;
 
 namespace Instagram_Reels_Bot.Services
 {
@@ -111,7 +113,7 @@ namespace Instagram_Reels_Bot.Services
                         //IP check:
                         try
                         {
-                            OpenGraph graph = OpenGraph.ParseUrl("https://api.ipify.org/", "");
+                            OpenGraph graph = await OpenGraph.ParseUrlAsync("https://api.ipify.org/", "");
                             await message.ReplyAsync("IP: " + graph.OriginalHtml);
                         }
                         catch (Exception e)
@@ -231,6 +233,28 @@ namespace Instagram_Reels_Bot.Services
                         await _interact.RegisterCommandsGloballyAsync(true);
                         // Alert user:
                         await message.ReplyAsync("Slash commands resynced.");
+                    }
+                }
+                else if (message.Content.ToLower().StartsWith("clearstate"))
+                {
+                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    {
+                        // Clear statefiles:
+                        string stateFile = Path.Combine(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "StateFiles");
+                        if (Directory.Exists(stateFile))
+                        {
+                            Directory.Delete(stateFile, true);
+                            Directory.CreateDirectory(stateFile);
+                        }
+                        else
+                        {
+                            await message.ReplyAsync("Folder not found. Skipping folder removal.");
+                        }
+                        // Clear loaded accounts:
+                        InstagramProcessor.AccountFinder.Accounts = new List<IGAccount>();
+                        InstagramProcessor.AccountFinder.LoadAccounts();
+
+                        await message.ReplyAsync("State files removed.");
                     }
                 }
                 return;

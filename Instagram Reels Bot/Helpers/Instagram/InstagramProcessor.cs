@@ -443,7 +443,7 @@ namespace Instagram_Reels_Bot.Helpers
                     //Check for failure:
                     if (!mediaSource.Succeeded)
                     {
-                        HandleFailure(mediaSource);
+                        return HandleFailure(mediaSource);
                     }
                 }
 
@@ -650,26 +650,31 @@ namespace Instagram_Reels_Bot.Helpers
         public async Task<InstagramProcessorResponse[]> PostsSinceDate(long userID, DateTime startDate)
         {
             //get the IG user:
-            var user = (await instaApi.UserProcessor.GetUserInfoByIdAsync(userID)).Value;
+            var userPull = (await instaApi.UserProcessor.GetUserInfoByIdAsync(userID));
             // check for null values:
-            if(user == null)
+            if (!userPull.Succeeded && userPull.Info.Message == "Target user not found")
             {
                 Console.WriteLine("Account no longer exists.");
                 return new InstagramProcessorResponse[1] { new InstagramProcessorResponse("NullAccount") };
             }
+            else if(!userPull.Succeeded)
+            {
+                return new InstagramProcessorResponse[1] { new InstagramProcessorResponse("Unknown") };
+            }
+            var user = userPull.Value;
 
             List<InstagramProcessorResponse> responses = new List<InstagramProcessorResponse>();
-            var LatestMedia = (await instaApi.UserProcessor.GetUserMediaAsync(user.Username, PaginationParameters.MaxPagesToLoad(1))).Value;
+            var LatestMedia = (await instaApi.UserProcessor.GetUserMediaAsync(user.Username, PaginationParameters.MaxPagesToLoad(4))).Value;
 
             if (LatestMedia == null)
             {
-                responses.Add(new InstagramProcessorResponse("Cannot get profile."));
+                responses.Add(new InstagramProcessorResponse("Unknown"));
                 return responses.ToArray();
             }
-            //Only show the latest 4 for resource reasons:
-            if (LatestMedia.Count > 4)
+            //Only show the latest 35:
+            if (LatestMedia.Count > 35)
             {
-                LatestMedia.RemoveRange(4, LatestMedia.Count - 4);
+                LatestMedia.RemoveRange(35, LatestMedia.Count - 35);
             }
             foreach (var media in LatestMedia)
             {
@@ -719,6 +724,9 @@ namespace Instagram_Reels_Bot.Helpers
                     user.Blacklist = true;
                     //Throw error:
                     throw new Exception("Relogin required. Account: "+Account.UserName);
+                case ResponseType.CheckPointRequired:
+                    // Not much is known about this error.
+                    throw new Exception("Checkpoint Required error from IG.");
                 case ResponseType.MediaNotFound:
                     return new InstagramProcessorResponse("Could not find that post. Is the account private?");
                 case ResponseType.DeletedPost:
@@ -736,7 +744,7 @@ namespace Instagram_Reels_Bot.Helpers
                     }
                 default:
                     Console.WriteLine("Error: " + result.Info);
-                    return new InstagramProcessorResponse("Error retrieving the content. The account may be private. Please report this to the admin if the account is public or if this is unexpected.");
+                    return new InstagramProcessorResponse("Error retrieving the content. The account may be private. Please report this to the admin if the account is public or if this is unexpected. (unknown error)");
             }
         }
         #endregion Errors

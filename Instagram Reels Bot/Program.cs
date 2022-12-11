@@ -18,6 +18,7 @@ namespace Instagram_Reels_Bot
         private readonly IConfiguration _config;
         private DiscordShardedClient _client;
         private InteractionService _interact;
+        private DiscordSocketConfig DiscordSocketConfig;
 
         /// <summary>
         /// Main entry point for the program
@@ -89,6 +90,11 @@ namespace Instagram_Reels_Bot
 
         public async Task MainAsync()
         {
+            // Setup Gateway intents
+            DiscordSocketConfig = new DiscordSocketConfig()
+            {
+                GatewayIntents = GatewayIntents.MessageContent | GatewayIntents.Guilds | GatewayIntents.GuildEmojis | GatewayIntents.GuildIntegrations | GatewayIntents.GuildWebhooks | GatewayIntents.GuildMessages | GatewayIntents.GuildMessageReactions | GatewayIntents.GuildMessageTyping | GatewayIntents.DirectMessages | GatewayIntents.DirectMessageReactions | GatewayIntents.DirectMessageTyping
+            };
             // call ConfigureServices to create the ServiceCollection/Provider for passing around the services
             using (var services = ConfigureServices())
             {
@@ -178,7 +184,7 @@ namespace Instagram_Reels_Bot
             // the config we build is also added, which comes in handy for setting the command prefix!
             return new ServiceCollection()
                 .AddSingleton(_config)
-                .AddSingleton<DiscordShardedClient>()
+                .AddSingleton<DiscordShardedClient>(new DiscordShardedClient(DiscordSocketConfig))
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<InteractionService>()

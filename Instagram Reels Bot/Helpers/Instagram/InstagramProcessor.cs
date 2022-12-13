@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using Discord.WebSocket;
+using Instagram_Reels_Bot.Helpers.Instagram;
 using InstagramApiSharp;
 using InstagramApiSharp.Classes;
 using Microsoft.Extensions.Configuration;
-using System.Linq;
-using Instagram_Reels_Bot.Helpers.Instagram;
-using System.Web;
 
 namespace Instagram_Reels_Bot.Helpers
 {
@@ -492,8 +492,25 @@ namespace Instagram_Reels_Bot.Helpers
             //Video or image:
             if (isVideo)
             {
-                //video:
-                downloadUrl = media.Videos[0].Uri;
+                //process video:
+                List<InstagramApiSharp.Classes.Models.InstaVideo> SortedVideo = media.Videos.OrderByDescending(o => o.Height).ToList();
+
+                // Find video sizes:
+                foreach (var video in SortedVideo)
+                {
+                    long size = await GetMediaSize(new Uri(video.Uri));
+                    // Use video if size is below the max and known
+                    if (size <= maxUploadSize && size != 0)
+                    {
+                        downloadUrl = video.Uri;
+                        break;
+                    }
+                }
+                // Get largest if no video below max:
+                if (string.IsNullOrEmpty(downloadUrl))
+                {
+                    downloadUrl = SortedVideo.First().Uri;
+                }
             }
             else
             {
@@ -590,7 +607,24 @@ namespace Instagram_Reels_Bot.Helpers
                     if (isVideo)
                     {
                         //process video:
-                        downloadUrl = story.VideoList[0].Uri;
+                        List<InstagramApiSharp.Classes.Models.InstaVideo> SortedVideo = story.VideoList.OrderByDescending(o => o.Height).ToList();
+
+                        // Find video sizes:
+                        foreach (var video in SortedVideo)
+                        {
+                            long size = await GetMediaSize(new Uri(video.Uri));
+                            // Use video if size is below the max and known
+                            if (size <= maxUploadSize && size != 0)
+                            {
+                                downloadUrl = video.Uri;
+                                break;
+                            }
+                        }
+                        // Get largest if no video below max:
+                        if (string.IsNullOrEmpty(downloadUrl))
+                        {
+                            downloadUrl = SortedVideo.First().Uri;
+                        }
                     }
                     else if (story.ImageList.Count > 0)
                     {
@@ -704,6 +738,30 @@ namespace Instagram_Reels_Bot.Helpers
                 return DateTime.UnixEpoch;
             }
             return LatestMedia[0].TakenAt;
+        }
+        /// <summary>
+        /// Queries the size of a file from a website
+        /// </summary>
+        /// <param name="addr">The address to get the size from</param>
+        /// <returns>A long with the size in bytes</returns>
+        private async Task<long> GetMediaSize(Uri addr)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(HttpMethod.Head, addr))
+                {
+                    request.Headers.Add("User-Agent", instaApi.GetUserAgent());
+                    using (var response = await client.SendAsync(request))
+                    {
+                        long value = 0;
+                        if (response.Content.Headers.ContentLength != null)
+                        {
+                            value = response.Content.Headers.ContentLength.Value;
+                        }
+                        return value;
+                    }
+                }
+            }
         }
         #endregion Media
         #region Errors

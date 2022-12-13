@@ -10,9 +10,6 @@ using Microsoft.Extensions.Configuration;
 using System.Linq;
 using Instagram_Reels_Bot.Helpers.Instagram;
 using System.Web;
-using System.Net;
-using System.Formats.Asn1;
-using Org.BouncyCastle.Asn1.X509;
 
 namespace Instagram_Reels_Bot.Helpers
 {

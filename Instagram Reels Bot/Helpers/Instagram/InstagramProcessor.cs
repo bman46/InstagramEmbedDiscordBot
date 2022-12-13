@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using Discord.WebSocket;
+using Instagram_Reels_Bot.Helpers.Instagram;
 using InstagramApiSharp;
 using InstagramApiSharp.Classes;
 using Microsoft.Extensions.Configuration;
-using System.Linq;
-using Instagram_Reels_Bot.Helpers.Instagram;
-using System.Web;
 
 namespace Instagram_Reels_Bot.Helpers
 {

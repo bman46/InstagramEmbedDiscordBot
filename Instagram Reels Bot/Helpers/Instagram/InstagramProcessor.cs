@@ -746,18 +746,21 @@ namespace Instagram_Reels_Bot.Helpers
         /// <returns>A long with the size in bytes</returns>
         private async Task<long> GetMediaSize(Uri addr)
         {
-            HttpClient client = new HttpClient();
-            var request = new HttpRequestMessage(HttpMethod.Head, addr);
-            request.Headers.Add("User-Agent", instaApi.GetUserAgent());
-
-            using (var response = await client.SendAsync(request))
+            using (HttpClient client = new HttpClient())
             {
-                long value = 0;
-                if (response.Content.Headers.ContentLength != null)
+                using (var request = new HttpRequestMessage(HttpMethod.Head, addr))
                 {
-                    value = response.Content.Headers.ContentLength.Value;
+                    request.Headers.Add("User-Agent", instaApi.GetUserAgent());
+                    using (var response = await client.SendAsync(request))
+                    {
+                        long value = 0;
+                        if (response.Content.Headers.ContentLength != null)
+                        {
+                            value = response.Content.Headers.ContentLength.Value;
+                        }
+                        return value;
+                    }
                 }
-                return value;
             }
         }
         #endregion Media

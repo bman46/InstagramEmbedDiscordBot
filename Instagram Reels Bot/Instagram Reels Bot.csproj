@@ -19,7 +19,7 @@
     <PackageReference Include="Discord.Net.Interactions" Version="3.8.1" />
     <PackageReference Include="Otp.NET" Version="1.2.2" />
     <PackageReference Include="Bman46InstagramApiSharpLabs" Version="1.7.6" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.1" />
   </ItemGroup>
 
   <ItemGroup>

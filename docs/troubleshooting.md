@@ -10,7 +10,7 @@ Alternatively, this error can also be caused by using Two Factor Authentication 
 This error is caused by all of the accounts on the bot being locked out due to previous failures. In most cases, logging into the Instagram account on your phone/browser and completing and required steps to confirm that the account is owned by a human will allow the accounts to become usable again. After logging into the account successfully, DM the Discord bot with the phrase `clearstate`. It should reply with `State files removed.`. If it does not reply with this, ensure that the `OwnerID` setting is set to your Discord ID in the `config.json` file.
 
 ## Relogin Required
-This error is caused by the Discord bot's login token becoming expired. In order to fix this, DM the Discord bot with the phrase `clearstate`. It should reply with `State files removed.`. If it does not reply with this, ensure that the `OwnerID` setting is set to your Discord ID in the `config.json` file.
+This error is caused by the Discord bot's login token becoming expired. In order to fix this, DM the Discord bot with the phrase `clearstate`. It should reply with `State files removed`. If it does not reply with this, ensure that the `OwnerID` setting is set to your Discord ID in the `config.json` file.
 
 ## Long Links
 Longs links instead of a video embed is usually because the video requested is larger than the maximum upload size allowed by Discord. Note that the long link that the bot returns is not a permanent link as it will expire shortly after posting.

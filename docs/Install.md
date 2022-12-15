@@ -11,6 +11,7 @@ This setup will go over the basic installation and configuration of the bot.
 2. An internet connection with access to Instagram and Discord
 3. At least one throw away Instagram account
 4. A Discord bot token [Instructions here](https://www.writebots.com/discord-bot-token/)
+    - The bot account must have the `message content intent` enabled
 
 ## Installation Steps:
 ### Step 1:

@@ -101,3 +101,4 @@ Test the bot by typing `/link`. Discord should acknowledge the slash command and
 ## Further Configuration:
 - See the guide on the [subscribe module](subscribe.md) for steps on setting up automatic posts from Instagram accounts.
 - For custom statuses, see the article on [custom statuses](CustomStatus.md).
+- Check out the [Troubleshooting Guide](troubleshooting.md) if you have any issues while running the bot.

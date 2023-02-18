@@ -9,6 +9,7 @@ using Discord.WebSocket;
 using Instagram_Reels_Bot.Helpers.Instagram;
 using InstagramApiSharp;
 using InstagramApiSharp.Classes;
+using InstagramApiSharp.Classes.Android.DeviceInfo;
 using Microsoft.Extensions.Configuration;
 
 namespace Instagram_Reels_Bot.Helpers
@@ -197,6 +198,7 @@ namespace Instagram_Reels_Bot.Helpers
                 for(int i = 0; i < creds.Count; i++)
                 {
                     creds[i].UsageTimes = config.GetSection("IGAccounts:" + i + ":UsageTimes").Get<List<IGAccount.OperatingTime>>();
+                    creds[i].StaticDevice = config.GetSection("IGAccounts:" + i + ":StaticDevice").Get<AndroidDevice>();
                 }
                 Accounts = creds;
             }

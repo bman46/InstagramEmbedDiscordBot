@@ -7,19 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Discord.Net.Commands" Version="3.8.1" />
-    <PackageReference Include="Discord.Net.Core" Version="3.8.1" />
-    <PackageReference Include="Discord.Net.WebSocket" Version="3.8.1" />
+    <PackageReference Include="Discord.Net.Commands" Version="3.9.0" />
+    <PackageReference Include="Discord.Net.Core" Version="3.9.0" />
+    <PackageReference Include="Discord.Net.WebSocket" Version="3.9.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.18.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.19.0" />
     <PackageReference Include="OpenGraph-Net" Version="4.0.1" />
-    <PackageReference Include="Discord.Net.Interactions" Version="3.8.1" />
-    <PackageReference Include="Otp.NET" Version="1.2.2" />
+    <PackageReference Include="Discord.Net.Interactions" Version="3.9.0" />
+    <PackageReference Include="Otp.NET" Version="1.3.0" />
     <PackageReference Include="Bman46InstagramApiSharpLabs" Version="1.7.6" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.3" />
   </ItemGroup>
 
   <ItemGroup>

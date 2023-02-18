@@ -72,6 +72,10 @@ namespace Instagram_Reels_Bot.Helpers
             //Set the user:
             instaApi.SetUser(account);
 
+            //Set the device
+            instaApi.SetDevice(account.StaticDevice);
+            Console.WriteLine(instaApi.GetCurrentDevice().DeviceId);
+
             //Get the state file
             string stateFile;
             if (config["StateFile"] != null && config["StateFile"] != "")

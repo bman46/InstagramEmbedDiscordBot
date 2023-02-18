@@ -43,8 +43,6 @@ namespace Instagram_Reels_Bot.Helpers.Instagram
                 StaticDevice.IGBandwidthTotalTimeMS = rand.Next(781, 999).ToString();
 				StaticDevice.DeviceId = ApiRequestMessage.GenerateDeviceIdFromGuid(StaticDevice.DeviceGuid);
             }
-            instaApi.SetDevice(StaticDevice);
-			Console.WriteLine(instaApi.GetCurrentDevice().DeviceId);
 		}
 
 		/// <summary>

@@ -14,3 +14,8 @@ This error is caused by the Discord bot's login token becoming expired. In order
 
 ## Long Links
 Longs links instead of a video embed is usually because the video requested is larger than the maximum upload size allowed by Discord. Note that the long link that the bot returns is not a permanent link as it will expire shortly after posting.
+
+## No Slash Commands
+First, kick the bot from your server and then reinvite it with the invite URL listed in the [install guide](https://github.com/bman46/InstagramEmbedDiscordBot/blob/master/docs/Install.md#step-6).
+If that fails to add slash commands, check your Discord server permissions to ensure that slash commands are allowed. 
+Next, send the bot a direct message with the contents `overwrite`. It should reply with `Slash commands resynced`.

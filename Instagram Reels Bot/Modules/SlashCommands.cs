@@ -30,7 +30,7 @@ namespace Instagram_Reels_Bot.Modules
 		}
 
 		[SlashCommand("link","Processes an Instagram link.", runMode: RunMode.Async)]
-		public async Task Link(string url, [Summary(description: "The post number for the desired post in a carousel.")][MinValue(1)] int index = 1, [Summary(description: "Set to true to mark the image/video and caption as a spoiler.")] bool HasSpoilers = false)
+        public async Task Link(string url, [Summary(description: "The post number for the desired post in a carousel.")][MinValue(1)] int index = 1, [Summary(description: "Set to true to mark the image/video and caption as a spoiler.")] bool HasSpoilers = false)
         {
 			// Check whitelist:
 			if (!Whitelist.IsServerOnList(((Context.Guild == null) ? (0) : (Context.Guild.Id))))
@@ -231,10 +231,9 @@ namespace Instagram_Reels_Bot.Modules
 		[SlashCommand("subscribe", "Get updates when a user posts a new post on Instagram.", runMode: RunMode.Async)]
 		[RequireBotPermission(ChannelPermission.SendMessages)]
 		[RequireBotPermission(ChannelPermission.AttachFiles)]
-		[RequireUserPermission(GuildPermission.Administrator, Group = "UserPerm")]
-		[RequireRole("InstagramBotSubscribe", Group = "UserPerm")]
-		[RequireContext(ContextType.Guild)]
-		public async Task Subscribe([Summary("username", "The username of the Instagram user.")]string username)
+        [DefaultMemberPermissions(GuildPermission.Administrator)]
+        [RequireContext(ContextType.Guild)]
+        public async Task Subscribe([Summary("username", "The username of the Instagram user.")]string username)
 		{
 			// Check whitelist:
 			if (!Whitelist.IsServerOnList(((Context.Guild == null) ? (0) : (Context.Guild.Id))))
@@ -304,9 +303,8 @@ namespace Instagram_Reels_Bot.Modules
 			await FollowupAsync("Success! You will receive new posts to this channel. They will not be instant and accounts are checked on a time interval.");
 		}
 		[SlashCommand("unsubscribe", "Unsubscribe to updates from selectable Instagram accounts.", runMode: RunMode.Async)]
-		[RequireUserPermission(GuildPermission.Administrator, Group = "UserPerm")]
-		[RequireRole("InstagramBotSubscribe", Group = "UserPerm")]
-		[RequireContext(ContextType.Guild)]
+        [DefaultMemberPermissions(GuildPermission.Administrator)]
+        [RequireContext(ContextType.Guild)]
 		public async Task Unsubscribe()
 		{
 			//Ensure subscriptions are enabled:
@@ -383,9 +381,8 @@ namespace Instagram_Reels_Bot.Modules
 			await FollowupAsync(embed: embed.Build(), components: builder.Build());
 		}
 		[SlashCommand("unsubscribeall", "Unsubscribe from all Instagram accounts.", runMode: RunMode.Async)]
-		[RequireUserPermission(GuildPermission.Administrator, Group = "UserPerm")]
-		[RequireRole("InstagramBotSubscribe", Group = "UserPerm")]
-		[RequireContext(ContextType.Guild)]
+        [DefaultMemberPermissions(GuildPermission.Administrator)]
+        [RequireContext(ContextType.Guild)]
 		public async Task UnsubscribeAll()
         {
 			//Ensure subscriptions are enabled:

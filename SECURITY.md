@@ -10,7 +10,7 @@ If you believe you have found a security vulnerability in this repository, pleas
 
 Please do not report security vulnerabilities through public GitHub issues, discussions, or pull requests.
 
-Instead, please send an email to the address in [@bman46's bio](https://github.com/bman46).
+Instead, please send an email to the address in [@bman46's bio](https://github.com/bman46) or on [GitHub Security Reporting](https://github.com/bman46/InstagramEmbedDiscordBot/security/advisories/new).
 
 Please include as much of the information listed below as you can to help us better understand and resolve the issue:
 

@@ -13,6 +13,8 @@ using Instagram_Reels_Bot.Helpers;
 using Instagram_Reels_Bot.Helpers.Instagram;
 using System.IO;
 using System.Collections.Generic;
+using InstagramApiSharp.Classes.Android.DeviceInfo;
+using System.Text.Json;
 
 namespace Instagram_Reels_Bot.Services
 {
@@ -255,6 +257,27 @@ namespace Instagram_Reels_Bot.Services
                         InstagramProcessor.AccountFinder.LoadAccounts();
 
                         await message.ReplyAsync("State files removed.");
+                    }
+                }
+                else if (message.Content.ToLower().StartsWith("generatedevice"))
+                {
+                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    {
+                        AndroidDevice device = AndroidDeviceGenerator.GetRandomAndroidDevice();
+                        string jsonString = "```\n" + JsonSerializer.Serialize(device) + "\n```";
+                        await message.ReplyAsync("Device:\n" + jsonString);
+                    }
+                }
+                else if (message.Content.ToLower().StartsWith("accountdevice"))
+                {
+                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    {
+                        foreach (IGAccount user in InstagramProcessor.AccountFinder.Accounts)
+                        {
+                            AndroidDevice device = user.StaticDevice;
+                            string jsonString = "```\n" + JsonSerializer.Serialize(device) + "\n```";
+                            await message.ReplyAsync(user.UserName+" Device:\n" + jsonString);
+                        }
                     }
                 }
                 return;

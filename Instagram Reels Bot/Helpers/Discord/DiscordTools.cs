@@ -110,7 +110,7 @@ namespace Instagram_Reels_Bot.Helpers
                     return 100000000;
                 default:
                     //Default 8MB Upload Limit
-                    return 8000000;
+                    return 25000000;
             }
         }
         #endregion

@@ -109,7 +109,7 @@ namespace Instagram_Reels_Bot.Helpers
                     //Tier 3 100MB Upload Limit
                     return 100000000;
                 default:
-                    //Default 8MB Upload Limit
+                    //Default 25MB Upload Limit
                     return 25000000;
             }
         }

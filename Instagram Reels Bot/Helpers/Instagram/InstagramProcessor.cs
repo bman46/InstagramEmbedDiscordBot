@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
+
 using Discord.WebSocket;
 using Instagram_Reels_Bot.Helpers.Instagram;
 using InstagramApiSharp;
 using InstagramApiSharp.Classes;
 using InstagramApiSharp.Classes.Android.DeviceInfo;
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace Instagram_Reels_Bot.Helpers
 {
@@ -285,6 +286,7 @@ namespace Instagram_Reels_Bot.Helpers
         {
             string username = url.Segments[1].TrimEnd('/');
             var user = await instaApi.UserProcessor.GetUserInfoByUsernameAsync(username);
+
             if (!user.Succeeded)
             {
                 //Handle the failed case:

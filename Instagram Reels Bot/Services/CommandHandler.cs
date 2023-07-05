@@ -1,20 +1,22 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
-using OpenGraphNet;
-using System.Linq;
 using Discord.Interactions;
+using Discord.WebSocket;
 using Instagram_Reels_Bot.Helpers;
+using Instagram_Reels_Bot.Helpers.Extensions;
 using Instagram_Reels_Bot.Helpers.Instagram;
-using System.IO;
-using System.Collections.Generic;
 using InstagramApiSharp.Classes.Android.DeviceInfo;
-using System.Text.Json;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using OpenGraphNet;
+using System;
 
 namespace Instagram_Reels_Bot.Services
 {
@@ -80,7 +82,7 @@ namespace Instagram_Reels_Bot.Services
         // this class is where the magic starts, and takes actions upon receiving messages
         public async Task MessageReceivedAsync(SocketMessage rawMessage)
         {
-            if (!(rawMessage is SocketUserMessage message))
+            if (rawMessage is not SocketUserMessage message)
             {
                 return;
             }
@@ -89,7 +91,7 @@ namespace Instagram_Reels_Bot.Services
             if (message.Source != MessageSource.User)
             {
                 // Add exception to this rule if desired:
-                if(string.IsNullOrEmpty(_config["AllowBotMessages"]) || _config["AllowBotMessages"].ToLower() != "true")
+                if(_config.Contains("AllowBotMessages", true, true))
                 {
                     return;
                 }
@@ -100,7 +102,7 @@ namespace Instagram_Reels_Bot.Services
                 //TODO: Move this to a module file:
                 if (message.Content.ToLower().StartsWith("debug"))
                 {
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    if (message.Author.IsBotOwner(_config))
                     {
                         long guilds = 0;
                         foreach(DiscordSocketClient shard in _client.Shards)
@@ -127,7 +129,7 @@ namespace Instagram_Reels_Bot.Services
                 else if (message.Content.ToLower().StartsWith("guilds"))
                 {
                     //Guild list
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    if (message.Author.IsBotOwner(_config))
                     {
                         //TODO: Export to CSV file
                         string serverList = Format.Bold("Servers:");
@@ -148,7 +150,7 @@ namespace Instagram_Reels_Bot.Services
                 else if (message.Content.ToLower().StartsWith("toggle error"))
                 {
                     //toggle error DMs
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    if (message.Author.IsBotOwner(_config))
                     {
                         notifyOwnerOnError = !notifyOwnerOnError;
                         if (notifyOwnerOnError)
@@ -163,7 +165,7 @@ namespace Instagram_Reels_Bot.Services
                 }
                 else if (message.Content.ToLower().StartsWith("users"))
                 {
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    if (message.Author.IsBotOwner(_config))
                     {
                         long users = 0;
                         foreach (DiscordSocketClient shard in _client.Shards)
@@ -178,7 +180,7 @@ namespace Instagram_Reels_Bot.Services
                 }
                 else if (message.Content.ToLower().StartsWith("accounts"))
                 {
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    if (message.Author.IsBotOwner(_config))
                     {
                         foreach (IGAccount user in InstagramProcessor.AccountFinder.Accounts)
                         {
@@ -204,7 +206,7 @@ namespace Instagram_Reels_Bot.Services
                 }
                 else if (message.Content.ToLower().StartsWith("sync"))
                 {
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    if (message.Author.IsBotOwner(_config))
                     {
                         if (_subscriptions.CurrentlyCheckingAccounts())
                         {
@@ -222,7 +224,7 @@ namespace Instagram_Reels_Bot.Services
                 }
                 else if (message.Content.ToLower().StartsWith("overwrite"))
                 {
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    if (message.Author.IsBotOwner(_config))
                     {
                         // Load all registered commands:
                         var commands = await _client.Rest.GetGlobalApplicationCommands();
@@ -239,7 +241,7 @@ namespace Instagram_Reels_Bot.Services
                 }
                 else if (message.Content.ToLower().StartsWith("clearstate"))
                 {
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    if (message.Author.IsBotOwner(_config))
                     {
                         // Clear statefiles:
                         string stateFile = Path.Combine(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "StateFiles");
@@ -261,7 +263,7 @@ namespace Instagram_Reels_Bot.Services
                 }
                 else if (message.Content.ToLower().StartsWith("generatedevice"))
                 {
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    if (message.Author.IsBotOwner(_config))
                     {
                         AndroidDevice device = AndroidDeviceGenerator.GetRandomAndroidDevice();
                         string jsonString = "```\n" + JsonSerializer.Serialize(device) + "\n```";
@@ -270,7 +272,7 @@ namespace Instagram_Reels_Bot.Services
                 }
                 else if (message.Content.ToLower().StartsWith("accountdevice"))
                 {
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
+                    if (message.Author.IsBotOwner(_config))
                     {
                         foreach (IGAccount user in InstagramProcessor.AccountFinder.Accounts)
                         {

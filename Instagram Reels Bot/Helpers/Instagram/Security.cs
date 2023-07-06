@@ -1,5 +1,7 @@
 ﻿using System.Threading;
+
 using OtpNet;
+using System;
 
 namespace Instagram_Reels_Bot.Helpers.Instagram
 {
@@ -21,12 +23,10 @@ namespace Instagram_Reels_Bot.Helpers.Instagram
 			{
 				return totp.ComputeTotp();
 			}
-			else
-			{
-				//Wait for next code if the current code is about to expire:
-				Thread.Sleep(totp.RemainingSeconds() * 1000 + 100);
-				return totp.ComputeTotp();
-			}
+				
+			//Wait for next code if the current code is about to expire:
+			Thread.Sleep(TimeSpan.FromSeconds(totp.RemainingSeconds() + 0.1));
+			return totp.ComputeTotp();
 		}
 	}
 }

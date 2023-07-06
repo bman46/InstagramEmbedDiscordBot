@@ -1,13 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace Instagram_Reels_Bot.Helpers
 {
 	public class Whitelist
 	{
-		public static List<ulong> WhitelistedServers = new List<ulong>();
+		public const ulong MainBotId = 815695225678463017;
+
+        public static List<ulong> WhitelistedServers = new List<ulong>();
 		public static bool ListSet = false;
 		public static bool WhitelistEnabled = false;
 

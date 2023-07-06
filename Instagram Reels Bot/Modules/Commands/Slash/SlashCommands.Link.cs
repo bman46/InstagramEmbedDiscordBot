@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
 using Instagram_Reels_Bot.Helpers;
+using Instagram_Reels_Bot.Helpers.Extensions;
 using System;
 
 namespace Instagram_Reels_Bot.Modules;
@@ -35,34 +36,33 @@ public partial class SlashCommands {
         }
 
         //Create embed builder:
-        IGEmbedBuilder embed = (!string.IsNullOrEmpty(_config["DisableTitle"]) && _config["DisableTitle"].ToLower() == "true") ? (new IGEmbedBuilder(response)) : (new IGEmbedBuilder(response, Context.User.Username));
+        IGEmbedBuilder embed = _config.Has("DisableTitle", true) ? (new IGEmbedBuilder(response)) : (new IGEmbedBuilder(response, Context.User.Username));
 
         //Create component builder:
         IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id, _config);
 
         if (response.isVideo) {
-            if (response.stream != null) {
-                //Response with stream:
-                using (Stream stream = new MemoryStream(response.stream)) {
-                    FileAttachment attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.", isSpoiler: HasSpoilers);
-
-                    await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.AutoSelector(), components: component.AutoSelector());
-                }
-            } else {
+            if (response.stream == null) {
                 //Response without stream:
                 await FollowupAsync(response.contentURL.ToString(), embed: embed.AutoSelector(), components: component.AutoSelector());
+                return;
             }
 
-        } else {
-            if (response.stream != null) {
-                using (Stream stream = new MemoryStream(response.stream)) {
-                    FileAttachment attachment = new FileAttachment(stream, "IGMedia.jpg", "An Instagram Image.", isSpoiler: HasSpoilers);
-                    await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());
-                }
-            } else {
-                await FollowupAsync(embed: embed.AutoSelector(), components: component.AutoSelector());
-            }
+            //Response with stream:
+            using Stream stream = new MemoryStream(response.stream);
+            var attachment = new FileAttachment(stream, "IGMedia.mp4", "An Instagram Video.", isSpoiler: HasSpoilers);
+            await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.AutoSelector(), components: component.AutoSelector());
+
+            return;
         }
 
+        if (response.stream != null) {
+            using Stream stream = new MemoryStream(response.stream);
+            var attachment = new FileAttachment(stream, "IGMedia.jpg", "An Instagram Image.", isSpoiler: HasSpoilers);
+            await Context.Interaction.FollowupWithFileAsync(attachment, embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());
+            return;
+        }
+         
+        await FollowupAsync(embed: embed.AutoSelector(), components: component.AutoSelector());
     }
 }

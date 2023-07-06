@@ -36,7 +36,7 @@ namespace Instagram_Reels_Bot.Modules
             }
 
             // Self-hosted whitelist notification for official bot:
-            if (Context.Client.CurrentUser.Id == 815695225678463017) {
+            if (Context.Client.CurrentUser.Id == Whitelist.MainBotId) {
                 await RespondAsync("This bot is now self-host only. Learn more about this change in the updates channel on the support server: https://discord.gg/8dkjmGSbYE", ephemeral: true);
             } else {
                 await RespondAsync("This guild is not on the whitelist. The command was blocked.", ephemeral: true);

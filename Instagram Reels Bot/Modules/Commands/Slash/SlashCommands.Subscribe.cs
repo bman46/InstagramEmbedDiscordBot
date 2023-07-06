@@ -43,28 +43,31 @@ public partial class SlashCommands {
             return;
         }
 
-        long IGID;
+        long userId;
         try {
-            IGID = await instagram.GetUserIDFromUsername(username);
+            userId = await instagram.GetUserIDFromUsername(username);
         } catch (Exception e) {
             //Possibly incorrect username:
             Console.WriteLine("Get username failure: " + e);
             await FollowupAsync("Failed to get Instagram ID. Is the account name correct?");
             return;
         }
-        if (!await instagram.AccountIsPublic(IGID)) {
+
+        if (!await instagram.AccountIsPublic(userId)) {
             await FollowupAsync("The account appears to be private and cannot be viewed by the bot.");
             return;
         }
+
         //Subscribe:
         try {
-            await _subscriptions.SubscribeToAccount(IGID, Context.Channel.Id, Context.Guild.Id);
+            await _subscriptions.SubscribeToAccount(userId, Context.Channel.Id, Context.Guild.Id);
         } catch (ArgumentException e) when (e.Message.Contains("Already subscribed")) {
             await FollowupAsync("You are already subscribed to this account.");
             return;
         }
+
         //Notify:
-        await Context.Channel.SendMessageAsync("This channel has been subscribed to " + username + " on Instagram by " + Context.User.Mention, allowedMentions: AllowedMentions.None);
+        await Context.Channel.SendMessageAsync($"This channel has been subscribed to {username} on Instagram by " + Context.User.Mention, allowedMentions: AllowedMentions.None);
         await FollowupAsync("Success! You will receive new posts to this channel. They will not be instant and accounts are checked on a time interval.");
     }
 }

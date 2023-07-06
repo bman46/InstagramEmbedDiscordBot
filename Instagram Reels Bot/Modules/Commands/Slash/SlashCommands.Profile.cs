@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
 using Instagram_Reels_Bot.Helpers;
+using Instagram_Reels_Bot.Helpers.Extensions;
 using System;
 
 namespace Instagram_Reels_Bot.Modules;
@@ -42,7 +43,10 @@ public partial class SlashCommands {
             return;
         }
 
-        IGEmbedBuilder embed = (!string.IsNullOrEmpty(_config["DisableTitle"]) && _config["DisableTitle"].ToLower() == "true") ? (new IGEmbedBuilder(response)) : (new IGEmbedBuilder(response, Context.User.Username));
+        IGEmbedBuilder embed = _config.Has("DisableTitle", true) 
+                                ? new IGEmbedBuilder(response) 
+                                : new IGEmbedBuilder(response, Context.User.Username);
+
         IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id, _config);
 
         await FollowupAsync(embed: embed.AutoSelector(), allowedMentions: AllowedMentions.None, components: component.AutoSelector());

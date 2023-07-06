@@ -24,7 +24,7 @@ internal static class ConfigExtensions {
     public static bool IsBotOwner(this IUser user, IConfiguration configuration) 
         => configuration.Has("OwnerID", user.Id);
 
-    public static T Parse<T>(this IConfiguration configuration, string key, T defaultValue = default) {
+    public static T Parse<T>(this IConfiguration configuration, string key, T defaultValue = default) where T : IConvertible {
         if(TryParse(configuration, key, out T result, defaultValue)) {
             return result;
         }
@@ -32,7 +32,7 @@ internal static class ConfigExtensions {
         throw new FormatException($"The '{key}' value in the configuration is in the wrong format, expected '{typeof(T).Name}'");
     }
 
-    public static bool TryParse<T>(this IConfiguration configuration, string key, out T result, T defaultValue = default) {
+    public static bool TryParse<T>(this IConfiguration configuration, string key, out T result, T defaultValue = default) where T : IConvertible {
         string stringValue = configuration[key];
         if (string.IsNullOrEmpty(stringValue)) {
             result = defaultValue;

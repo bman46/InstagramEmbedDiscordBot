@@ -16,12 +16,13 @@ public partial class DmCommands {
 
         // Clear statefiles:
         string stateFile = Path.Combine(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "StateFiles");
-        if (!Directory.Exists(stateFile)) {
-            await message.ReplyAsync("Folder not found. Skipping folder removal.");
-        } else {
+        if (Directory.Exists(stateFile)) {
             Directory.Delete(stateFile, true);
             Directory.CreateDirectory(stateFile);
-        }         // Clear loaded accounts:
+        } else {
+            await message.ReplyAsync("Folder not found. Skipping folder removal.");
+        }
+        // Clear loaded accounts:
         InstagramProcessor.AccountFinder.Accounts = new List<IGAccount>();
         InstagramProcessor.AccountFinder.LoadAccounts();
 

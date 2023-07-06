@@ -26,10 +26,10 @@ public partial class SlashCommands {
         await DeferAsync(false);
 
         // Get Accounts:
-        var subs = await _subscriptions.GuildSubscriptionsAsync(Context.Guild.Id);
+        FollowedIGUser[] subs = await _subscriptions.GuildSubscriptionsAsync(Context.Guild.Id);
 
         // Create Dropdown with channels:
-        var menuBuilder = new SelectMenuBuilder()
+        SelectMenuBuilder menuBuilder = new SelectMenuBuilder()
             .WithCustomId("unsubscribe")
             .WithPlaceholder("Select accounts to remove.")
             .WithMinValues(0);
@@ -42,15 +42,10 @@ public partial class SlashCommands {
             foreach (RespondChannel chan in user.SubscribedChannels) {
                 // Get username:
                 string username = await instagram.GetIGUsername(user.InstagramID);
-                if (username == null) {
-                    username = "Deleted Account";
-                }
+                username ??= "Deleted Account";
 
                 string channelName = Context.Guild.GetChannel(ulong.Parse(chan.ChannelID))?.Name;
-                // Channel null check:
-                if (channelName is null) {
-                    channelName = "Unknown Channel";
-                }
+                channelName ??= "Unknown Channel";
 
                 // Add account option to menu:
                 SelectMenuOptionBuilder optBuilder = new SelectMenuOptionBuilder()
@@ -68,15 +63,16 @@ public partial class SlashCommands {
         }
 
         // Make embed:
-        var embed = new EmbedBuilder();
-        embed.Title = "Unsubscribe";
-        embed.Description = "Select accounts that you would like to unsubscribe from in the dropdown below.";
+        var embed = new EmbedBuilder {
+            Title = "Unsubscribe",
+            Description = "Select accounts that you would like to unsubscribe from in the dropdown below."
+        };
         embed.WithColor(new Color(131, 58, 180));
 
         // Set max count:
         menuBuilder.WithMaxValues(menuBuilder.Options.Count);
         // Component Builder:
-        var builder = new ComponentBuilder()
+        ComponentBuilder builder = new ComponentBuilder()
             .WithSelectMenu(menuBuilder)
             .WithButton("Delete Message", $"delete-message-{Context.User.Id}", style: ButtonStyle.Danger);
 

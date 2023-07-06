@@ -96,6 +96,7 @@ namespace Instagram_Reels_Bot.Services
             {
                 return;
             }
+
             //DMs:
             if (message.Channel is SocketDMChannel)
             {
@@ -110,10 +111,10 @@ namespace Instagram_Reels_Bot.Services
             bool foundPrefix = false;
 
             // get each prefix from the configuration file
-            foreach (string prefix in _config.GetSection("Prefix").GetChildren().ToArray().Select(c => c.Value).ToArray())
+            foreach (string prefix in _config.GetSection("Prefix").GetChildren().Select(c => c.Value))
             {
                 //check for valid prefix:
-                if (message.Content.Contains(prefix))
+                if (message.Content.StartsWith(prefix))
                 {
                     argPos = message.Content.IndexOf(prefix) + prefix.Length;
                     endUrlLength = message.Content.Substring(argPos).Replace("\n"," ").IndexOf(" ");
@@ -210,6 +211,7 @@ namespace Instagram_Reels_Bot.Services
             if (NotifyOwnerOnError&&!string.IsNullOrEmpty(_config["OwnerID"]))
             {
                 string error = Format.Bold("Error:") + "\n" + result.Error + "\n" + Format.Code(result.ErrorReason)+"\n\n"+ Format.Bold("Command:") + "\n" + Format.BlockQuote(context.Message.ToString());
+
                 if (error.Length > 2000)
                 {
                     error = error.Substring(0, 2000);

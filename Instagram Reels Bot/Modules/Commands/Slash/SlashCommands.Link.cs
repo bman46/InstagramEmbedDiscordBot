@@ -36,7 +36,7 @@ public partial class SlashCommands {
         }
 
         //Create embed builder:
-        IGEmbedBuilder embed = _config.Has("DisableTitle", true) ? (new IGEmbedBuilder(response)) : (new IGEmbedBuilder(response, Context.User.Username));
+        IGEmbedBuilder embed = _config.Is("DisableTitle", true) ? (new IGEmbedBuilder(response)) : (new IGEmbedBuilder(response, Context.User.Username));
 
         //Create component builder:
         IGComponentBuilder component = new IGComponentBuilder(response, Context.User.Id, _config);

@@ -43,7 +43,7 @@ public partial class SlashCommands {
             return;
         }
 
-        IGEmbedBuilder embed = _config.Has("DisableTitle", true) 
+        IGEmbedBuilder embed = _config.Is("DisableTitle", true) 
                                 ? new IGEmbedBuilder(response) 
                                 : new IGEmbedBuilder(response, Context.User.Username);
 

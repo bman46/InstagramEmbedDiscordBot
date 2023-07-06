@@ -12,7 +12,7 @@ using System;
 namespace Instagram_Reels_Bot.Helpers.Extensions;
 internal static class ConfigExtensions {
 
-    public static bool Has<T>(this IConfiguration configuration, string key, T expectedValue, bool defaultValue = false) {
+    public static bool Is<T>(this IConfiguration configuration, string key, T expectedValue, bool defaultValue = false) {
         string value = configuration[key];
         if (string.IsNullOrEmpty(value)) {
             return defaultValue;
@@ -22,7 +22,7 @@ internal static class ConfigExtensions {
     }
 
     public static bool IsBotOwner(this IUser user, IConfiguration configuration) 
-        => configuration.Has("OwnerID", user.Id);
+        => configuration.Is("OwnerID", user.Id);
 
     public static T Parse<T>(this IConfiguration configuration, string key, T defaultValue = default) where T : IConvertible {
         if(TryParse(configuration, key, out T result, defaultValue)) {

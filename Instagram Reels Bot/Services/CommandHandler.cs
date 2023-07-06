@@ -92,7 +92,7 @@ namespace Instagram_Reels_Bot.Services
             }
 
             // ensures we don't process system/other bot messages AND add exception to this rule if desired:
-            if (message.Source != MessageSource.User && _config.Has("AllowBotMessages", true, true))
+            if (message.Source != MessageSource.User && _config.Is("AllowBotMessages", true, true))
             {
                 return;
             }

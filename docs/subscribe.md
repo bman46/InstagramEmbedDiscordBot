@@ -25,3 +25,6 @@ Please sign up for a [MongoDB Atlas](https://www.mongodb.com/atlas/database) acc
 7. Paste the connection string into the `MongoDBUrl` parameter in the `config.json` file.
 8. Set `AllowSubscriptions` to `true` in the config.json file.
 9. Start the bot and test the commands! 
+
+## Step 3: Configure Permissions
+By default, the bot allows anyone with `Administrator` permission to manage subscribed accounts on a Discord server. You can override this in the Discord settings by setting permissions on the slash commands. Please see the linked [support article](https://support.discord.com/hc/en-us/articles/4644915651095-Command-Permissions) for instructions.

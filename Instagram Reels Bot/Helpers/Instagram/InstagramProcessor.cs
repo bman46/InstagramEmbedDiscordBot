@@ -217,14 +217,10 @@ namespace Instagram_Reels_Bot.Helpers
 
                     if (cred.UsageTimes != null && cred.UsageTimes.Count > 0)
                     {
-                        // Check valid times:
-                        foreach (IGAccount.OperatingTime time in cred.UsageTimes)
-                        {
-                            if (time.BetweenStartAndEnd(timeNow))
-                            {
-                                return cred;
-                            }
+                        if (cred.UsageTimes.Any(time => time.BetweenStartAndEnd(timeNow))) {
+                            return cred;
                         }
+
                         continue;
                     }
 

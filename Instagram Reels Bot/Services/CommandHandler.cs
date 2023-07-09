@@ -111,34 +111,23 @@ namespace Instagram_Reels_Bot.Services
             bool foundPrefix = false;
 
             // get each prefix from the configuration file
-            foreach (string prefix in _config.GetSection("Prefix").GetChildren().Select(c => c.Value))
-            {
-                //check for valid prefix:
-                if (message.Content.StartsWith(prefix))
-                {
-                    argPos = message.Content.IndexOf(prefix) + prefix.Length;
-                    endUrlLength = message.Content.Substring(argPos).Replace("\n"," ").IndexOf(" ");
-                    foundPrefix = true;
-                    break;
-                }
-            }
-            if (!foundPrefix)
-            {
+
+            string prefix = _config.GetSection("Prefix").GetChildren().Select(c => c.Value).FirstOrDefault(p => message.Content.StartsWith(p, StringComparison.OrdinalIgnoreCase));
+
+            if(prefix is null) {
                 return;
             }
+
+            argPos = message.Content.IndexOf(prefix) + prefix.Length;
+            endUrlLength = message.Content[argPos..].Replace("\n", " ").IndexOf(" ");
             
             var context = new ShardedCommandContext(_client, message);
 
             //create new string from command
-            string commandText;
-            if (endUrlLength <= 0)
-            {
-                commandText = message.Content.Substring(argPos).Replace("/", " ");
-            }
-            else
-            {
-                commandText = message.Content.Substring(argPos, endUrlLength).Replace("/", " ");
-            }
+            string commandText = endUrlLength <= 0
+                ? message.Content.Substring(argPos).Replace("/", " ")
+                : message.Content.Substring(argPos, endUrlLength).Replace("/", " ");
+
             //Check for profile link:
             if (InstagramProcessor.isProfileLink(new Uri("https://instagram.com/"+commandText.Replace(" ", "/"))))
             {

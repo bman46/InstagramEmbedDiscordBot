@@ -19,9 +19,9 @@ using System;
 
 namespace Instagram_Reels_Bot.Modules.Commands.Dm;
 public partial class DmCommands {
-    private DiscordShardedClient _client;
-    private IConfiguration _config;
-    private CommandHandler _commandHandler;
+    private readonly DiscordShardedClient _client;
+    private readonly IConfiguration _config;
+    private readonly CommandHandler _commandHandler;
 
     public DmCommands(CommandHandler commandHandler, DiscordShardedClient client, IConfiguration config) {
         _client = client;

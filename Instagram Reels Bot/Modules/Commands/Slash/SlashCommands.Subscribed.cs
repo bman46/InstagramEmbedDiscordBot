@@ -32,15 +32,16 @@ public partial class SlashCommands {
 
         List<Embed> embeds = new List<Embed>();
 
-        var embed = new EmbedBuilder();
-        embed.Title = "Guild Subscriptions";
+        var embed = new EmbedBuilder {
+            Title = "Guild Subscriptions"
+        };
         embed.WithColor(new Color(131, 58, 180));
 
-        var subs = await _subscriptions.GuildSubscriptionsAsync(Context.Guild.Id);
-        embed.Description = subs.Count() + " of " + await _subscriptions.MaxSubscriptionsCountForGuildAsync(Context.Guild.Id) + " subscribes used.\n**Instagram Accounts:**";
+        FollowedIGUser[] subs = await _subscriptions.GuildSubscriptionsAsync(Context.Guild.Id);
+        embed.Description = $"{subs.Length} of {await _subscriptions.MaxSubscriptionsCountForGuildAsync(Context.Guild.Id)} subscribes used.\n**Instagram Accounts:**";
 
-        string accountOutput = "";
-        string channelOutput = "";
+        var accountOutput = new StringBuilder();
+        var channelOutput = new StringBuilder();
         foreach (FollowedIGUser user in subs) {
             foreach (RespondChannel channel in user.SubscribedChannels) {
                 if (!channel.GuildID.Equals(Context.Guild.Id.ToString())) {
@@ -58,18 +59,21 @@ public partial class SlashCommands {
                                         : $"- [{username}](https://www.instagram.com/{username})\n";
 
                 if (accountOutput.Length + accountMention.Length <= 1024 && channelOutput.Length + chanMention.Length <= 1024) {
-                    accountOutput += accountMention;
-                    channelOutput += chanMention;
+                    accountOutput.Append(accountMention);
+                    channelOutput.Append( chanMention);
                 } else {
-                    embed.AddField("Account", accountOutput, true);
-                    embed.AddField("Channel", channelOutput, true);
+                    embed.AddField("Account", accountOutput.ToString(), true);
+                    embed.AddField("Channel", channelOutput.ToString(), true);
                     embeds.Add(embed.Build());
 
                     //Restart new embed:
                     embed = new EmbedBuilder();
                     embed.WithColor(new Color(131, 58, 180));
-                    accountOutput = accountMention;
-                    accountOutput = chanMention;
+                    accountOutput.Clear();
+                    channelOutput.Clear();
+
+                    accountOutput.Append(accountMention);
+                    channelOutput.Append(chanMention);
                 }
             }
         }
@@ -77,8 +81,8 @@ public partial class SlashCommands {
         if (subs.Length == 0) {
             embed.Description = "No accounts followed. Get started by using `/subscribe`";
         } else {
-            embed.AddField("Account", accountOutput, true);
-            embed.AddField("Channel", channelOutput, true);
+            embed.AddField("Account", accountOutput.ToString(), true);
+            embed.AddField("Channel", channelOutput.ToString(), true);
         }
 
         embeds.Add(embed.Build());

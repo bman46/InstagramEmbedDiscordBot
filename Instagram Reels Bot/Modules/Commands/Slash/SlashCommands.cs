@@ -18,8 +18,8 @@ namespace Instagram_Reels_Bot.Modules
 		// Dependencies can be accessed through Property injection, public properties with public setters will be set by the service provider
 		public InteractionService Commands { get; set; }
 
-		private CommandHandler _handler;
-		private Subscriptions _subscriptions;
+		private readonly CommandHandler _handler;
+		private readonly Subscriptions _subscriptions;
         private readonly IConfiguration _config;
 
         // Constructor injection is also a valid way to access the dependecies

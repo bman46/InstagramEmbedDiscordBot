@@ -80,7 +80,7 @@ namespace Instagram_Reels_Bot.Helpers
 
             try {
                 lines = File.ReadAllLines(whiteListFile);
-            }  catch (Exception e) {
+            }  catch (IOException e) {
                 Console.WriteLine("Error reading whitelist file. Error: " + e);
                 return;
             }

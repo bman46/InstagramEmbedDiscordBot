@@ -108,7 +108,6 @@ namespace Instagram_Reels_Bot.Services
             // sets the argument position away from the prefix we set
             int argPos = 0;
             int endUrlLength = 0;
-            bool foundPrefix = false;
 
             // get each prefix from the configuration file
 

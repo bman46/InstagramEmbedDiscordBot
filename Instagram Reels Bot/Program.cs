@@ -1,14 +1,16 @@
-﻿using System;
+﻿using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
-using System.Threading.Tasks;
+using Instagram_Reels_Bot.Helpers;
+using Instagram_Reels_Bot.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Instagram_Reels_Bot.Services;
-using System.IO;
-using Discord.Interactions;
-using Instagram_Reels_Bot.Helpers;
+using System;
 
 namespace Instagram_Reels_Bot
 {
@@ -37,7 +39,7 @@ namespace Instagram_Reels_Bot
 
                 // Allow for users to bypass with -error flag.
                 // Useful for linux services.
-                if (!(Array.IndexOf(args, "-error") >= 0))
+                if (!args.Contains("-error"))
                 {
                     Console.WriteLine("\nA critical error (listed above) has occured and the bot cannot proceed. Press 'q' to quit.");
                     // Wait until q is pressed:

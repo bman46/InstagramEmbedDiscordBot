@@ -1,18 +1,23 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
-using OpenGraphNet;
-using System.Linq;
 using Discord.Interactions;
+using Discord.WebSocket;
 using Instagram_Reels_Bot.Helpers;
+using Instagram_Reels_Bot.Helpers.Extensions;
 using Instagram_Reels_Bot.Helpers.Instagram;
-using System.IO;
-using System.Collections.Generic;
+using Instagram_Reels_Bot.Modules.Commands.Dm;
+using InstagramApiSharp.Classes.Android.DeviceInfo;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using OpenGraphNet;
+using System;
 
 namespace Instagram_Reels_Bot.Services
 {
@@ -29,7 +34,10 @@ namespace Instagram_Reels_Bot.Services
         /// Notifies the owner of an error
         /// false by default. Toggled by user DM command or config setting.
         /// </summary>
-        public static bool notifyOwnerOnError;
+        public static bool NotifyOwnerOnError { get; set; }
+
+        public Subscriptions Subscriptions => _subscriptions;
+        public InteractionService Interact => _interact;
 
         public CommandHandler(IServiceProvider services, Services.Subscriptions subs)
         {
@@ -59,12 +67,12 @@ namespace Instagram_Reels_Bot.Services
             //set DM errors flag if possible:
             try
             {
-                notifyOwnerOnError = bool.Parse(_config["DMErrors"]);
+                NotifyOwnerOnError = _config.Parse<bool>("DMErrors");
             }
             catch
             {
                 //Default to false
-                notifyOwnerOnError = false;
+                NotifyOwnerOnError = false;
             }
         }
 
@@ -78,222 +86,47 @@ namespace Instagram_Reels_Bot.Services
         // this class is where the magic starts, and takes actions upon receiving messages
         public async Task MessageReceivedAsync(SocketMessage rawMessage)
         {
-            if (!(rawMessage is SocketUserMessage message))
+            if (rawMessage is not SocketUserMessage message)
             {
                 return;
             }
 
-            // ensures we don't process system/other bot messages
-            if (message.Source != MessageSource.User)
+            // ensures we don't process system/other bot messages AND add exception to this rule if desired:
+            if (message.Source != MessageSource.User && _config.Is("AllowBotMessages", true, true))
             {
-                // Add exception to this rule if desired:
-                if(string.IsNullOrEmpty(_config["AllowBotMessages"]) || _config["AllowBotMessages"].ToLower() != "true")
-                {
-                    return;
-                }
+                return;
             }
+
             //DMs:
-            if (message.Channel.GetType() == typeof(SocketDMChannel))
+            if (message.Channel is SocketDMChannel)
             {
-                //TODO: Move this to a module file:
-                if (message.Content.ToLower().StartsWith("debug"))
-                {
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
-                    {
-                        long guilds = 0;
-                        foreach(DiscordSocketClient shard in _client.Shards)
-                        {
-                            guilds += shard.Guilds.Count();
-                        }
-                        //Server count:
-                        await message.ReplyAsync("Server Count: " + guilds);
-                        //Shard count:
-                        await message.ReplyAsync("Shards: " + _client.Shards.Count());
-
-                        //IP check:
-                        try
-                        {
-                            OpenGraph graph = await OpenGraph.ParseUrlAsync("https://api.ipify.org/", "");
-                            await message.ReplyAsync("IP: " + graph.OriginalHtml);
-                        }
-                        catch (Exception e)
-                        {
-                            await message.ReplyAsync("Could not connect to server. Error: " + e);
-                        }
-                    }
-                }
-                else if (message.Content.ToLower().StartsWith("guilds"))
-                {
-                    //Guild list
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
-                    {
-                        //TODO: Export to CSV file
-                        string serverList = Format.Bold("Servers:");
-                        foreach (SocketGuild guild in _client.Guilds)
-                        {
-                            String serverLine = "\n" + guild.Name + " \tBoost: " + guild.PremiumTier + " \tUsers: " + guild.MemberCount + " \tLocale: " + guild.PreferredLocale;
-                            //Discord max message length:
-                            if (serverList.Length + serverLine.Length > 2000)
-                            {
-                                await message.ReplyAsync(serverList);
-                                serverList = "";
-                            }
-                            serverList += serverLine;
-                        }
-                        await message.ReplyAsync(serverList);
-                    }
-                }
-                else if (message.Content.ToLower().StartsWith("toggle error"))
-                {
-                    //toggle error DMs
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
-                    {
-                        notifyOwnerOnError = !notifyOwnerOnError;
-                        if (notifyOwnerOnError)
-                        {
-                            await message.ReplyAsync("Error notifications enabled.");
-                        }
-                        else
-                        {
-                            await message.ReplyAsync("Error notifications disabled.");
-                        }
-                    }
-                }
-                else if (message.Content.ToLower().StartsWith("users"))
-                {
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
-                    {
-                        long users = 0;
-                        foreach (DiscordSocketClient shard in _client.Shards)
-                        { 
-                            foreach (SocketGuild guild in shard.Guilds)
-                            {
-                                users += guild.MemberCount;
-                            }
-                        }
-                        await message.ReplyAsync("Users: " + users);
-                    }
-                }
-                else if (message.Content.ToLower().StartsWith("accounts"))
-                {
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
-                    {
-                        foreach (IGAccount user in InstagramProcessor.AccountFinder.Accounts)
-                        {
-                            if (user.OTPSecret != null)
-                            {
-                                try
-                                {
-                                    var code = Security.GetTwoFactorAuthCode(user.OTPSecret);
-                                    await message.ReplyAsync("Username: " + user.UserName + "\n2FA Code: " + code + "\nLast Failed: " + user.Blacklist);
-                                }
-                                catch (Exception e)
-                                {
-                                    await message.ReplyAsync("Failed to get 2FA code.");
-                                    Console.WriteLine("2FA Code error: " + e);
-                                }
-                            }
-                            else
-                            {
-                                await message.ReplyAsync("Username: " + user.UserName + "\nLast Failed: " + user.Blacklist);
-                            }
-                        }
-                    }
-                }
-                else if (message.Content.ToLower().StartsWith("sync"))
-                {
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
-                    {
-                        if (_subscriptions.CurrentlyCheckingAccounts())
-                        {
-                            await message.ReplyAsync("Already doing that.");
-                        }
-                        else
-                        {
-                            // Run this async to avoid blocking the current thread:
-                            // Use discard since im not interested in the output, only the process.
-                            _ = _subscriptions.GetLatestsPosts();
-                            //Let the user know its being worked on:
-                            await message.ReplyAsync("Working on it.");
-                        }
-                    }
-                }
-                else if (message.Content.ToLower().StartsWith("overwrite"))
-                {
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
-                    {
-                        // Load all registered commands:
-                        var commands = await _client.Rest.GetGlobalApplicationCommands();
-                        // Delete all commands:
-                        foreach(var command in commands)
-                        {
-                            await command.DeleteAsync();
-                        }
-                        // Re-register commands:
-                        await _interact.RegisterCommandsGloballyAsync(true);
-                        // Alert user:
-                        await message.ReplyAsync("Slash commands resynced.");
-                    }
-                }
-                else if (message.Content.ToLower().StartsWith("clearstate"))
-                {
-                    if (!string.IsNullOrEmpty(_config["OwnerID"]) && message.Author.Id == ulong.Parse(_config["OwnerID"]))
-                    {
-                        // Clear statefiles:
-                        string stateFile = Path.Combine(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "StateFiles");
-                        if (Directory.Exists(stateFile))
-                        {
-                            Directory.Delete(stateFile, true);
-                            Directory.CreateDirectory(stateFile);
-                        }
-                        else
-                        {
-                            await message.ReplyAsync("Folder not found. Skipping folder removal.");
-                        }
-                        // Clear loaded accounts:
-                        InstagramProcessor.AccountFinder.Accounts = new List<IGAccount>();
-                        InstagramProcessor.AccountFinder.LoadAccounts();
-
-                        await message.ReplyAsync("State files removed.");
-                    }
-                }
+                var dmCommands = new DmCommands(this, _client, _config);
+                await dmCommands.ManageMessageAsync(message);
                 return;
             }
 
             // sets the argument position away from the prefix we set
             int argPos = 0;
             int endUrlLength = 0;
-            bool foundPrefix = false;
 
             // get each prefix from the configuration file
-            foreach (string prefix in _config.GetSection("Prefix").GetChildren().ToArray().Select(c => c.Value).ToArray())
-            {
-                //check for valid prefix:
-                if (message.Content.Contains(prefix))
-                {
-                    argPos = message.Content.IndexOf(prefix) + prefix.Length;
-                    endUrlLength = message.Content.Substring(argPos).Replace("\n"," ").IndexOf(" ");
-                    foundPrefix = true;
-                    break;
-                }
-            }
-            if (!foundPrefix)
-            {
+
+            string prefix = _config.GetSection("Prefix").GetChildren().Select(c => c.Value).FirstOrDefault(p => message.Content.StartsWith(p, StringComparison.OrdinalIgnoreCase));
+
+            if(prefix is null) {
                 return;
             }
+
+            argPos = message.Content.IndexOf(prefix) + prefix.Length;
+            endUrlLength = message.Content[argPos..].Replace("\n", " ").IndexOf(" ");
             
             var context = new ShardedCommandContext(_client, message);
 
             //create new string from command
-            string commandText;
-            if (endUrlLength <= 0)
-            {
-                commandText = message.Content.Substring(argPos).Replace("/", " ");
-            }
-            else
-            {
-                commandText = message.Content.Substring(argPos, endUrlLength).Replace("/", " ");
-            }
+            string commandText = endUrlLength <= 0
+                ? message.Content.Substring(argPos).Replace("/", " ")
+                : message.Content.Substring(argPos, endUrlLength).Replace("/", " ");
+
             //Check for profile link:
             if (InstagramProcessor.isProfileLink(new Uri("https://instagram.com/"+commandText.Replace(" ", "/"))))
             {
@@ -363,9 +196,10 @@ namespace Instagram_Reels_Bot.Services
             }
 
             //notify owner if desired:
-            if (notifyOwnerOnError&&!string.IsNullOrEmpty(_config["OwnerID"]))
+            if (NotifyOwnerOnError&&!string.IsNullOrEmpty(_config["OwnerID"]))
             {
                 string error = Format.Bold("Error:") + "\n" + result.Error + "\n" + Format.Code(result.ErrorReason)+"\n\n"+ Format.Bold("Command:") + "\n" + Format.BlockQuote(context.Message.ToString());
+
                 if (error.Length > 2000)
                 {
                     error = error.Substring(0, 2000);
@@ -421,7 +255,7 @@ namespace Instagram_Reels_Bot.Services
                             arg2.Interaction.FollowupAsync("Invalid form body. Please check to ensure that all of your parameters are correct.", ephemeral: true);
                             break;
                         }
-                        if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
+                        if (NotifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
                         {
                             string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + DiscordTools.SlashParamToString(arg2));
                             if (error.Length > 2000)
@@ -434,7 +268,7 @@ namespace Instagram_Reels_Bot.Services
                         break;
                     case InteractionCommandError.Unsuccessful:
                         //notify owner if desired:
-                        if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
+                        if (NotifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
                         {
                             string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + DiscordTools.SlashParamToString(arg2));
                             if (error.Length > 2000)
@@ -447,7 +281,7 @@ namespace Instagram_Reels_Bot.Services
                         break;
                     default:
                         //notify owner if desired:
-                        if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
+                        if (NotifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
                         {
                             string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + DiscordTools.SlashParamToString(arg2));
                             if (error.Length > 2000)
@@ -510,7 +344,7 @@ namespace Instagram_Reels_Bot.Services
                             arg2.Interaction.FollowupAsync("Invalid form body. Please check to ensure that all of your parameters are correct.", ephemeral: true);
                             break;
                         }
-                        if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
+                        if (NotifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
                         {
                             string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + DiscordTools.SlashParamToString(arg2));
                             if (error.Length > 2000)
@@ -523,7 +357,7 @@ namespace Instagram_Reels_Bot.Services
                         break;
                     case InteractionCommandError.Unsuccessful:
                         //notify owner if desired:
-                        if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
+                        if (NotifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
                         {
                             string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + DiscordTools.SlashParamToString(arg2));
                             if (error.Length > 2000)
@@ -536,7 +370,7 @@ namespace Instagram_Reels_Bot.Services
                         break;
                     default:
                         //notify owner if desired:
-                        if (notifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
+                        if (NotifyOwnerOnError && !string.IsNullOrEmpty(_config["OwnerID"]))
                         {
                             string error = Format.Bold("Error:") + "\n" + Format.Code(arg3.ErrorReason) + "\n\n" + Format.Bold("Command:") + "\n" + Format.BlockQuote(arg1.Name + " " + DiscordTools.SlashParamToString(arg2));
                             if (error.Length > 2000)

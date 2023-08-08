@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
+
 using Discord.WebSocket;
+using Instagram_Reels_Bot.Helpers.Instagram;
 using InstagramApiSharp;
 using InstagramApiSharp.Classes;
+using InstagramApiSharp.Classes.Android.DeviceInfo;
 using Microsoft.Extensions.Configuration;
-using System.Linq;
-using Instagram_Reels_Bot.Helpers.Instagram;
-using System.Web;
+using System;
 
 namespace Instagram_Reels_Bot.Helpers
 {
@@ -36,16 +38,12 @@ namespace Instagram_Reels_Bot.Helpers
         /// The IG account:
         /// </summary>
         public IGAccount Account;
+
         /// <summary>
         /// Point to the accounts processor.
         /// </summary>
-        public ref InstagramApiSharp.API.IInstaApi instaApi
-        {
-            get
-            {
-                return ref Account.instaApi;
-            }
-        }
+        public ref InstagramApiSharp.API.IInstaApi instaApi => ref Account.instaApi;
+
         /// <summary>
         /// Log into an instagram account.
         /// </summary>
@@ -71,34 +69,33 @@ namespace Instagram_Reels_Bot.Helpers
             //Set the user:
             instaApi.SetUser(account);
 
+            //Set the device
+            instaApi.SetDevice(account.StaticDevice);
+            Console.WriteLine(instaApi.GetCurrentDevice().DeviceId);
+
             //Get the state file
-            string stateFile;
-            if (config["StateFile"] != null && config["StateFile"] != "")
-            {
-                stateFile = Path.Combine(config["StateFile"], account.UserName+".state.bin");
-            }
-            else
-            {
-                stateFile = Path.Combine(Directory.GetCurrentDirectory()+Path.DirectorySeparatorChar+"StateFiles", account.UserName + ".state.bin");
-            }
+            string stateFile = !string.IsNullOrWhiteSpace(config["StateFile"])
+                ? Path.Combine(config["StateFile"], account.UserName+".state.bin")
+                : Path.Combine(Directory.GetCurrentDirectory(), "StateFiles", account.UserName + ".state.bin");
+
             //Try to load session file:
-            try
-            {
-                // load session file if exists
-                if (File.Exists(stateFile))
-                {
-                    Console.WriteLine("Loading state from file");
-                    using (var fs = File.OpenRead(stateFile))
-                    {
-                        // Load state data from file:
-                        instaApi.LoadStateDataFromStream(fs);
-                    }
+            try {
+                string directory = Path.GetDirectoryName(stateFile);
+                if (!Directory.Exists(directory)) {
+                    Directory.CreateDirectory(directory);
                 }
-            }
-            catch (Exception e)
-            {
+
+                // load session file if exists
+                if (File.Exists(stateFile)) {
+                    Console.WriteLine("Loading state from file");
+                    using FileStream fs = File.OpenRead(stateFile);
+                    // Load state data from file:
+                    instaApi.LoadStateDataFromStream(fs);
+                }
+            } catch (Exception e) {
                 Console.WriteLine(e);
             }
+
             //log in:
             var logInResult = instaApi.LoginAsync().GetAwaiter().GetResult();
             //check for login failure:
@@ -150,11 +147,9 @@ namespace Instagram_Reels_Bot.Helpers
             // TODO: write only if needed.
             try
             {
-                using (var fileStream = File.Create(stateFile))
-                {
-                    state.Seek(0, SeekOrigin.Begin);
-                    state.CopyTo(fileStream);
-                }
+                using var fileStream = File.Create(stateFile);
+                state.Seek(0, SeekOrigin.Begin);
+                state.CopyTo(fileStream);
             }
             catch (Exception e)
             {
@@ -197,6 +192,7 @@ namespace Instagram_Reels_Bot.Helpers
                 for(int i = 0; i < creds.Count; i++)
                 {
                     creds[i].UsageTimes = config.GetSection("IGAccounts:" + i + ":UsageTimes").Get<List<IGAccount.OperatingTime>>();
+                    creds[i].StaticDevice = config.GetSection("IGAccounts:" + i + ":StaticDevice").Get<AndroidDevice>();
                 }
                 Accounts = creds;
             }
@@ -215,27 +211,24 @@ namespace Instagram_Reels_Bot.Helpers
                 foreach (IGAccount cred in shuffledAccounts)
                 {
                     TimeOnly timeNow = TimeOnly.FromDateTime(DateTime.Now);
-                    if (!cred.Blacklist)
+                    if (cred.Blacklist) {
+                        continue;
+                    }
+
+                    if (cred.UsageTimes != null && cred.UsageTimes.Count > 0)
                     {
-                        if (cred.UsageTimes != null && cred.UsageTimes.Count > 0)
-                        {
-                            // Check valid times:
-                            foreach (IGAccount.OperatingTime time in cred.UsageTimes)
-                            {
-                                if (time.BetweenStartAndEnd(timeNow))
-                                {
-                                    return cred;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // Warn about not setting valid times:
-                            Console.WriteLine("Warning: No time set on account " + cred.UserName+". Using the account.");
+                        if (cred.UsageTimes.Any(time => time.BetweenStartAndEnd(timeNow))) {
                             return cred;
                         }
+
+                        continue;
                     }
+
+                    // Warn about not setting valid times:
+                    Console.WriteLine("Warning: No time set on account " + cred.UserName+". Using the account.");
+                    return cred;
                 }
+
                 throw new InvalidDataException("No available accounts.");
             }
         }
@@ -279,6 +272,7 @@ namespace Instagram_Reels_Bot.Helpers
         {
             string username = url.Segments[1].TrimEnd('/');
             var user = await instaApi.UserProcessor.GetUserInfoByUsernameAsync(username);
+
             if (!user.Succeeded)
             {
                 //Handle the failed case:
@@ -492,8 +486,25 @@ namespace Instagram_Reels_Bot.Helpers
             //Video or image:
             if (isVideo)
             {
-                //video:
-                downloadUrl = media.Videos[0].Uri;
+                //process video:
+                List<InstagramApiSharp.Classes.Models.InstaVideo> SortedVideo = media.Videos.OrderByDescending(o => o.Height).ToList();
+
+                // Find video sizes:
+                foreach (var video in SortedVideo)
+                {
+                    long size = await GetMediaSize(new Uri(video.Uri));
+                    // Use video if size is below the max and known
+                    if (size <= maxUploadSize && size != 0)
+                    {
+                        downloadUrl = video.Uri;
+                        break;
+                    }
+                }
+                // Get largest if no video below max:
+                if (string.IsNullOrEmpty(downloadUrl))
+                {
+                    downloadUrl = SortedVideo.First().Uri;
+                }
             }
             else
             {
@@ -504,18 +515,14 @@ namespace Instagram_Reels_Bot.Helpers
             //Return downloaded content (if possible):
             try
             {
-                using (HttpClient client = new HttpClient())
-                {
-                    client.MaxResponseContentBufferSize = maxUploadSize;
-                    var response = await client.GetAsync(downloadUrl);
-                    byte[] data = await response.Content.ReadAsByteArrayAsync();
-                    //If statement to double check size.
-                    if (data.Length < maxUploadSize)
-                    {
-                        //No account information avaliable:
-                        return new InstagramProcessorResponse(isVideo, caption, media.User.FullName, media.User.UserName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, data, postCount);
-                    }
-
+                using HttpClient client = new HttpClient();
+                client.MaxResponseContentBufferSize = maxUploadSize;
+                var response = await client.GetAsync(downloadUrl);
+                byte[] data = await response.Content.ReadAsByteArrayAsync();
+                //If statement to double check size.
+                if (data.Length < maxUploadSize) {
+                    //No account information avaliable:
+                    return new InstagramProcessorResponse(isVideo, caption, media.User.FullName, media.User.UserName, new Uri(media.User.ProfilePicture), downloadUrl, url, media.TakenAt, data, postCount);
                 }
             }
             catch (HttpRequestException e)
@@ -590,7 +597,24 @@ namespace Instagram_Reels_Bot.Helpers
                     if (isVideo)
                     {
                         //process video:
-                        downloadUrl = story.VideoList[0].Uri;
+                        List<InstagramApiSharp.Classes.Models.InstaVideo> SortedVideo = story.VideoList.OrderByDescending(o => o.Height).ToList();
+
+                        // Find video sizes:
+                        foreach (var video in SortedVideo)
+                        {
+                            long size = await GetMediaSize(new Uri(video.Uri));
+                            // Use video if size is below the max and known
+                            if (size <= maxUploadSize && size != 0)
+                            {
+                                downloadUrl = video.Uri;
+                                break;
+                            }
+                        }
+                        // Get largest if no video below max:
+                        if (string.IsNullOrEmpty(downloadUrl))
+                        {
+                            downloadUrl = SortedVideo.First().Uri;
+                        }
                     }
                     else if (story.ImageList.Count > 0)
                     {
@@ -704,6 +728,30 @@ namespace Instagram_Reels_Bot.Helpers
                 return DateTime.UnixEpoch;
             }
             return LatestMedia[0].TakenAt;
+        }
+        /// <summary>
+        /// Queries the size of a file from a website
+        /// </summary>
+        /// <param name="addr">The address to get the size from</param>
+        /// <returns>A long with the size in bytes</returns>
+        private async Task<long> GetMediaSize(Uri addr)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(HttpMethod.Head, addr))
+                {
+                    request.Headers.Add("User-Agent", instaApi.GetUserAgent());
+                    using (var response = await client.SendAsync(request))
+                    {
+                        long value = 0;
+                        if (response.Content.Headers.ContentLength != null)
+                        {
+                            value = response.Content.Headers.ContentLength.Value;
+                        }
+                        return value;
+                    }
+                }
+            }
         }
         #endregion Media
         #region Errors

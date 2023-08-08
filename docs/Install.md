@@ -7,10 +7,11 @@ This setup will go over the basic installation and configuration of the bot.
     - Optionally, you may use a cloud provider (such as [AWS](https://aws.amazon.com/), [Azure](https://azure.microsoft.com/), or [Digital Ocean](https://www.digitalocean.com/))
     - Note that some cloud providers may be blocked or highly limited by Instagram. Using a residential network is preferred for this reason
     - A [Raspberry Pi](https://www.raspberrypi.com/products/) is a great option for hosting on your home network.
-      - It has a low power consumption and has a small form factor
+      - It has a low power consumption and a small form factor
 2. An internet connection with access to Instagram and Discord
 3. At least one throw away Instagram account
 4. A Discord bot token [Instructions here](https://www.writebots.com/discord-bot-token/)
+    - The bot account must have the `message content intent` enabled
 
 ## Installation Steps:
 ### Step 1:
@@ -100,3 +101,4 @@ Test the bot by typing `/link`. Discord should acknowledge the slash command and
 ## Further Configuration:
 - See the guide on the [subscribe module](subscribe.md) for steps on setting up automatic posts from Instagram accounts.
 - For custom statuses, see the article on [custom statuses](CustomStatus.md).
+- Check out the [Troubleshooting Guide](troubleshooting.md) if you have any issues while running the bot.

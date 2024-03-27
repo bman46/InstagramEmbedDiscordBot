@@ -1,0 +1,38 @@
+{
+    "Token": "MTIyMjY3NTQ4NzY4NDQzMjAyNQ.G0T6oE.wnrtmAi8CkD8-ShHBmSwazcCy5pTrY6cXj9Tac",
+    "Prefix": [
+        "https://www.instagram.com/cunnymanager?igsh=MWU1MDhuZjl0NW9rcA==",
+        "https://www.instagram.com/cunniestory?igsh=MWU3amN4bnd1YmJwMA==",
+        "https://www.instagram.com/cunnypost?igsh=MW84ZDZpNXJ6NWN3NQ=="
+    ],
+    "OwnerID": "1084101956366245949",
+    "TestGuildID": "1221491721532215486",
+    "DMErrors": true,
+    "IGAccounts": [
+        {
+            "username": "cunnypost",
+            "password": "pahahutaowangi13",
+            "OTPSecret": "1"
+        },
+        {
+            "username": "cunniestory",
+            "password": "pahahutaowangi13",
+            "OTPSecret": "2"
+        },
+        {
+            "username": "cunnymanager",
+            "password": "pahahutaowangi13",
+            "OTPSecret": "3"
+        }
+    ],
+    "ProxyURL": "",
+    "ProxyUsername": "username (optional)",
+    "ProxyPassword": "password (optional)",
+    "DisableTitle": false,
+    "EnableDeleteButton": true,
+    "AllowSubscriptions": false,
+    "MongoDBUrl": "MongoDB Connection String (Required for subscriptions)",
+    "DefaultSubscriptionsPerGuildMax": 1,
+    "HoursToCheckForNewContent": 3,
+    "SubscribeCheckDelayTime": 10
+}

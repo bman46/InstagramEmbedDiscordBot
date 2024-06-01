@@ -24,9 +24,10 @@ Download the latest version of the bot from our [GitHub Releases Page](https://g
 Unzip the downloaded file and place it in a convenient location.
 
 ### Step 3:
-Download or create the `config.json` file. 
+Create the `config.json` file.
 
-You can download the `config.json` from our [Discord page](https://cdn.discordapp.com/attachments/921848709829001236/945556370487398400/config.json). Place this file inside the unzipped folder. Alternatively, you can manually create this file using notepad or any other text editor. Contents of the file are located in the readme for this repo.
+You can manually create this file using notepad or any other text editor. Place this file inside the unzipped folder.
+Contents of the file are located in the readme for this repo.
 
 ### Step 4:
 Edit the `config.json` file.

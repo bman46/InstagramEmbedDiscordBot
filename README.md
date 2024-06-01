@@ -59,3 +59,9 @@ Create a new file named `config.json`, copy and paste the contents below into it
   "SubscribeCheckDelayTime": 10
 }
 ```
+## How does it work?
+The executable file connects to a Discord application (the “Discord bot”) with a bot token, processes its commands and controls its actions. As long as the application is running, the bot can be prompted for Instagram content with commands. The executable then uses throwaway Instagram accounts to access Instagram content.
+
+A Discord application can be created via the Discord Developer Portal and then invited to multiple servers afterwards. See [installation guide](docs/Install.md).
+
+To automatically share new posts from Instagram accounts, the subscribe module must be activated. The executable then requires access to a MongoDB database. See [subscribe module](docs/subscribe.md).

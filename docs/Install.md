@@ -76,8 +76,6 @@ For multiple accounts, use the following syntax:
   ],
 ```
 ### Step 5:
-Enable 
-
 Go to the [Discord developer portal](https://discord.com/developers) and navigate to your bot page. Then, under `Privileged Gateway Intents` toggle the `MESSAGE CONTENT INTENT` check box to on.
 
 ### Step 6:
@@ -94,7 +92,9 @@ On Windows, find the `Instagram Reels Bot.exe` file and open it. A command line 
 
 On Linux and MacOS, find the file named `Instagram Reels Bot` with no extensions. Launch that file and a terminal should appear and the bot should indicate that it is online in Discord. On Linux, using tmux is recommended for beginners as it will run the program in the background. See the [tmux guide](linux/tmux.md) for more information. A creating a service is a better but more advanced approach.
 
-> **_NOTE:_**  The program and computer must be running in order for the bot to process requests. Exiting the Window or closing the SSH session (without using tmux or a service) will stop the bot from running.
+> **_NOTE:_** The program and computer must be running in order for the bot to process requests. Exiting the Window or closing the SSH session (without using tmux or a service) will stop the bot from running.
+
+> **_NOTE:_** On Linux, files might need to be made executable bevor you can run them. Run the command `sudo chmod a+x Instagram\ Reels\ Bot` in the same folder as the file, to make it executable for all users.
 
 ### Step 8:
 Test the bot by typing `/link`. Discord should acknowledge the slash command and show you parameters to enter. Then, put a link to the Instagram post in the `URL` parameter and hit enter. The bot should reply with the contents of the post.

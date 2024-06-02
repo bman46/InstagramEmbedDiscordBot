@@ -348,3 +348,6 @@ configCommunications.json
 
 # ignore whitelist
 whitelist.txt
+
+# ignore notepad++ backups
+*.bak

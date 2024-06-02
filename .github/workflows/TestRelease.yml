@@ -49,6 +49,7 @@ jobs:
         shell: bash
         run: |
           release_name="IGReelsBot-${{ matrix.target }}"
+          echo "release_name=$release_name" >> $GITHUB_ENV
           # Build everything
           dotnet publish "Instagram Reels Bot/Instagram Reels Bot.csproj" --framework net6.0 --runtime "${{ matrix.target }}" --self-contained true -c Release -o "$release_name"
           # Conditionally copy Dockerfile for linux-x64
@@ -66,7 +67,7 @@ jobs:
           rm -r "$release_name"
           
       - name: Upload Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}-release
-          path: ${{ release_name }}.tar.gz # Adjust path based on your requirement
+          path: ${{ env.release_name }}.tar.gz

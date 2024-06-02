@@ -1,7 +1,7 @@
 # Installing The Bot
 This setup will go over the basic installation and configuration of the bot.
 
-## Whats Required?
+## What's Required?
 
 1. Must have a Windows/Linux/MacOS computer that is always running
     - Optionally, you may use a cloud provider (such as [AWS](https://aws.amazon.com/), [Azure](https://azure.microsoft.com/), or [Digital Ocean](https://www.digitalocean.com/))
@@ -9,7 +9,7 @@ This setup will go over the basic installation and configuration of the bot.
     - A [Raspberry Pi](https://www.raspberrypi.com/products/) is a great option for hosting on your home network.
       - It has a low power consumption and a small form factor
 2. An internet connection with access to Instagram and Discord
-3. At least one throw away Instagram account
+3. At least one throwaway Instagram account
 4. A Discord bot token [Instructions here](https://www.writebots.com/discord-bot-token/)
     - The bot account must have the `message content intent` enabled
 
@@ -48,7 +48,7 @@ Open the `config.json` file from the previous step with any text editor (such as
 
 **DMErrors:**
 
-`"DMErrors": true/false,` Set this to `true` or `false` depending on if you want the owner from `OwnerID` to recive certain errors as Discord direct messages.
+`"DMErrors": true/false,` Set this to `true` or `false` depending on if you want the owner from `OwnerID` to receive certain errors as Discord direct messages.
 
 **IGAccounts:**
 
@@ -61,7 +61,7 @@ Open the `config.json` file from the previous step with any text editor (such as
     }
   ],
 ```
-Replace `IG Username` with the username of the throw away Instagram account. Then, replace `IG Password` with the password to the Instagram account. `OTPSecret` needs to contain the key that would be registered in 2-factor authentication apps if the Instagram account has 2-factor authentication enabled. Leave it blank otherwise.
+Replace `IG Username` with the username of the throwaway Instagram account. Then, replace `IG Password` with the password to the Instagram account. `OTPSecret` needs to contain the secret key that would be registered in two-factor authentication apps if the Instagram account has two-factor authentication enabled. Leave it blank otherwise. The secret key is usually 39 characters (including spaces) and not to be confused with a one time password-code (which can be generated from the key).
 
 For multiple accounts, use the following syntax:
 ```
@@ -127,7 +127,7 @@ On Linux and MacOS, find the file named `Instagram Reels Bot` with no extensions
 
 > **_NOTE:_** On Linux, files might need to be made executable bevor you can run them. Run the command `sudo chmod a+x Instagram\ Reels\ Bot` in the same folder as the file, to make it executable for all users.
 
-### Step 8:
+### Step 9:
 Test the bot by typing `/link`. Discord should acknowledge the slash command and show you parameters to enter. Then, put a link to the Instagram post in the `URL` parameter and hit enter. The bot should reply with the contents of the post.
 
 ## Further Configuration:

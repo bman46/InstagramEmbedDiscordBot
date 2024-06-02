@@ -15,6 +15,7 @@ Embeds linked videos and images from users linked Instagram posts, videos, and r
 - Supports subscribing to new posts from Instagram users
 - Multiple IG accounts for failover
 
+See the list of [commands](docs/commands.md) to get an impression of how users can interact with the bot.
 ## Example: 
 ![Example of reels bot on discord](/docs/Content/ReadMe/Example.png)
 

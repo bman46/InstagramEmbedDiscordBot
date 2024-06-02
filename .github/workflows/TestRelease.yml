@@ -48,8 +48,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          tag=$(git describe --tags --abbrev=0)
-          release_name="IGReelsBot-$tag-${{ matrix.target }}"
+          release_name="IGReelsBot-${{ matrix.target }}"
           # Build everything
           dotnet publish "Instagram Reels Bot/Instagram Reels Bot.csproj" --framework net6.0 --runtime "${{ matrix.target }}" --self-contained true -c Release -o "$release_name"
           # Conditionally copy Dockerfile for linux-x64

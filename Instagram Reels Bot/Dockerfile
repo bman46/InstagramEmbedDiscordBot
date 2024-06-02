@@ -15,3 +15,8 @@ VOLUME /app/stateFile
 
 # Set the file that is executed when the container starts.
 ENTRYPOINT ./Instagram\ Reels\ Bot
+
+# Labels for metadata
+LABEL maintainer="FreSchNDE 129771532+FreSchNDE@users.noreply.github.com"
+LABEL description="Docker image for Instagram Reels Bot"
+LABEL dockerfileEdition="1.0"

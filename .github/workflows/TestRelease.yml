@@ -64,3 +64,9 @@ jobs:
           fi
           # Delete output directory
           rm -r "$release_name"
+          
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.target }}-release
+          path: ${{ release_name }}.tar.gz # Adjust path based on your requirement

@@ -1,6 +1,11 @@
 name: Build and Package
 
-on: workflow_dispatch
+on:
+  push:
+    paths:
+      - '.github/workflows/runTest'
+    branches:
+      - DockerSupport
 
 jobs:
   build_and_package:

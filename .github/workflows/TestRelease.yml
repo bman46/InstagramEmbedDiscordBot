@@ -1,0 +1,62 @@
+name: Build and Package
+
+on: workflow_dispatch
+
+jobs:
+  build_and_package:
+    name: Build and Package
+    strategy:
+      matrix:
+        kind: ['linux', 'linuxArm64', 'linuxArm', 'windows','windowsArm64' , 'macOS', 'macOSArm']
+        include:
+          - kind: linux
+            os: ubuntu-latest
+            target: linux-x64
+          - kind: linuxArm64
+            os: ubuntu-latest
+            target: linux-arm64
+          - kind: linuxArm
+            os: ubuntu-latest
+            target: linux-arm
+          - kind: windows
+            os: windows-latest
+            target: win-x64
+          - kind: windowsArm64
+            os: windows-latest
+            target: win-arm64
+          - kind: macOS
+            os: macos-latest
+            target: osx-x64
+          - kind: macOSArm
+            os: macos-latest
+            target: osx-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x'
+          
+      - name: Build
+        shell: bash
+        run: |
+          tag=$(git describe --tags --abbrev=0)
+          release_name="IGReelsBot-$tag-${{ matrix.target }}"
+          # Build everything
+          dotnet publish "Instagram Reels Bot/Instagram Reels Bot.csproj" --framework net6.0 --runtime "${{ matrix.target }}" --self-contained true -c Release -o "$release_name"
+          # Conditionally copy Dockerfile for linux-x64
+          if [ "${{ matrix.target }}" == "linux-x64" ]; then
+            cp "Instagram Reels Bot/Dockerfile" "$release_name"
+          fi
+          # Pack files
+          if [ "${{ matrix.target }}" == "win-x64" ]||[ "${{ matrix.target }}" == "win-arm64" ]||[ "${{ matrix.target }}" == "win-arm" ]; then
+            # Pack to zip for Windows
+            7z a -tzip "${release_name}.zip" "./${release_name}/*"
+          else
+            tar czvf "${release_name}.tar.gz" "$release_name"
+          fi
+          # Delete output directory
+          rm -r "$release_name"

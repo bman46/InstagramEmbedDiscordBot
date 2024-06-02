@@ -49,12 +49,16 @@ jobs:
           release_name="IGReelsBot-$tag-${{ matrix.target }}"
           # Build everything
           dotnet publish "Instagram Reels Bot/Instagram Reels Bot.csproj" --framework net6.0 --runtime "${{ matrix.target }}" --self-contained true -c Release -o "$release_name"
+          # Conditionally copy Dockerfile for linux-x64
+          if [ "${{ matrix.target }}" == "linux-x64" ]; then
+            cp "Instagram Reels Bot/Dockerfile" "$release_name"
+          fi
           # Pack files
           if [ "${{ matrix.target }}" == "win-x64" ]||[ "${{ matrix.target }}" == "win-arm64" ]||[ "${{ matrix.target }}" == "win-arm" ]; then
             # Pack to zip for Windows
             7z a -tzip "${release_name}.zip" "./${release_name}/*"
           else
-          tar czvf "${release_name}.tar.gz" "$release_name"
+            tar czvf "${release_name}.tar.gz" "$release_name"
           fi
           # Delete output directory
           rm -r "$release_name"

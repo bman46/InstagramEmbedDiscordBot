@@ -40,7 +40,7 @@ If the bot does not reply to any of these texts, ensure that the `OwnerID` setti
 ### `accounts` Get Instagram Account Information
 The bot will respond with information about the throwaway Instagram accounts that were set in the `config.json` file. This includes if each account is flagged as broken and will be skipped due to previous errors, and a 2FA OTP code for each account.
 
-### `clear state` Reset Instagram Account State
+### `clearstate` Reset Instagram Account State
 This command will reset the state of all throwaway Instagram accounts that were set in the `config.json` file. The bot will use all the defined accounts again afterwards. The bot will also generate a new virtual Android device for each Instagram account and use it to log into Instagram the next time that account gets used. The bot should reply with `State files removed.`.
 
 This command will not wipe subscriptions made with the subscribe module commands.

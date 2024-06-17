@@ -10,6 +10,7 @@ There are two main ways you can use Docker to run the bot. Either with the `dock
 In both cases, have Docker installed before further following this tutorial. You can select between Docker desktop and command line Docker. Docker desktop offers you a graphical user interface, the commands presented here will still work with it. On Windows, make sure to [add the Docker executable to the Windows path](https://stackoverflow.com/questions/49478343/windows-doesnt-recognize-docker-command) if the console fails to recognize Docker commands.
 
 If you are on Linux or macOS, you might need to run all Docker commands as the administrator. Do that by typing the prefix `sudo` in front of every command that starts with `docker`.
+Alternatively, [add your user to the `docker` group](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user).
 
 ## Without Compose
 

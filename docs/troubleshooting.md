@@ -1,5 +1,5 @@
 # Troubleshooting Guide
-This guide covers how to troubleshoot the bot and common issues that arise during the operation of the bot.
+This guide covers how to troubleshoot the bot and common issues that arise during the operation of the bot. This file does currently not contain troubleshooting steps relating to Docker.
 
 ## How to check that the bot is working
 To check that the bot is working, you can take a look at the command line output of the executable. Send the bot a basic command (like `/link`) as a direct message on Discord, and observe what happens in the output of the executable.

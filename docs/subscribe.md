@@ -2,7 +2,9 @@
 This module allows you to use the `/subscribe` command and get automatic updates from accounts.
 This only works in Discord server channels. Only administrators and users with the role "InstagramBotSubscribe" (case-sensitive) can use commands related to the subscription of Instagram accounts. The subscriptions are independent of the accounts that the throwaway Instagram accounts follow.
 
-The bot executable needs access to a MongoDB database for this module. You can host the database yourself or use an online provider. This tutorial uses the online provider [MongoDB Atlas](https://www.mongodb.com/atlas/database), please sign up for an account before proceeding.
+The bot executable needs access to a MongoDB database for this module. You can host the database yourself, for example with Docker Compose as described in the [Docker guide](./docker/docker.md), or use an online provider. This tutorial uses the online provider [MongoDB Atlas](https://www.mongodb.com/atlas/database), please sign up for an account before proceeding.
+If you choose to self-host the database, you still might want to take a look at the configuration file settings explained in step three.
+
 > :warning: **Note**: [MongoDB Atlas](https://www.mongodb.com/atlas/database) usage may be [billed](https://www.mongodb.com/pricing), but there is a free tier as of writing this.
 > 
 > Alternatively, you may self host MongoDB for free. There are plenty of tutorials online for this.

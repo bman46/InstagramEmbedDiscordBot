@@ -17,8 +17,15 @@ public partial class DmCommands {
         // Clear statefiles:
         string stateFile = Path.Combine(Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "StateFiles");
         if (Directory.Exists(stateFile)) {
-            Directory.Delete(stateFile, true);
-            Directory.CreateDirectory(stateFile);
+            // Delete all files in the directory
+            foreach (string file in Directory.GetFiles(stateFile)) {
+                File.Delete(file);
+            }
+
+            // Delete all subdirectories and their contents
+            foreach (string dir in Directory.GetDirectories(stateFile)) {
+                Directory.Delete(dir, true);
+            }
         } else {
             await message.ReplyAsync("Folder not found. Skipping folder removal.");
         }

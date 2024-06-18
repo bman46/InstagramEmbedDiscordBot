@@ -22,6 +22,8 @@ See the list of [commands](docs/commands.md) to get an impression of how users c
 ## Setup
 See the [installation guide](docs/Install.md) for steps to setup the bot. For troubleshooting help, see the [troubleshooting guide](docs/troubleshooting.md).
 
+This bot can also be run with Docker, see the [Docker guide](docs/docker/docker.md) for instructions on how to do that.
+
 ### Config.json format:
 Create a new file named `config.json`, copy and paste the contents below into it, fill it out, and then save it in the same directory as the Instagram Embed executable file. Replace any fields that are optional and not filled in with `""`. Example: `"OTPSecret": "",`. If you get an error with your JSON formatting, you can check your JSON syntax on [jsonlint.com](https://jsonlint.com/).
 ```

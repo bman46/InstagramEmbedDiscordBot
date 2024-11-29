@@ -1,0 +1,42 @@
+services:
+  igreelsbot:
+    build: ./IGReelsBot
+    container_name: botContainer
+    volumes:
+      - botVolume:/app/stateFile
+      - ./config.json:/app/config.json:ro
+    depends_on:
+      igreelsbotDB:
+        condition: service_healthy
+    networks:
+      - botNetwork
+      
+  igreelsbotDB:
+    image: mongo:latest
+    container_name: botDatabaseContainer
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: YOURPASSWORDHERE
+    volumes:
+      - botDatabaseVolume:/data/db
+      - botConfigDatabaseVolume:/data/configdb
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 20s
+    networks:
+      - botNetwork
+
+volumes:
+  botVolume:
+    name: "botVolume"
+  botDatabaseVolume:
+    name: "botDatabaseVolume"
+  botConfigDatabaseVolume:
+    name: "botConfigDatabaseVolume"
+
+networks:
+  botNetwork:
+    name: botNetwork
